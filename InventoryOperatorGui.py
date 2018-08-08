@@ -11,7 +11,7 @@ import wx
 import wx.xrc
 
 ###########################################################################
-## Class MyFrame2
+## Class InventoryOperatorGUI
 ###########################################################################
 
 class InventoryOperatorGUI ( wx.Frame ):
@@ -19,11 +19,11 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Inventory Operator", pos = wx.DefaultPosition, size = wx.Size( 697,523 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 		
-		fgSizer5 = wx.FlexGridSizer( 3, 1, 0, 0 )
+		fgSizer5 = wx.FlexGridSizer( 5, 1, 0, 0 )
 		fgSizer5.SetFlexibleDirection( wx.BOTH )
 		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
