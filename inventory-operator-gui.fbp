@@ -42,7 +42,7 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">MyFrame2</property>
+            <property name="name">InventoryOperator</property>
             <property name="pos"></property>
             <property name="size">697,523</property>
             <property name="style">wxDEFAULT_FRAME_STYLE</property>
