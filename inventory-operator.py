@@ -93,7 +93,7 @@ class MyFrame2 ( wx.Frame ):
 		self.m_staticTextDictionaryID.Wrap( -1 )
 		fgSizer6.Add( self.m_staticTextDictionaryID, 0, wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"辞書取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"辞書ID取得", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer6.Add( self.m_buttonGetDictionary, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText27 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"フォルダー", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -107,7 +107,7 @@ class MyFrame2 ( wx.Frame ):
 		self.m_staticTextFolderID.Wrap( -1 )
 		fgSizer6.Add( self.m_staticTextFolderID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_buttonGetFolder = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"フォルダー取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetFolder = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"フォルダーID取得", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer6.Add( self.m_buttonGetFolder, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_staticText29 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -122,24 +122,6 @@ class MyFrame2 ( wx.Frame ):
 		self.m_staticText30.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText30, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText32 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText32.Wrap( -1 )
-		fgSizer6.Add( self.m_staticText32, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText33 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"設定ファイル", wx.DefaultPosition, wx.Size( 80,-1 ), 0 )
-		self.m_staticText33.Wrap( -1 )
-		fgSizer6.Add( self.m_staticText33, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_textCtrlConfFileName = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer6.Add( self.m_textCtrlConfFileName, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText46 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText46.Wrap( -1 )
-		fgSizer6.Add( self.m_staticText46, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_buttonBrowseConfFile = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer6.Add( self.m_buttonBrowseConfFile, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
 		self.m_staticText45 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText45.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText45, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -152,6 +134,10 @@ class MyFrame2 ( wx.Frame ):
 		self.m_staticText36.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText36, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.m_staticText32 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText32.Wrap( -1 )
+		fgSizer6.Add( self.m_staticText32, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
 		self.m_buttonGetInventory = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Inventory取得", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer6.Add( self.m_buttonGetInventory, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
@@ -163,9 +149,23 @@ class MyFrame2 ( wx.Frame ):
 		
 		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"インベントリ反映" ), wx.VERTICAL )
 		
-		fgSizer7 = wx.FlexGridSizer( 8, 3, 0, 0 )
+		fgSizer7 = wx.FlexGridSizer( 8, 4, 0, 0 )
 		fgSizer7.SetFlexibleDirection( wx.BOTH )
 		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText46 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"設定ファイル", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText46.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText46, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrlConfFileName = wx.TextCtrl( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer7.Add( self.m_textCtrlConfFileName, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText33 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), 0 )
+		self.m_staticText33.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText33, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_buttonBrowseConfFile = wx.Button( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer7.Add( self.m_buttonBrowseConfFile, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
 		sbSizer7.Add( fgSizer7, 1, wx.EXPAND, 5 )
@@ -173,7 +173,32 @@ class MyFrame2 ( wx.Frame ):
 		
 		fgSizer5.Add( sbSizer7, 1, wx.EXPAND, 5 )
 		
-		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"label" ), wx.VERTICAL )
+		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"設定" ), wx.VERTICAL )
+		
+		fgSizer9 = wx.FlexGridSizer( 5, 2, 0, 0 )
+		fgSizer9.SetFlexibleDirection( wx.BOTH )
+		fgSizer9.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText47 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Reference URL（取得側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText47.Wrap( -1 )
+		fgSizer9.Add( self.m_staticText47, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		m_comboBoxReferenceURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-api/v3" ]
+		self.m_comboBoxReferenceURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, m_comboBoxReferenceURLChoices, 0 )
+		self.m_comboBoxReferenceURL.SetSelection( 0 )
+		fgSizer9.Add( self.m_comboBoxReferenceURL, 0, wx.ALL, 5 )
+		
+		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Update URL（設定側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText48.Wrap( -1 )
+		fgSizer9.Add( self.m_staticText48, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		m_comboBoxUpdateURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-update-api/v3", u"https://nims.mintsys.jp:50443/inventory-update-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://nims.mintsys.jp:50443/inventory-update-api/v3" ]
+		self.m_comboBoxUpdateURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, m_comboBoxUpdateURLChoices, 0 )
+		self.m_comboBoxUpdateURL.SetSelection( 0 )
+		fgSizer9.Add( self.m_comboBoxUpdateURL, 0, wx.ALL, 5 )
+		
+		
+		sbSizer8.Add( fgSizer9, 1, wx.EXPAND, 5 )
 		
 		
 		fgSizer5.Add( sbSizer8, 1, wx.EXPAND, 5 )
@@ -191,8 +216,8 @@ class MyFrame2 ( wx.Frame ):
 		self.m_buttonGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonGetAccessTokenOnButtonClick )
 		self.m_buttonGetDictionary.Bind( wx.EVT_BUTTON, self.m_buttonGetDictionaryOnButtonClick )
 		self.m_buttonGetFolder.Bind( wx.EVT_BUTTON, self.m_buttonGetFolderOnButtonClick )
-		self.m_buttonBrowseConfFile.Bind( wx.EVT_BUTTON, self.m_buttonBrowseConfFileOnButtonClick )
 		self.m_buttonGetInventory.Bind( wx.EVT_BUTTON, self.m_buttonGetInventoryOnButtonClick )
+		self.m_buttonBrowseConfFile.Bind( wx.EVT_BUTTON, self.m_buttonBrowseConfFileOnButtonClick )
 	
 	def __del__( self ):
 		pass
@@ -208,10 +233,10 @@ class MyFrame2 ( wx.Frame ):
 	def m_buttonGetFolderOnButtonClick( self, event ):
 		event.Skip()
 	
-	def m_buttonBrowseConfFileOnButtonClick( self, event ):
+	def m_buttonGetInventoryOnButtonClick( self, event ):
 		event.Skip()
 	
-	def m_buttonGetInventoryOnButtonClick( self, event ):
+	def m_buttonBrowseConfFileOnButtonClick( self, event ):
 		event.Skip()
 	
 
