@@ -270,7 +270,7 @@
                                                 <property name="pos"></property>
                                                 <property name="resize">Resizable</property>
                                                 <property name="show">1</property>
-                                                <property name="size"></property>
+                                                <property name="size">150,-1</property>
                                                 <property name="style"></property>
                                                 <property name="subclass">; forward_declare</property>
                                                 <property name="toolbar_pane">0</property>
@@ -689,7 +689,7 @@
                                                 <property name="gripper">0</property>
                                                 <property name="hidden">0</property>
                                                 <property name="id">wxID_ANY</property>
-                                                <property name="label">Reference URL（取得側サーバー）</property>
+                                                <property name="label">Reference URL</property>
                                                 <property name="max_size"></property>
                                                 <property name="maximize_button">0</property>
                                                 <property name="maximum_size"></property>
@@ -714,7 +714,7 @@
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>
-                                                <property name="wrap">2</property>
+                                                <property name="wrap">-1</property>
                                                 <event name="OnChar"></event>
                                                 <event name="OnEnterWindow"></event>
                                                 <event name="OnEraseBackground"></event>
@@ -1330,7 +1330,7 @@
                                                 <property name="pos"></property>
                                                 <property name="resize">Resizable</property>
                                                 <property name="show">1</property>
-                                                <property name="size"></property>
+                                                <property name="size">150,-1</property>
                                                 <property name="style"></property>
                                                 <property name="subclass">; forward_declare</property>
                                                 <property name="toolbar_pane">0</property>
@@ -1675,7 +1675,7 @@
                                                 <property name="pos"></property>
                                                 <property name="resize">Resizable</property>
                                                 <property name="show">1</property>
-                                                <property name="size"></property>
+                                                <property name="size">150,-1</property>
                                                 <property name="style"></property>
                                                 <property name="subclass">; forward_declare</property>
                                                 <property name="toolbar_pane">0</property>
@@ -3100,7 +3100,7 @@
                                                 <property name="pos"></property>
                                                 <property name="resize">Resizable</property>
                                                 <property name="show">1</property>
-                                                <property name="size"></property>
+                                                <property name="size">150,-1</property>
                                                 <property name="style"></property>
                                                 <property name="subclass">; forward_declare</property>
                                                 <property name="toolbar_pane">0</property>
@@ -3519,7 +3519,7 @@
                                                 <property name="gripper">0</property>
                                                 <property name="hidden">0</property>
                                                 <property name="id">wxID_ANY</property>
-                                                <property name="label">UpdateURL （設定側サーバー）</property>
+                                                <property name="label">Update URL</property>
                                                 <property name="max_size"></property>
                                                 <property name="maximize_button">0</property>
                                                 <property name="maximum_size"></property>
@@ -3544,7 +3544,7 @@
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>
-                                                <property name="wrap">2</property>
+                                                <property name="wrap">-1</property>
                                                 <event name="OnChar"></event>
                                                 <event name="OnEnterWindow"></event>
                                                 <event name="OnEraseBackground"></event>

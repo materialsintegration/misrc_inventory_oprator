@@ -37,7 +37,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText24.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText24, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_textCtrlReferenceUserID = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrlReferenceUserID = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
 		fgSizer8.Add( self.m_textCtrlReferenceUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText28 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -54,8 +54,8 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonReferenceGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer8.Add( self.m_buttonReferenceGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText47 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Reference URL（取得側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText47.Wrap( 2 )
+		self.m_staticText47 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Reference URL", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText47.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText47, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		m_comboBoxReferenceURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-api/v3" ]
@@ -95,7 +95,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText26.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText26, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrlDictionary = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrlDictionary = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
 		fgSizer6.Add( self.m_textCtrlDictionary, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticTextDictionaryID = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), 0 )
@@ -109,7 +109,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText27.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText27, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrlFolder = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrlFolder = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
 		fgSizer6.Add( self.m_textCtrlFolder, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticTextFolderID = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), 0 )
@@ -192,7 +192,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText241.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText241, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrlUserUpdateID = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrlUserUpdateID = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
 		fgSizer9.Add( self.m_textCtrlUserUpdateID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText281 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -209,8 +209,8 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonUpdateGetAccessToken = wx.Button( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer9.Add( self.m_buttonUpdateGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"UpdateURL （設定側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText48.Wrap( 2 )
+		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Update URL", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText48.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText48, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		m_comboBoxUpdateURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-update-api/v3", u"https://nims.mintsys.jp:50443/inventory-update-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://nims.mintsys.jp:50443/inventory-update-api/v3" ]
