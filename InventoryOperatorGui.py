@@ -27,7 +27,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer5.SetFlexibleDirection( wx.BOTH )
 		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		sbSizer10 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"ÉÜÅ[ÉUÅ[èÓïÒ" ), wx.VERTICAL )
+		sbSizer10 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"„É¶„Éº„Ç∂„ÉºÊÉÖÂ†±" ), wx.VERTICAL )
 		
 		fgSizer8 = wx.FlexGridSizer( 4, 3, 0, 0 )
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
@@ -51,7 +51,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_textCtrlAccessToken = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
 		fgSizer8.Add( self.m_textCtrlAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_buttonGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"TokenéÊìæ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"TokenÂèñÂæó", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer8.Add( self.m_buttonGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -60,7 +60,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		fgSizer5.Add( sbSizer10, 1, wx.EXPAND, 5 )
 		
-		sbSizer5 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"ÉCÉìÉxÉìÉgÉäéÊìæ" ), wx.VERTICAL )
+		sbSizer5 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"„Ç§„É≥„Éô„É≥„Éà„É™ÂèñÂæó" ), wx.VERTICAL )
 		
 		fgSizer6 = wx.FlexGridSizer( 8, 4, 0, 0 )
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
@@ -70,11 +70,11 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText37.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText37, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText38 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"ñºèÃ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText38 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"ÂêçÁß∞", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText38.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText38, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText39 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"IDî‘çÜ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText39 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"IDÁï™Âè∑", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText39.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText39, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
@@ -82,7 +82,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText40.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText40, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText26 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"é´èë", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText26 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"ËæûÊõ∏", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText26.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText26, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
@@ -93,10 +93,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticTextDictionaryID.Wrap( -1 )
 		fgSizer6.Add( self.m_staticTextDictionaryID, 0, wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"é´èëIDéÊìæ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"ËæûÊõ∏IDÂèñÂæó", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer6.Add( self.m_buttonGetDictionary, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText27 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"ÉtÉHÉãÉ_Å[", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText27 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"„Éï„Ç©„É´„ÉÄ„Éº", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText27.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText27, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
@@ -107,7 +107,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticTextFolderID.Wrap( -1 )
 		fgSizer6.Add( self.m_staticTextFolderID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_buttonGetFolder = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"ÉtÉHÉãÉ_Å[IDéÊìæ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetFolder = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"„Éï„Ç©„É´„ÉÄ„ÉºIDÂèñÂæó", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer6.Add( self.m_buttonGetFolder, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_staticText29 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -138,7 +138,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText32.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText32, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_buttonGetInventory = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"InventoryéÊìæ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetInventory = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"InventoryÂèñÂæó", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer6.Add( self.m_buttonGetInventory, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -147,13 +147,13 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		fgSizer5.Add( sbSizer5, 1, wx.EXPAND, 5 )
 		
-		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"ÉCÉìÉxÉìÉgÉäîΩâf" ), wx.VERTICAL )
+		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"„Ç§„É≥„Éô„É≥„Éà„É™ÂèçÊò†" ), wx.VERTICAL )
 		
 		fgSizer7 = wx.FlexGridSizer( 8, 4, 0, 0 )
 		fgSizer7.SetFlexibleDirection( wx.BOTH )
 		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText46 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"ê›íËÉtÉ@ÉCÉã", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText46 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Ë®≠ÂÆö„Éï„Ç°„Ç§„É´", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText46.Wrap( -1 )
 		fgSizer7.Add( self.m_staticText46, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
@@ -173,13 +173,13 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		fgSizer5.Add( sbSizer7, 1, wx.EXPAND, 5 )
 		
-		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"ê›íË" ), wx.VERTICAL )
+		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Ë®≠ÂÆö" ), wx.VERTICAL )
 		
 		fgSizer9 = wx.FlexGridSizer( 5, 2, 0, 0 )
 		fgSizer9.SetFlexibleDirection( wx.BOTH )
 		fgSizer9.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText47 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Reference URLÅiéÊìæë§ÉTÅ[ÉoÅ[Åj", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText47 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Reference URLÔºàÂèñÂæóÂÅ¥„Çµ„Éº„Éê„ÉºÔºâ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText47.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText47, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
@@ -188,7 +188,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_comboBoxReferenceURL.SetSelection( 0 )
 		fgSizer9.Add( self.m_comboBoxReferenceURL, 0, wx.ALL, 5 )
 		
-		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Update URLÅiê›íËë§ÉTÅ[ÉoÅ[Åj", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Update URLÔºàË®≠ÂÆöÂÅ¥„Çµ„Éº„Éê„ÉºÔºâ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText48.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText48, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
