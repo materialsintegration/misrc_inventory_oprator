@@ -239,7 +239,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonGetFolder.Bind( wx.EVT_BUTTON, self.m_buttonGetFolderOnButtonClick )
 		self.m_buttonGetInventory.Bind( wx.EVT_BUTTON, self.m_buttonGetInventoryOnButtonClick )
 		self.m_buttonBrowseConfFile.Bind( wx.EVT_BUTTON, self.m_buttonBrowseConfFileOnButtonClick )
-		self.m_buttonUpdateGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonGetAccessTokenOnButtonClick )
+		self.m_buttonUpdateGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonUpdateGetAccessTokenOnButtonClick )
 	
 	def __del__( self ):
 		pass
@@ -261,7 +261,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def m_buttonBrowseConfFileOnButtonClick( self, event ):
 		event.Skip()
 	
-	def m_buttonGetAccessTokenOnButtonClick( self, event ):
+	def m_buttonUpdateGetAccessTokenOnButtonClick( self, event ):
 		event.Skip()
 	
 

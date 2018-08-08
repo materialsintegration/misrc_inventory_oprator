@@ -3461,7 +3461,7 @@
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>
-                                                <event name="OnButtonClick">m_buttonGetAccessTokenOnButtonClick</event>
+                                                <event name="OnButtonClick">m_buttonUpdateGetAccessTokenOnButtonClick</event>
                                                 <event name="OnChar"></event>
                                                 <event name="OnEnterWindow"></event>
                                                 <event name="OnEraseBackground"></event>
