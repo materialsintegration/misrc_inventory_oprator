@@ -37,22 +37,31 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText24.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText24, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_textCtrlUserID = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer8.Add( self.m_textCtrlUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_textCtrlReferenceUserID = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer8.Add( self.m_textCtrlReferenceUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText28 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText28.Wrap( -1 )
-		fgSizer8.Add( self.m_staticText28, 0, wx.ALL, 5 )
+		fgSizer8.Add( self.m_staticText28, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText25 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText25, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrlAccessToken = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
-		fgSizer8.Add( self.m_textCtrlAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_textCtrlReferenceAccessToken = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+		fgSizer8.Add( self.m_textCtrlReferenceAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_buttonGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer8.Add( self.m_buttonGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_buttonReferenceGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer8.Add( self.m_buttonReferenceGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText47 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Reference URL（取得側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText47.Wrap( 2 )
+		fgSizer8.Add( self.m_staticText47, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		m_comboBoxReferenceURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-api/v3" ]
+		self.m_comboBoxReferenceURL = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, m_comboBoxReferenceURLChoices, 0 )
+		self.m_comboBoxReferenceURL.SetSelection( 0 )
+		fgSizer8.Add( self.m_comboBoxReferenceURL, 0, wx.ALL, 5 )
 		
 		
 		sbSizer10.Add( fgSizer8, 1, wx.EXPAND, 5 )
@@ -175,26 +184,38 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"設定" ), wx.VERTICAL )
 		
-		fgSizer9 = wx.FlexGridSizer( 5, 2, 0, 0 )
+		fgSizer9 = wx.FlexGridSizer( 5, 3, 0, 0 )
 		fgSizer9.SetFlexibleDirection( wx.BOTH )
 		fgSizer9.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText47 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Reference URL（取得側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText47.Wrap( -1 )
-		fgSizer9.Add( self.m_staticText47, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_staticText241 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"UserID", wx.DefaultPosition, wx.Size( 80,-1 ), 0 )
+		self.m_staticText241.Wrap( -1 )
+		fgSizer9.Add( self.m_staticText241, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		m_comboBoxReferenceURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-api/v3" ]
-		self.m_comboBoxReferenceURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, m_comboBoxReferenceURLChoices, 0 )
-		self.m_comboBoxReferenceURL.SetSelection( 0 )
-		fgSizer9.Add( self.m_comboBoxReferenceURL, 0, wx.ALL, 5 )
+		self.m_textCtrlUserUpdateID = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer9.Add( self.m_textCtrlUserUpdateID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Update URL（設定側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText48.Wrap( -1 )
+		self.m_staticText281 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText281.Wrap( -1 )
+		fgSizer9.Add( self.m_staticText281, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText251 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText251.Wrap( -1 )
+		fgSizer9.Add( self.m_staticText251, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrlUpdateAccessToken = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+		fgSizer9.Add( self.m_textCtrlUpdateAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_buttonUpdateGetAccessToken = wx.Button( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer9.Add( self.m_buttonUpdateGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"UpdateURL （設定側サーバー）", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText48.Wrap( 2 )
 		fgSizer9.Add( self.m_staticText48, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		m_comboBoxUpdateURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-update-api/v3", u"https://nims.mintsys.jp:50443/inventory-update-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://nims.mintsys.jp:50443/inventory-update-api/v3" ]
-		self.m_comboBoxUpdateURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, m_comboBoxUpdateURLChoices, 0 )
-		self.m_comboBoxUpdateURL.SetSelection( 0 )
+		self.m_comboBoxUpdateURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", wx.DefaultPosition, wx.DefaultSize, m_comboBoxUpdateURLChoices, 0 )
+		self.m_comboBoxUpdateURL.SetSelection( 2 )
 		fgSizer9.Add( self.m_comboBoxUpdateURL, 0, wx.ALL, 5 )
 		
 		
@@ -213,18 +234,19 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.m_buttonGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonGetAccessTokenOnButtonClick )
+		self.m_buttonReferenceGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonReferenceGetAccessTokenOnButtonClick )
 		self.m_buttonGetDictionary.Bind( wx.EVT_BUTTON, self.m_buttonGetDictionaryOnButtonClick )
 		self.m_buttonGetFolder.Bind( wx.EVT_BUTTON, self.m_buttonGetFolderOnButtonClick )
 		self.m_buttonGetInventory.Bind( wx.EVT_BUTTON, self.m_buttonGetInventoryOnButtonClick )
 		self.m_buttonBrowseConfFile.Bind( wx.EVT_BUTTON, self.m_buttonBrowseConfFileOnButtonClick )
+		self.m_buttonUpdateGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonGetAccessTokenOnButtonClick )
 	
 	def __del__( self ):
 		pass
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def m_buttonGetAccessTokenOnButtonClick( self, event ):
+	def m_buttonReferenceGetAccessTokenOnButtonClick( self, event ):
 		event.Skip()
 	
 	def m_buttonGetDictionaryOnButtonClick( self, event ):
@@ -237,6 +259,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 		event.Skip()
 	
 	def m_buttonBrowseConfFileOnButtonClick( self, event ):
+		event.Skip()
+	
+	def m_buttonGetAccessTokenOnButtonClick( self, event ):
 		event.Skip()
 	
 
