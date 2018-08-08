@@ -234,6 +234,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.InventoryOperatorGUIOnClose )
 		self.m_buttonReferenceGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonReferenceGetAccessTokenOnButtonClick )
 		self.m_buttonGetDictionary.Bind( wx.EVT_BUTTON, self.m_buttonGetDictionaryOnButtonClick )
 		self.m_buttonGetFolder.Bind( wx.EVT_BUTTON, self.m_buttonGetFolderOnButtonClick )
@@ -246,6 +247,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def InventoryOperatorGUIOnClose( self, event ):
+		event.Skip()
+	
 	def m_buttonReferenceGetAccessTokenOnButtonClick( self, event ):
 		event.Skip()
 	
