@@ -31,9 +31,8 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		bSizer7 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_treeListCtrlDictionaryFolder = wx.TreeListCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( 300,200 ), wx.TL_DEFAULT_STYLE )
-		
-		bSizer7.Add( self.m_treeListCtrlDictionaryFolder, 0, 0, 5 )
+		self.m_treeCtrlSelections = wx.TreeCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,200 ), wx.TR_DEFAULT_STYLE|wx.TR_HAS_BUTTONS|wx.TR_ROW_LINES|wx.TR_SINGLE )
+		bSizer7.Add( self.m_treeCtrlSelections, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダ一覧", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer7.Add( self.m_buttonGetDictionary, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 5 )
@@ -270,7 +269,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		# Connect Events
 		self.Bind( wx.EVT_CLOSE, self.InventoryOperatorGUIOnClose )
-		self.m_treeListCtrlDictionaryFolder.Bind( wx.EVT_TREELIST_SELECTION_CHANGED, self.m_treeListCtrlDictionaryFolderOnTreelistSelectionChanged )
+		self.m_treeCtrlSelections.Bind( wx.EVT_TREE_ITEM_ACTIVATED, self.m_treeCtrlSelectionsOnTreeItemActivated )
+		self.m_treeCtrlSelections.Bind( wx.EVT_TREE_KEY_DOWN, self.m_treeCtrlSelectionsOnTreeKeyDown )
+		self.m_treeCtrlSelections.Bind( wx.EVT_TREE_SEL_CHANGED, self.m_treeCtrlSelectionsOnTreeSelChanged )
+		self.m_treeCtrlSelections.Bind( wx.EVT_TREE_SEL_CHANGING, self.m_treeCtrlSelectionsOnTreeSelChanging )
 		self.m_buttonGetDictionary.Bind( wx.EVT_BUTTON, self.m_buttonGetDictionaryOnButtonClick )
 		self.m_buttonConfFileNameSave.Bind( wx.EVT_BUTTON, self.m_buttonConfFileNameSaveOnButtonClick )
 		self.m_buttonGetInventory.Bind( wx.EVT_BUTTON, self.m_buttonGetInventoryOnButtonClick )
@@ -287,7 +289,16 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def InventoryOperatorGUIOnClose( self, event ):
 		event.Skip()
 	
-	def m_treeListCtrlDictionaryFolderOnTreelistSelectionChanged( self, event ):
+	def m_treeCtrlSelectionsOnTreeItemActivated( self, event ):
+		event.Skip()
+	
+	def m_treeCtrlSelectionsOnTreeKeyDown( self, event ):
+		event.Skip()
+	
+	def m_treeCtrlSelectionsOnTreeSelChanged( self, event ):
+		event.Skip()
+	
+	def m_treeCtrlSelectionsOnTreeSelChanging( self, event ):
 		event.Skip()
 	
 	def m_buttonGetDictionaryOnButtonClick( self, event ):

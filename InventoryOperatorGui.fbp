@@ -280,11 +280,11 @@
                                                     <property name="name">bSizer7</property>
                                                     <property name="orient">wxHORIZONTAL</property>
                                                     <property name="permission">none</property>
-                                                    <object class="sizeritem" expanded="0">
+                                                    <object class="sizeritem" expanded="1">
                                                         <property name="border">5</property>
-                                                        <property name="flag"></property>
-                                                        <property name="proportion">0</property>
-                                                        <object class="wxTreeListCtrl" expanded="0">
+                                                        <property name="flag">wxALL|wxEXPAND</property>
+                                                        <property name="proportion">1</property>
+                                                        <object class="wxTreeCtrl" expanded="1">
                                                             <property name="BottomDockable">1</property>
                                                             <property name="LeftDockable">1</property>
                                                             <property name="RightDockable">1</property>
@@ -319,7 +319,7 @@
                                                             <property name="minimize_button">0</property>
                                                             <property name="minimum_size"></property>
                                                             <property name="moveable">1</property>
-                                                            <property name="name">m_treeListCtrlDictionaryFolder</property>
+                                                            <property name="name">m_treeCtrlSelections</property>
                                                             <property name="pane_border">1</property>
                                                             <property name="pane_position"></property>
                                                             <property name="pane_size"></property>
@@ -328,8 +328,8 @@
                                                             <property name="pos"></property>
                                                             <property name="resize">Resizable</property>
                                                             <property name="show">1</property>
-                                                            <property name="size">300,200</property>
-                                                            <property name="style">wxTL_DEFAULT_STYLE</property>
+                                                            <property name="size">-1,200</property>
+                                                            <property name="style">wxTR_DEFAULT_STYLE|wxTR_HAS_BUTTONS|wxTR_ROW_LINES|wxTR_SINGLE</property>
                                                             <property name="subclass">; forward_declare</property>
                                                             <property name="toolbar_pane">0</property>
                                                             <property name="tooltip"></property>
@@ -358,13 +358,27 @@
                                                             <event name="OnRightUp"></event>
                                                             <event name="OnSetFocus"></event>
                                                             <event name="OnSize"></event>
-                                                            <event name="OnTreelistColumnSorted"></event>
-                                                            <event name="OnTreelistItemActivated"></event>
-                                                            <event name="OnTreelistItemChecked"></event>
-                                                            <event name="OnTreelistItemContextMenu"></event>
-                                                            <event name="OnTreelistItemExpanded"></event>
-                                                            <event name="OnTreelistItemExpanding"></event>
-                                                            <event name="OnTreelistSelectionChanged">m_treeListCtrlDictionaryFolderOnTreelistSelectionChanged</event>
+                                                            <event name="OnTreeBeginDrag"></event>
+                                                            <event name="OnTreeBeginLabelEdit"></event>
+                                                            <event name="OnTreeBeginRDrag"></event>
+                                                            <event name="OnTreeDeleteItem"></event>
+                                                            <event name="OnTreeEndDrag"></event>
+                                                            <event name="OnTreeEndLabelEdit"></event>
+                                                            <event name="OnTreeGetInfo"></event>
+                                                            <event name="OnTreeItemActivated">m_treeCtrlSelectionsOnTreeItemActivated</event>
+                                                            <event name="OnTreeItemCollapsed"></event>
+                                                            <event name="OnTreeItemCollapsing"></event>
+                                                            <event name="OnTreeItemExpanded"></event>
+                                                            <event name="OnTreeItemExpanding"></event>
+                                                            <event name="OnTreeItemGetTooltip"></event>
+                                                            <event name="OnTreeItemMenu"></event>
+                                                            <event name="OnTreeItemMiddleClick"></event>
+                                                            <event name="OnTreeItemRightClick"></event>
+                                                            <event name="OnTreeKeyDown">m_treeCtrlSelectionsOnTreeKeyDown</event>
+                                                            <event name="OnTreeSelChanged">m_treeCtrlSelectionsOnTreeSelChanged</event>
+                                                            <event name="OnTreeSelChanging">m_treeCtrlSelectionsOnTreeSelChanging</event>
+                                                            <event name="OnTreeSetInfo"></event>
+                                                            <event name="OnTreeStateImageClick"></event>
                                                             <event name="OnUpdateUI"></event>
                                                         </object>
                                                     </object>
