@@ -329,7 +329,7 @@
                                                             <property name="resize">Resizable</property>
                                                             <property name="show">1</property>
                                                             <property name="size">-1,200</property>
-                                                            <property name="style">wxTR_DEFAULT_STYLE|wxTR_HAS_BUTTONS|wxTR_HIDE_ROOT|wxTR_LINES_AT_ROOT</property>
+                                                            <property name="style">wxTR_DEFAULT_STYLE|wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT</property>
                                                             <property name="subclass">; forward_declare</property>
                                                             <property name="toolbar_pane">0</property>
                                                             <property name="tooltip"></property>
