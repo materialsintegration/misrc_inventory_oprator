@@ -139,7 +139,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText47.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText47, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		m_comboBoxReferenceURLChoices = [ u"https://nims.mintsys.jp:50443/inventory-api/v3", u"https://dev-u-tokyo.mintsys.jp:50443/inventory-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-api/v3" ]
+		m_comboBoxReferenceURLChoices = [ u"https://nims.mintsys.jp:50443", u"https://dev-u-tokyo.mintsys.jp:50443", u"https://u-tokyo.mintsys.jp:50443" ]
 		self.m_comboBoxReferenceURL = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, m_comboBoxReferenceURLChoices, 0 )
 		self.m_comboBoxReferenceURL.SetSelection( 0 )
 		fgSizer8.Add( self.m_comboBoxReferenceURL, 0, wx.ALL, 5 )
@@ -154,7 +154,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoriReference.SetSizer( bSizer8 )
 		self.m_panelInventoriReference.Layout()
 		bSizer8.Fit( self.m_panelInventoriReference )
-		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", False )
+		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", True )
 		self.m_panelInventoryUpdate = wx.Panel( self.m_notebook2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -297,7 +297,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText48.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText48, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		m_comboBoxUpdateURLChoices = [ u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://u-tokyo.mintsys.jp:50443/inventory-update-api/v3", u"https://nims.mintsys.jp:50443/inventory-update-api/v3" ]
+		m_comboBoxUpdateURLChoices = [ u"https://dev-u-tokyo.mintsys.jp:50443", u"https://u-tokyo.mintsys.jp:50443", u"https://nims.mintsys.jp:50443" ]
 		self.m_comboBoxUpdateURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", wx.DefaultPosition, wx.DefaultSize, m_comboBoxUpdateURLChoices, 0 )
 		self.m_comboBoxUpdateURL.SetSelection( 2 )
 		fgSizer9.Add( self.m_comboBoxUpdateURL, 0, wx.ALL, 5 )
@@ -312,7 +312,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoryUpdate.SetSizer( bSizer9 )
 		self.m_panelInventoryUpdate.Layout()
 		bSizer9.Fit( self.m_panelInventoryUpdate )
-		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", True )
+		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", False )
 		
 		bSizer4.Add( self.m_notebook2, 1, wx.EXPAND |wx.ALL, 5 )
 		
