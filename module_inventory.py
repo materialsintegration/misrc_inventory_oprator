@@ -16,8 +16,8 @@ import sys
 import requests
 import json
 
-from miapi.system.command_line_interpreter import CommandLineInterpreter
-from miapi.system import runinfo
+#from miapi.system.command_line_interpreter import CommandLineInterpreter
+#from miapi.system import runinfo
 
 # -----------------------------------
 # module variable

@@ -14,12 +14,16 @@
 import os
 import sys
 import ast
-import configparser
+if sys.version_info[0] <= 2:
+    import ConfigParser
+    from urlparse import urlparse
+else:
+    import configparser
+    from urllib.parse import urlparse
 import requests
 import json
 import codecs
 import time
-from urllib.parse import urlparse
 
 import module_inventory as inv
 
@@ -99,7 +103,11 @@ def configParse(file_path) :
     if not os.path.exists(file_path) :
         raise IOError(file_path)
 
-    parser = configparser.ConfigParser()
+    if sys.version_info[0] <= 2:
+        parser = ConfigParser.SafeConfigParser()
+    else:
+        parser = configparser.ConfigParser()
+
     parser.read(file_path)
 
     ### Convert to dictionary
@@ -140,7 +148,8 @@ def configParse(file_path) :
 # main
 # =======================================
 
-def main():
+def postInventory_main(webapi_updroot):
+
     stime = time.time()
     print('----- start postInventory script -----')    
 
@@ -197,7 +206,7 @@ def main():
 
         f.close()
 
-    print(json.dumps(jsonData, ensure_ascii=False, indent=4))
+    #print(json.dumps(jsonData, ensure_ascii=False, indent=4))
     print('---------------------------------')
 
     #sys.exit()
@@ -205,7 +214,7 @@ def main():
     # ///////////////////////////////
     # update webapi
     # ///////////////////////////////
-    print('update resource...')
+    print('update resource to %s ...'%webapi_updroot)
 
     jstat = {}
     oldIDs = []
@@ -285,8 +294,16 @@ def main():
     print("normal completion of " + __file__ + "!!!")
     etime = time.time()
     print ('total time:' + str(etime - stime))
-    sys.exit()
+    #sys.exit()
     
 
 if __name__== '__main__':
-    main()
+
+    param = None
+    if len(sys.argv) == 2:
+        param = sys.argv[1]
+
+    if param is None:
+        param = webapi_updroot
+
+    postInventory_main(param)
