@@ -31,7 +31,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		bSizer7 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_treeCtrlSelections = wx.TreeCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,200 ), wx.TR_DEFAULT_STYLE|wx.TR_HAS_BUTTONS|wx.TR_HIDE_ROOT|wx.TR_LINES_AT_ROOT )
+		self.m_treeCtrlSelections = wx.TreeCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,200 ), wx.TR_DEFAULT_STYLE|wx.TR_HAS_BUTTONS|wx.TR_LINES_AT_ROOT )
 		bSizer7.Add( self.m_treeCtrlSelections, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダ一覧", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -57,14 +57,14 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
 		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText291 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"設定ファイル", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText291 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"作業ディレクトリ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText291.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText291, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_textCtrlConfFileNameSave = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), 0 )
 		fgSizer6.Add( self.m_textCtrlConfFileNameSave, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_staticText301 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
+		self.m_staticText301 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"/Inventory.conf", wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
 		self.m_staticText301.Wrap( -1 )
 		fgSizer6.Add( self.m_staticText301, 0, wx.ALIGN_CENTER_VERTICAL|wx.TOP|wx.RIGHT|wx.LEFT, 5 )
 		
@@ -154,32 +154,87 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoriReference.SetSizer( bSizer8 )
 		self.m_panelInventoriReference.Layout()
 		bSizer8.Fit( self.m_panelInventoriReference )
-		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", True )
+		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", False )
 		self.m_panelInventoryUpdate = wx.Panel( self.m_notebook2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
 		sbSizer51 = wx.StaticBoxSizer( wx.StaticBox( self.m_panelInventoryUpdate, wx.ID_ANY, u"投入" ), wx.VERTICAL )
 		
+		bSizer71 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_treeCtrlSelectionsUpdate = wx.TreeCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,200 ), wx.TR_DEFAULT_STYLE|wx.TR_HAS_BUTTONS|wx.TR_LINES_AT_ROOT )
+		bSizer71.Add( self.m_treeCtrlSelectionsUpdate, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		self.m_buttonGetDictionaryUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダ一覧", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer71.Add( self.m_buttonGetDictionaryUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 5 )
+		
+		
+		sbSizer51.Add( bSizer71, 0, wx.EXPAND|wx.BOTTOM, 5 )
+		
+		bSizer101 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_staticText311 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダーID:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText311.Wrap( -1 )
+		bSizer101.Add( self.m_staticText311, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
+		
+		self.m_staticTextDictionaryAndFolderIDUpdate = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticTextDictionaryAndFolderIDUpdate.Wrap( -1 )
+		bSizer101.Add( self.m_staticTextDictionaryAndFolderIDUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		sbSizer51.Add( bSizer101, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
+		
 		fgSizer7 = wx.FlexGridSizer( 8, 4, 0, 0 )
 		fgSizer7.SetFlexibleDirection( wx.BOTH )
 		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText46 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"設定ファイル", wx.DefaultPosition, wx.Size( 70,-1 ), 0 )
+		self.m_staticText46 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"作業ディレクトリ", wx.DefaultPosition, wx.Size( 100,-1 ), 0 )
 		self.m_staticText46.Wrap( -1 )
 		fgSizer7.Add( self.m_staticText46, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrlConfFileNameRead = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrlConfFileNameRead = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), 0 )
 		fgSizer7.Add( self.m_textCtrlConfFileNameRead, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText33 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), 0 )
+		self.m_staticText33 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"/Inventory.conf", wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
 		self.m_staticText33.Wrap( -1 )
 		fgSizer7.Add( self.m_staticText33, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_buttonBrowseConfFileRead = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer7.Add( self.m_buttonBrowseConfFileRead, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.m_staticText292 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText292.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText292, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		sbSizer51.Add( fgSizer7, 1, wx.EXPAND, 5 )
+		self.m_staticText302 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText302.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText302, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText312 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText312.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText312, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText321 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText321.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText321, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText331 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText331.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText331, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText34 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText34.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText34, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText351 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText351.Wrap( -1 )
+		fgSizer7.Add( self.m_staticText351, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_buttonInventoryUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Inventory Put", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer7.Add( self.m_buttonInventoryUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		sbSizer51.Add( fgSizer7, 1, wx.EXPAND|wx.TOP, 5 )
 		
 		
 		bSizer9.Add( sbSizer51, 0, wx.EXPAND, 5 )
@@ -257,7 +312,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoryUpdate.SetSizer( bSizer9 )
 		self.m_panelInventoryUpdate.Layout()
 		bSizer9.Fit( self.m_panelInventoryUpdate )
-		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", False )
+		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", True )
 		
 		bSizer4.Add( self.m_notebook2, 1, wx.EXPAND |wx.ALL, 5 )
 		
@@ -277,7 +332,13 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonConfFileNameSave.Bind( wx.EVT_BUTTON, self.m_buttonConfFileNameSaveOnButtonClick )
 		self.m_buttonGetInventory.Bind( wx.EVT_BUTTON, self.m_buttonGetInventoryOnButtonClick )
 		self.m_buttonReferenceGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonReferenceGetAccessTokenOnButtonClick )
+		self.m_treeCtrlSelectionsUpdate.Bind( wx.EVT_TREE_ITEM_ACTIVATED, self.m_treeCtrlSelectionsUpdateOnTreeItemActivated )
+		self.m_treeCtrlSelectionsUpdate.Bind( wx.EVT_TREE_KEY_DOWN, self.m_treeCtrlSelectionsUpdateOnTreeKeyDown )
+		self.m_treeCtrlSelectionsUpdate.Bind( wx.EVT_TREE_SEL_CHANGED, self.m_treeCtrlSelectionsUpdateOnTreeSelChanged )
+		self.m_treeCtrlSelectionsUpdate.Bind( wx.EVT_TREE_SEL_CHANGING, self.m_treeCtrlSelectionsUpdateOnTreeSelChanging )
+		self.m_buttonGetDictionaryUpdate.Bind( wx.EVT_BUTTON, self.m_buttonGetDictionaryUpdateOnButtonClick )
 		self.m_buttonBrowseConfFileRead.Bind( wx.EVT_BUTTON, self.m_buttonBrowseConfFileReadOnButtonClick )
+		self.m_buttonInventoryUpdate.Bind( wx.EVT_BUTTON, self.m_buttonInventoryUpdateOnButtonClick )
 		self.m_buttonDeleteInventories.Bind( wx.EVT_BUTTON, self.m_buttonDeleteInventoriesOnButtonClick )
 		self.m_buttonUpdateGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonUpdateGetAccessTokenOnButtonClick )
 	
@@ -313,7 +374,25 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def m_buttonReferenceGetAccessTokenOnButtonClick( self, event ):
 		event.Skip()
 	
+	def m_treeCtrlSelectionsUpdateOnTreeItemActivated( self, event ):
+		event.Skip()
+	
+	def m_treeCtrlSelectionsUpdateOnTreeKeyDown( self, event ):
+		event.Skip()
+	
+	def m_treeCtrlSelectionsUpdateOnTreeSelChanged( self, event ):
+		event.Skip()
+	
+	def m_treeCtrlSelectionsUpdateOnTreeSelChanging( self, event ):
+		event.Skip()
+	
+	def m_buttonGetDictionaryUpdateOnButtonClick( self, event ):
+		event.Skip()
+	
 	def m_buttonBrowseConfFileReadOnButtonClick( self, event ):
+		event.Skip()
+	
+	def m_buttonInventoryUpdateOnButtonClick( self, event ):
 		event.Skip()
 	
 	def m_buttonDeleteInventoriesOnButtonClick( self, event ):
