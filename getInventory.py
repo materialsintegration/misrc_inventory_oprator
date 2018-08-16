@@ -13,11 +13,15 @@ import os
 import sys
 import ast
 import requests
-import configparser
+if sys.version_info[0] <= 2:
+    import ConfigParser
+    from urlparse import urlparse
+else:
+    import configparser
+    from urllib.parse import urlparse
 import json
 import codecs
 import time
-from urllib.parse import urlparse
 
 import module_inventory as inv
 
@@ -66,7 +70,10 @@ def configParse(file_path) :
     if not os.path.exists(file_path) :
         raise IOError(file_path)
 
-    parser = configparser.ConfigParser()
+    if sys.version_info[0] <= 2:
+        parser = ConfigParser.SafeConfigParser()
+    else:
+        parser = configparser.ConfigParser()
     parser.read(file_path)
 
     ### Convert to dictionary
@@ -107,7 +114,7 @@ def configParse(file_path) :
 # main
 # =======================================
 
-def main():
+def getInventory_main(webapi_refroot,):
     stime = time.time()
     print('----- start getInventory script -----')    
 
@@ -141,7 +148,7 @@ def main():
     # ///////////////////////////////
     # read inventory data
     # ///////////////////////////////
-    print('read inventory...')
+    print('read inventory... from %s'%webapi_refroot)
 
     IDs = {}
     for i, obj in enumerate(objs):
@@ -173,7 +180,8 @@ def main():
         if (rlt.status_code != httpcode_success):
             print('http request cause error')
             print('error code:' + str(rlt.status_code))
-            
+            print('headers   :' + str(rlt.headers))
+            print('body      :' + rlt.text)
             continue
 
         # collect ids
@@ -198,6 +206,8 @@ def main():
             if (rlt.status_code != httpcode_success):
                 print('http request cause error')
                 print('error code:' + str(rlt.status_code))
+                print('headers   :' + str(rlt.headers))
+                print('body      :' + rlt.text)
             
                 continue
 
@@ -224,8 +234,22 @@ def main():
     print("normal completion of " + __file__ + "!!!")
     etime = time.time()
     print ('total time:' + str(etime - stime))
-    sys.exit()
+    #sys.exit()
     
 
 if __name__== '__main__':
-    main()
+
+    param = None
+    if len(sys.argv) == 2:
+        param = sys.argv[1]
+
+    if param is None:
+        param = webapi_refroot
+
+    getInventory_main(param)
+
+
+
+
+
+
