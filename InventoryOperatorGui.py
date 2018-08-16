@@ -118,12 +118,13 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText24.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText24, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_textCtrlReferenceUserID = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
-		fgSizer8.Add( self.m_textCtrlReferenceUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		m_comboBoxReferenceUserIDChoices = []
+		self.m_comboBoxReferenceUserID = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( 200,-1 ), m_comboBoxReferenceUserIDChoices, 0 )
+		fgSizer8.Add( self.m_comboBoxReferenceUserID, 0, wx.ALL, 5 )
 		
-		self.m_staticText28 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText28.Wrap( -1 )
-		fgSizer8.Add( self.m_staticText28, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_staticText341 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText341.Wrap( -1 )
+		fgSizer8.Add( self.m_staticText341, 0, wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_staticText25 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
@@ -133,6 +134,8 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer8.Add( self.m_textCtrlReferenceAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_buttonReferenceGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonReferenceGetAccessToken.Enable( False )
+		
 		fgSizer8.Add( self.m_buttonReferenceGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText47 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Reference URL", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -276,8 +279,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText241.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText241, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrlUpdateUserID = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), 0 )
-		fgSizer9.Add( self.m_textCtrlUpdateUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		m_comboBoxUpdateUserIDChoices = []
+		self.m_comboBoxUpdateUserID = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( 200,-1 ), m_comboBoxUpdateUserIDChoices, 0 )
+		fgSizer9.Add( self.m_comboBoxUpdateUserID, 0, wx.ALL, 5 )
 		
 		self.m_staticText281 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText281.Wrap( -1 )
@@ -291,6 +295,8 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer9.Add( self.m_textCtrlUpdateAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_buttonUpdateGetAccessToken = wx.Button( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonUpdateGetAccessToken.Enable( False )
+		
 		fgSizer9.Add( self.m_buttonUpdateGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText48 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Update URL", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -331,7 +337,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonGetDictionary.Bind( wx.EVT_BUTTON, self.m_buttonGetDictionaryOnButtonClick )
 		self.m_buttonConfFileNameSave.Bind( wx.EVT_BUTTON, self.m_buttonConfFileNameSaveOnButtonClick )
 		self.m_buttonGetInventory.Bind( wx.EVT_BUTTON, self.m_buttonGetInventoryOnButtonClick )
+		self.m_comboBoxReferenceUserID.Bind( wx.EVT_COMBOBOX, self.m_comboBoxReferenceUserIDOnCombobox )
 		self.m_buttonReferenceGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonReferenceGetAccessTokenOnButtonClick )
+		self.m_comboBoxReferenceURL.Bind( wx.EVT_COMBOBOX, self.m_comboBoxReferenceURLOnCombobox )
 		self.m_treeCtrlSelectionsUpdate.Bind( wx.EVT_TREE_ITEM_ACTIVATED, self.m_treeCtrlSelectionsUpdateOnTreeItemActivated )
 		self.m_treeCtrlSelectionsUpdate.Bind( wx.EVT_TREE_KEY_DOWN, self.m_treeCtrlSelectionsUpdateOnTreeKeyDown )
 		self.m_treeCtrlSelectionsUpdate.Bind( wx.EVT_TREE_SEL_CHANGED, self.m_treeCtrlSelectionsUpdateOnTreeSelChanged )
@@ -340,7 +348,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonBrowseConfFileRead.Bind( wx.EVT_BUTTON, self.m_buttonBrowseConfFileReadOnButtonClick )
 		self.m_buttonInventoryUpdate.Bind( wx.EVT_BUTTON, self.m_buttonInventoryUpdateOnButtonClick )
 		self.m_buttonDeleteInventories.Bind( wx.EVT_BUTTON, self.m_buttonDeleteInventoriesOnButtonClick )
+		self.m_comboBoxUpdateUserID.Bind( wx.EVT_COMBOBOX, self.m_comboBoxUpdateUserIDOnCombobox )
 		self.m_buttonUpdateGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonUpdateGetAccessTokenOnButtonClick )
+		self.m_comboBoxUpdateURL.Bind( wx.EVT_COMBOBOX, self.m_comboBoxUpdateURLOnCombobox )
 	
 	def __del__( self ):
 		pass
@@ -371,7 +381,13 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def m_buttonGetInventoryOnButtonClick( self, event ):
 		event.Skip()
 	
+	def m_comboBoxReferenceUserIDOnCombobox( self, event ):
+		event.Skip()
+	
 	def m_buttonReferenceGetAccessTokenOnButtonClick( self, event ):
+		event.Skip()
+	
+	def m_comboBoxReferenceURLOnCombobox( self, event ):
 		event.Skip()
 	
 	def m_treeCtrlSelectionsUpdateOnTreeItemActivated( self, event ):
@@ -398,7 +414,13 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def m_buttonDeleteInventoriesOnButtonClick( self, event ):
 		event.Skip()
 	
+	def m_comboBoxUpdateUserIDOnCombobox( self, event ):
+		event.Skip()
+	
 	def m_buttonUpdateGetAccessTokenOnButtonClick( self, event ):
+		event.Skip()
+	
+	def m_comboBoxUpdateURLOnCombobox( self, event ):
 		event.Skip()
 	
 
