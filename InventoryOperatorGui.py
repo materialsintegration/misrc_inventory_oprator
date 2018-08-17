@@ -114,17 +114,17 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
 		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText24 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"UserID", wx.DefaultPosition, wx.Size( 80,-1 ), 0 )
+		self.m_staticText24 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"User Name/ID", wx.DefaultPosition, wx.Size( 80,-1 ), 0 )
 		self.m_staticText24.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText24, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
 		m_comboBoxReferenceUserIDChoices = []
-		self.m_comboBoxReferenceUserID = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( 200,-1 ), m_comboBoxReferenceUserIDChoices, 0 )
+		self.m_comboBoxReferenceUserID = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( -1,-1 ), m_comboBoxReferenceUserIDChoices, 0 )
 		fgSizer8.Add( self.m_comboBoxReferenceUserID, 0, wx.ALL, 5 )
 		
-		self.m_staticText341 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText341.Wrap( -1 )
-		fgSizer8.Add( self.m_staticText341, 0, wx.RIGHT|wx.LEFT, 5 )
+		self.m_staticTextReferenceUserID = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticTextReferenceUserID.Wrap( -1 )
+		fgSizer8.Add( self.m_staticTextReferenceUserID, 0, wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_staticText25 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
@@ -275,17 +275,17 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer9.SetFlexibleDirection( wx.BOTH )
 		fgSizer9.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText241 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"UserID", wx.DefaultPosition, wx.Size( 80,-1 ), 0 )
+		self.m_staticText241 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"User Name/ID", wx.DefaultPosition, wx.Size( 80,-1 ), 0 )
 		self.m_staticText241.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText241, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		m_comboBoxUpdateUserIDChoices = []
-		self.m_comboBoxUpdateUserID = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( 200,-1 ), m_comboBoxUpdateUserIDChoices, 0 )
+		self.m_comboBoxUpdateUserID = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( -1,-1 ), m_comboBoxUpdateUserIDChoices, 0 )
 		fgSizer9.Add( self.m_comboBoxUpdateUserID, 0, wx.ALL, 5 )
 		
-		self.m_staticText281 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText281.Wrap( -1 )
-		fgSizer9.Add( self.m_staticText281, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_staticTextUpdateUserID = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticTextUpdateUserID.Wrap( -1 )
+		fgSizer9.Add( self.m_staticTextUpdateUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText251 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText251.Wrap( -1 )
