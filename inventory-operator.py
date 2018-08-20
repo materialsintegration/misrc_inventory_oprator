@@ -102,38 +102,45 @@ class InventoryOperator(InventoryOperatorGUI):
         self.conffileread = None
 
         self.ref_dictdict = None                    # 参照側辞書の辞書
+        self.UserList = {}                          # URL毎のUserIDをキーにしたTokenの辞書
 
         inifilename = "inventory-operator.ini"
         if os.path.exists(inifilename) is True:
             print "found init file"
             infile = open(inifilename)
             lines = infile.read()
-            init_dic = ast.literal_eval(lines)
+            #init_dic = ast.literal_eval(lines)
+            init_dic = self.ReadIniFile()
+            userid_choice = []
             if init_dic.has_key("Reference") is True:
                 if init_dic["Reference"].has_key("UserID") is True:
+                    if init_dic["Reference"]["URL"] is not None:
+                        self.m_comboBoxReferenceURL.SetValue(init_dic["Reference"]["URL"])
+                        self.url_ref = init_dic["Reference"]["URL"]
+                        self.m_comboBoxReferenceURLOnCombobox(None)
                     if init_dic["Reference"]["UserID"] is not None: 
-                        self.m_textCtrlReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
+                        #self.m_textCtrlReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
+                        self.m_comboBoxReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
                         self.userid_ref = init_dic["Reference"]["UserID"]
                     if init_dic["Reference"]["Token"] is not None: 
                         self.m_textCtrlReferenceAccessToken.SetValue(init_dic["Reference"]["Token"])
                         self.token_ref = init_dic["Reference"]["Token"]
-                    if init_dic["Reference"]["URL"] is not None:
-                        self.m_comboBoxReferenceURL.SetValue(init_dic["Reference"]["URL"])
-                        self.url_ref = init_dic["Reference"]["URL"]
                     if init_dic["Reference"]["ConfFile"] is not None:
                         self.m_textCtrlConfFileNameSave.SetValue(init_dic["Reference"]["ConfFile"])
                         self.conffilesave = init_dic["Reference"]["ConfFile"]
             if init_dic.has_key("Update") is True:
                 if init_dic["Update"].has_key("UserID") is True:
+                    if init_dic["Update"]["URL"] is not None:
+                        self.m_comboBoxUpdateURL.SetValue(init_dic["Update"]["URL"])
+                        self.url_upd = init_dic["Update"]["URL"]
+                        self.m_comboBoxUpdateURLOnCombobox(None)
                     if init_dic["Update"]["UserID"] is not None: 
-                        self.m_textCtrlUpdateUserID.SetValue(init_dic["Update"]["UserID"])
+                        #self.m_textCtrlUpdateUserID.SetValue(init_dic["Update"]["UserID"])
+                        self.m_comboBoxUpdateUserID.SetValue(init_dic["Update"]["UserID"])
                         self.userid_upd = init_dic["Update"]["UserID"]
                     if init_dic["Update"]["Token"] is not None: 
                         self.m_textCtrlUpdateAccessToken.SetValue(init_dic["Update"]["Token"])
                         self.token_upd = init_dic["Update"]["Token"]
-                    if init_dic["Update"]["URL"] is not None:
-                        self.m_comboBoxUpdateURL.SetValue(init_dic["Update"]["URL"])
-                        self.url_upd = init_dic["Update"]["URL"]
                     if init_dic["Update"]["ConfFile"] is not None:
                         self.m_textCtrlConfFileNameRead.SetValue(init_dic["Update"]["ConfFile"])
                         self.conffileread = init_dic["Update"]["ConfFile"]
@@ -153,6 +160,8 @@ class InventoryOperator(InventoryOperatorGUI):
         self.infilefilter = "All Files (*.*) |*.*"
         self.workdir = "./"                         # working directory name
 
+        self.UserIDAndToken = {}
+
         self.InitializeRefListCtrl()
         self.InitializeUpdListCtrl()
 
@@ -165,7 +174,8 @@ class InventoryOperator(InventoryOperatorGUI):
         init_dict = {}
         ref_dict = {}
         upd_dict = {}
-        self.userid_ref = self.m_textCtrlReferenceUserID.GetValue()
+        #self.userid_ref = self.m_textCtrlReferenceUserID.GetValue()
+        self.userid_ref = self.m_comboBoxReferenceUserID.GetValue()
         ref_dict["UserID"] = self.userid_ref
         self.token_ref = self.m_textCtrlReferenceAccessToken.GetValue()
         ref_dict["Token"] = self.token_ref
@@ -174,7 +184,8 @@ class InventoryOperator(InventoryOperatorGUI):
         self.conffilesave = self.m_textCtrlConfFileNameSave.GetValue()
         ref_dict["ConfFile"] = self.conffilesave
         init_dict["Reference"] = ref_dict
-        self.userid_upd = self.m_textCtrlUpdateUserID.GetValue()
+        #self.userid_upd = self.m_textCtrlUpdateUserID.GetValue()
+        self.userid_upd = self.m_comboBoxUpdateUserID.GetValue()
         upd_dict["UserID"] = self.userid_upd
         self.token_upd = self.m_textCtrlUpdateAccessToken.GetValue()
         upd_dict["Token"] = self.token_upd
@@ -183,10 +194,29 @@ class InventoryOperator(InventoryOperatorGUI):
         self.conffileread = self.m_textCtrlConfFileNameRead.GetValue()
         upd_dict["ConfFile"] = self.conffileread
         init_dict["Update"] = upd_dict
-        
+
+        if sys.version_info[0] <= 2:
+            parser = ConfigParser.SafeConfigParser()
+        else:
+            parser = configparser.ConfigParser()
+
+        inifilename = "./inventory-operator.ini"
+        if os.path.exists(inifilename) is True:
+            parser.read(inifilename)
+
+        if parser.has_section("Reference") is True:
+            parser.set("Reference", "URL", ref_dict["URL"])
+            parser.set("Reference", "ConfFile", ref_dict["ConfFile"])
+            parser.set("Reference", "UserID", ref_dict["UserID"])
+            parser.set("Reference", "Token", ref_dict["Token"])
+        if parser.has_section("Update") is True:
+            parser.set("Update", "URL", upd_dict["URL"])
+            parser.set("Update", "ConfFile", upd_dict["ConfFile"])
+            parser.set("Update", "UserID", upd_dict["UserID"])
+            parser.set("Update", "Token", upd_dict["Token"])
 
         outfile = open("inventory-operator.ini", "w")
-        outfile.write(str(init_dict))
+        parser.write(outfile)
         outfile.close()
 
         event.Skip()
@@ -292,10 +322,11 @@ class InventoryOperator(InventoryOperatorGUI):
             dialog.Destroy()
             return False, False
 
-        path = "users/" + self.m_textCtrlReferenceUserID.GetValue() + "/" + path
+        path = "users/" + self.m_staticTextReferenceUserID.GetLabel() + "/" + path
         self.MakeConfigFile(userid, token, path)
 
         url = self.m_comboBoxReferenceURL.GetValue()
+        url = url + "/inventory-api/v3"
 
         getInventory_main(url)
 
@@ -317,7 +348,7 @@ class InventoryOperator(InventoryOperatorGUI):
             dialog.Destroy()
             return False, False
 
-        path = "users/" + self.m_textCtrlUpdateUserID.GetValue() + "/" + path
+        path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
         self.MakeConfigFile(userid, token, path)
 
         url = self.m_comboBoxUpdateURL.GetValue()
@@ -451,6 +482,77 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
 
         event.Skip()
+    
+    def m_comboBoxUpdateURLOnCombobox( self, event ):
+        '''
+        更新系のURLを変更したので、伴ってUserIDの選択リストを変更する
+        '''
+
+        url = self.m_comboBoxUpdateURL.GetValue()
+        idsAndtokens = self.UserList[url]
+        userid_choice = []
+        # userid 選択肢構築
+        for item in idsAndtokens:
+            userid_choice.append(item.split(":")[0])
+
+        self.m_comboBoxUpdateUserID.Clear()
+        self.m_comboBoxUpdateUserID.SetItems(userid_choice)
+        self.m_comboBoxUpdateUserID.SetSelection(0)
+        self.m_comboBoxUpdateUserIDOnCombobox(None)
+
+        if event is not None:
+            event.Skip()
+
+    def m_comboBoxReferenceURLOnCombobox( self, event ):
+        '''
+        参照系のURLを変更したので、伴ってUserIDの選択リストを変更する
+        '''
+
+        url = self.m_comboBoxReferenceURL.GetValue()
+        idsAndtokens = self.UserList[url]
+        userid_choice = []
+        # userid 選択肢構築
+        for item in idsAndtokens:
+            userid_choice.append(item.split(":")[0])
+
+        self.m_comboBoxReferenceUserID.Clear()
+        print("userid_choice = %s"%userid_choice)
+        self.m_comboBoxReferenceUserID.SetItems(userid_choice)
+        self.m_comboBoxReferenceUserID.SetSelection(0)
+        self.m_comboBoxReferenceUserIDOnCombobox(None)
+
+        if event is not None:
+            event.Skip()
+
+    def m_comboBoxReferenceUserIDOnCombobox( self, event ):
+        '''
+        参照系のUserIDを変更したので、対応するトークンをセット
+        '''
+
+        username = self.m_comboBoxReferenceUserID.GetValue()
+        url = self.m_comboBoxReferenceURL.GetValue()
+        ids = self.UserList[url]
+        if ids.has_key(username) is True:
+            self.m_staticTextReferenceUserID.SetLabel(ids[username].split(":")[0])
+            self.m_textCtrlReferenceAccessToken.SetValue(ids[username].split(":")[1])
+
+        if event is not None:
+            event.Skip()
+    
+    def m_comboBoxUpdateUserIDOnCombobox( self, event ):
+        '''
+        更新系のUserIDを変更したので、対応するトークンをセット
+        '''
+
+        username = self.m_comboBoxUpdateUserID.GetValue()
+        url = self.m_comboBoxUpdateURL.GetValue()
+        ids = self.UserList[url]
+        if ids.has_key(username) is True:
+            self.m_staticTextUpdateUserID.SetLabel(ids[username].split(":")[0])
+            self.m_textCtrlUpdateAccessToken.SetValue(ids[username].split(":")[1])
+
+        if event is not None:
+            event.Skip()
     
     #------------------ここまでイベントハンドラ----------------------
     #------------------ここからメンバー関数--------------------------
@@ -668,6 +770,81 @@ class InventoryOperator(InventoryOperatorGUI):
             if len(folders[item]) != 1:
                 self.AddFoldersUpdListCtrlSub(sub_tree_item, dict_id, folders[item])
 
+    def ReadIniFile(self):
+        '''
+        保存値、ユーザーIDリストなどの読み込み
+        '''
+
+        if sys.version_info[0] <= 2:
+            parser = ConfigParser.SafeConfigParser()
+        else:
+            parser = configparser.ConfigParser()
+
+        inifilename = "./inventory-operator.ini"
+        if os.path.exists(inifilename) is True:
+            parser.read(inifilename)
+
+        savevalue = {}
+        if parser.has_section("Reference") is True:
+            savevalue["Reference"] = {}
+            if parser.has_option("Reference", "URL") is True:
+                savevalue["Reference"]["URL"] = parser.get("Reference", "URL")
+            if parser.has_option("Reference", "ConfFile") is True:
+                savevalue["Reference"]["ConfFile"] = parser.get("Reference", "ConfFile")
+            if parser.has_option("Reference", "UserID") is True:
+                savevalue["Reference"]["UserID"] = parser.get("Reference", "UserID")
+            if parser.has_option("Reference", "Token") is True:
+                savevalue["Reference"]["Token"] = parser.get("Reference", "Token")
+        if parser.has_section("Update") is True:
+            savevalue["Update"] = {}
+            if parser.has_option("Update", "URL") is True:
+                savevalue["Update"]["URL"] = parser.get("Update", "URL")
+            if parser.has_option("Update", "ConfFile") is True:
+                savevalue["Update"]["ConfFile"] = parser.get("Update", "ConfFile")
+            if parser.has_option("Update", "UserID") is True:
+                savevalue["Update"]["UserID"] = parser.get("Update", "UserID")
+            if parser.has_option("Update", "Token") is True:
+                savevalue["Update"]["Token"] = parser.get("Update", "Token")
+        if parser.has_section("https://nims.mintsys.jp:50443") is True:
+            self.UserList["https://nims.mintsys.jp:50443"] = {}
+            usernames = userids = tokenlist = None
+            if parser.has_option("https://nims.mintsys.jp:50443", "username") is True:
+                usernames = parser.get("https://nims.mintsys.jp:50443", "username").split(",")
+            if parser.has_option("https://nims.mintsys.jp:50443", "userid") is True:
+                userids = parser.get("https://nims.mintsys.jp:50443", "userid").split()
+            if parser.has_option("https://nims.mintsys.jp:50443", "token") is True:
+                tokenlist = parser.get("https://nims.mintsys.jp:50443", "token").split()
+            if usernames is not None and userids is not None and tokenlist is not None:
+                for i in range(len(usernames)):
+                    self.UserList["https://nims.mintsys.jp:50443"][usernames[i]] = userids[i] + ":" + tokenlist[i]
+        if parser.has_section("https://u-tokyo.mintsys.jp:50443") is True:
+            self.UserList["https://u-tokyo.mintsys.jp:50443"] = {}
+            usernames = userids = tokenlist = None
+            if parser.has_option("https://u-tokyo.mintsys.jp:50443", "username") is True:
+                usernames = parser.get("https://u-tokyo.mintsys.jp:50443", "username").split(",")
+            if parser.has_option("https://u-tokyo.mintsys.jp:50443", "userid") is True:
+                userids = parser.get("https://u-tokyo.mintsys.jp:50443", "userid").split()
+            if parser.has_option("https://u-tokyo.mintsys.jp:50443", "token") is True:
+                tokenlist = parser.get("https://u-tokyo.mintsys.jp:50443", "token").split()
+            if usernames is not None and userids is not None and tokenlist is not None:
+                for i in range(len(usernames)):
+                    self.UserList["https://u-tokyo.mintsys.jp:50443"][usernames[i]] = userids[i] + ":" + tokenlist[i]
+        if parser.has_section("https://dev-u-tokyo.mintsys.jp:50443") is True:
+            self.UserList["https://dev-u-tokyo.mintsys.jp:50443"] = {}
+            usernames = userids = tokenlist = None
+            if parser.has_option("https://dev-u-tokyo.mintsys.jp:50443", "username") is True:
+                usernames = parser.get("https://dev-u-tokyo.mintsys.jp:50443", "username").split(",")
+            if parser.has_option("https://dev-u-tokyo.mintsys.jp:50443", "userid") is True:
+                userids = parser.get("https://dev-u-tokyo.mintsys.jp:50443", "userid").split()
+            if parser.has_option("https://dev-u-tokyo.mintsys.jp:50443", "token") is True:
+                tokenlist = parser.get("https://dev-u-tokyo.mintsys.jp:50443", "token").split()
+            if usernames is not None and userids is not None and tokenlist is not None:
+                for i in range(len(usernames)):
+                    self.UserList["https://dev-u-tokyo.mintsys.jp:50443"][usernames[i]] = userids[i] + ":" + tokenlist[i]
+
+        print self.UserList
+        return savevalue
+
     def MakeConfigFile(self, userid, token, path, query=None):
         '''
         インベントリ操作用Configファイルの作成(存在すれば編集)
@@ -699,7 +876,7 @@ class InventoryOperator(InventoryOperatorGUI):
         parser.set("file", "object", "descriptor\n       prediction-model\n       software-tool")
         parser.set("file", "inputfile", "kushida_descriptors.json\n          kushida_prediction-models.json\n          kushida_software-tools.json")
         parser.set("file", "outputfile", "kushida_descriptors.json\n           kushida_prediction-models.json\n           kushida_software-tools.json")
-        parser.set("file", "modules.xml", "modules_zeisei.xml")
+        parser.set("file", "modules.xml", "modules-zeisei.xml")
 
         conffile = open(conffilename, "w")
         parser.write(conffile)
@@ -709,7 +886,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照用ユーザーIDとTokenの確認
         '''
-        userid = self.m_textCtrlReferenceUserID.GetValue()
+        userid = self.m_staticTextReferenceUserID.GetLabel()
         if userid is None or userid == "":
             dialog = wx.MessageDialog(self, u"UserIDが空です", "Error", style=wx.OK)
             dialog.ShowModal()
@@ -728,7 +905,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         更新用ユーザーIDとTokenの確認
         '''
-        userid = self.m_textCtrlUpdateUserID.GetValue()
+        userid = self.m_staticTextUpdateUserID.GetLabel()
         if userid is None or userid == "":
             dialog = wx.MessageDialog(self, u"UserIDが空です", "Error", style=wx.OK)
             dialog.ShowModal()
