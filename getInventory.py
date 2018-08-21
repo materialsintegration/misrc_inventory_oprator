@@ -175,7 +175,9 @@ def getInventory_main(webapi_refroot,):
 
         # call webapi
         rlt = inv.webapi_inventory(token, dest_url, None, 'get')
-        rlt_dic = ast.literal_eval(rlt.text) 
+        #print("results = %s"%rlt.text)
+        #rlt_dic = ast.literal_eval(rlt.text) 
+        rlt_dic = rlt.json()
    
         if (rlt.status_code != httpcode_success):
             print('http request cause error')

@@ -246,7 +246,8 @@ def postInventory_main(webapi_updroot):
 
             # call webapi updater
             rlt     = inv.webapi_inventory(token, dest_url, body, 'post')
-            rlt_dic = ast.literal_eval(rlt.text)
+            #rlt_dic = ast.literal_eval(rlt.text)
+            rlt_dic = rlt.json()
 
             # result
             jstat[obj].append(rlt.status_code)
