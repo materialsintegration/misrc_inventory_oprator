@@ -509,8 +509,8 @@ class SelectorBox ( wx.Frame ):
 		
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_listCtrlSelections = wx.ListCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_HRULES|wx.LC_REPORT )
-		bSizer3.Add( self.m_listCtrlSelections, 1, wx.EXPAND, 5 )
+		self.m_panelForListCtrl = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer3.Add( self.m_panelForListCtrl, 1, wx.EXPAND, 5 )
 		
 		m_sdbSizer2 = wx.StdDialogButtonSizer()
 		self.m_sdbSizer2OK = wx.Button( self, wx.ID_OK )
