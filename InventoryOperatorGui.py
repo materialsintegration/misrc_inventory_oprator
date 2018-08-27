@@ -497,10 +497,10 @@ class DictionaryFolderSelector ( wx.Frame ):
 	
 
 ###########################################################################
-## Class SelectorBox
+## Class SelectorBoxProtoType
 ###########################################################################
 
-class SelectorBox ( wx.Frame ):
+class SelectorBoxProtoType ( wx.Frame ):
 	
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Selection", pos = wx.DefaultPosition, size = wx.Size( 698,461 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
@@ -509,8 +509,8 @@ class SelectorBox ( wx.Frame ):
 		
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_panelForListCtrl = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer3.Add( self.m_panelForListCtrl, 1, wx.EXPAND, 5 )
+		self.m_listCtrl4 = wx.ListCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_ICON )
+		bSizer3.Add( self.m_listCtrl4, 1, wx.EXPAND, 5 )
 		
 		m_sdbSizer2 = wx.StdDialogButtonSizer()
 		self.m_sdbSizer2OK = wx.Button( self, wx.ID_OK )
