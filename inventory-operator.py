@@ -482,7 +482,8 @@ class InventoryOperator(InventoryOperatorGUI):
             return False, False
 
         path = path.split('/')
-        url = os.path.join(path[0], path[1])
+        #url = os.path.join(path[0], path[1])
+        url = path[0] + "/" + path[1]
         path = url
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
 
