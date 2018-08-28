@@ -196,7 +196,7 @@ def postInventory_main(webapi_updroot):
         if (key3 not in jsonData[i]):
             continue
 
-        print('[target : ' + obj + ']')
+        print('[target : ' + obj + ' / url = ' + url + ']')
 
         dest_url = webapi_updroot + '/' + url + '/' + key1
         jstat[obj] = []

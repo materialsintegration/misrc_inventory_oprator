@@ -226,9 +226,9 @@ def postInventory_main(webapi_updroot):
         key3 = obj.replace('-', '_') + 's'   # prediction_models
         key4 = obj.replace('-','_') + '_id'  # prediction_model_id
 
-        print('[target : ' + obj + ']')
-
         dest_url = webapi_updroot + '/' + url + '/' + key1
+        print('[target : ' + obj + ' / url = ' + dest_url + ']')
+
         jstat[obj] = []
         for j, lst in enumerate(jsonData[obj]):
             # get old id

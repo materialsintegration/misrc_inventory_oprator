@@ -5,7 +5,6 @@
 NIMS野口さん作成のインベントリAPIプログラムのラッパープログラム
 '''
 
-from InventoryOperatorGui import *
 import sys, os
 import ast
 import time
@@ -20,11 +19,59 @@ else:
     import configparser
     #from urllib.parse import urlparse
 
+from InventoryOperatorGui import *
 from getInventory import *
 from postInventory4 import *
+from checklistctrl import *
 
 ROOT_FOLDER = "root_forder"                     # 2018/08/15:folder->forder
 CONFIG_FILENAME = "Inventory.conf"              # 入出力用コンフィグファイルの名前
+
+def dict_print(elements, spc, debug=False):
+    '''
+    辞書を再帰的に表示する
+    '''
+
+    spc += "  "
+
+    dictionary = {}
+    inventory_id = None
+    inventory_name = None
+    for item in elements:
+        if type(elements[item]) is dict:
+            ret = dict_print(elements[item], spc, debug)
+            for item in ret:
+                dictionary[item] = ret[item]
+                
+        elif type(elements[item]) is list:
+            list_elements = elements[item]
+            for list_item in list_elements:
+                if type(list_item) is dict:
+                    ret = dict_print(list_item, spc, debug)
+                    for item in ret:
+                        dictionary[item] = ret[item]
+                else:
+                    if debug is True:
+                        print("%s | %s"%(spc, list_item))
+        else:
+
+            if item == "preferred_name" or item == "software_tool_name":
+                inventory_name = elements[item].split("@")[0]
+            elif item == "descriptor_id":
+                inventory_id = elements[item].split("/")[-1]
+            elif item == "prediction_model_id":
+                inventory_id = elements[item].split("/")[-1]
+            elif item == "software_tool_id":
+                inventory_id = elements[item].split("/")[-1]
+
+            if debug is True:
+                print("%s | %20s : %s"%(spc, item, elements[item]))
+
+    if len(elements) == 2:
+        #dictionary[inventory_name] = inventory_id
+        dictionary[inventory_id] = inventory_name
+
+    return dictionary
 
 def folder_print(elements, spc, debug=False):
     '''
@@ -38,6 +85,7 @@ def folder_print(elements, spc, debug=False):
     folder_name = None
     dictionary_id = None
     retval = {}
+    
     for item in elements:
         if type(elements[item]) is dict:
             ret = folder_print(elements[item], spc)
@@ -103,6 +151,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         self.ref_dictdict = None                    # 参照側辞書の辞書
         self.UserList = {}                          # URL毎のUserIDをキーにしたTokenの辞書
+        self.VersionList = {}                       # URL毎のバージョンの指定
 
         inifilename = "inventory-operator.ini"
         if os.path.exists(inifilename) is True:
@@ -145,7 +194,7 @@ class InventoryOperator(InventoryOperatorGUI):
                         self.m_textCtrlConfFileNameRead.SetValue(init_dic["Update"]["ConfFile"])
                         self.conffileread = init_dic["Update"]["ConfFile"]
 
-        # ListCtrl準備
+        # TreeCtrl準備
         self.imageList = wx.ImageList(16,16)
         self.root_pict = self.imageList.Add(wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, (16,16)))
         self.dir_pict = self.imageList.Add(wx.ArtProvider.GetBitmap(wx.ART_NEW_DIR, wx.ART_OTHER, (16,16)))
@@ -153,6 +202,9 @@ class InventoryOperator(InventoryOperatorGUI):
         self.root = None
         self.RefTree = {}
         self.UpdTree = {}
+
+        # ListCtrl準備
+        self.del_sel = None
 
         self.DictionaryFoldersID = None
         self.DictionaryFoldersIDUpdate = None
@@ -238,9 +290,12 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         referenceURL = self.m_comboBoxReferenceURL.GetValue()
-        weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        if self.VersionList[referenceURL]["version"] == "3.0":
+            weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        else:
+            weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
 
-        ret = self.InventoryGet(token, weburl)
+        ret = self.InventoryAPI(token, weburl)
 
         self.ref_dictdict = ret["dictionaries"]
 
@@ -251,8 +306,11 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.ref_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    ret = self.InventoryGet(token, weburl)
+                    if self.VersionList[referenceURL]["version"] == "3.0":
+                        weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    else:
+                        weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    ret = self.InventoryAPI(token, weburl)
 
                     if ret.has_key(ROOT_FOLDER) is True:
                         items2 = ret[ROOT_FOLDER]
@@ -278,9 +336,12 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        if self.VersionList[updateURL]["version"] == "3.0":
+            weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        else:
+            weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
 
-        ret = self.InventoryGet(token, weburl)
+        ret = self.InventoryAPI(token, weburl)
 
         self.upd_dictdict = ret["dictionaries"]
 
@@ -291,8 +352,11 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.upd_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    ret = self.InventoryGet(token, weburl)
+                    if self.VersionList[updateURL]["version"] == "3.0":
+                        weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    else:
+                        weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    ret = self.InventoryAPI(token, weburl)
 
                     if ret.has_key(ROOT_FOLDER) is True:
                         items2 = ret[ROOT_FOLDER]
@@ -404,6 +468,170 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         インベントリ削除用ダイアログ
         '''
+
+        userid, token = self.CheckUpdateUserIDAndToken()
+        if userid is False or token is False:
+            return
+
+        path = self.m_staticTextDictionaryAndFolderIDUpdate.GetLabel()
+        updateURL = self.m_comboBoxUpdateURL.GetValue()
+        if path is None or path == "":
+            dialog = wx.MessageDialog(self, u"辞書・フォルダーID情報が空です。", "Error", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            return False, False
+
+        path = path.split('/')
+        url = os.path.join(path[0], path[1])
+        path = url
+        path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
+
+        if self.VersionList[updateURL]["version"] == "3.0":
+            weburl = updateURL + '/inventory-api/v3/' + path
+        else:
+            weburl = updateURL + '/inventory-api/v1/' + path
+        ret = self.InventoryAPI(token, weburl)
+
+        results = dict_print(ret, "")
+
+        self.del_sel = SelectorBox(self)
+        self.del_sel.Bind( wx.EVT_CLOSE, self.SelectorBoxOnClose )
+        self.del_sel.m_sdbSizer2Cancel.Bind( wx.EVT_BUTTON, self.m_sdbSizer2OnCancelButtonClick )
+        self.del_sel.m_sdbSizer2OK.Bind( wx.EVT_BUTTON, self.m_sdbSizer2OnOKButtonClick )
+        self.del_sel.m_listCtrlSelections.Bind(wx.EVT_LIST_COL_CLICK, self.m_listCtrlSelectionsOnColClick)
+
+        self.del_sel.m_listCtrlSelections.InsertColumn(0, "check", wx.LIST_FORMAT_LEFT, 60)
+        self.del_sel.m_listCtrlSelections.InsertColumn(1, "Inventory Name", wx.LIST_FORMAT_LEFT, 200)
+        self.del_sel.m_listCtrlSelections.InsertColumn(2, "Inventory ID", wx.LIST_FORMAT_LEFT, 200)
+
+        count = 0
+        if self.VersionList[updateURL]["version"] == "3.0":
+            weburl = updateURL + '/inventory-api/v3/'
+        else:
+            weburl = updateURL + '/inventory-api/v1/'
+        for item in results:
+            #print("key = %s / contens = %s"%(item, results[item]))
+            if item[0] == "D":                   # descriptors
+                path = weburl + "descriptors/"
+            elif item[0] == "M":                 # prediction-models
+                path = weburl + "prediction-models/"
+            elif item[0] == "T":                 # software-tools
+                path = weburl + "software-tools/"
+            else:
+                continue
+
+            path = path + "%s"%item
+
+            ret = self.InventoryAPI(token, path)
+            if ret is None:
+                continue
+            self.del_sel.m_listCtrlSelections.InsertStringItem(count, "%d"%count)
+            self.del_sel.m_listCtrlSelections.SetStringItem(count, 1, results[item])
+            self.del_sel.m_listCtrlSelections.SetStringItem(count, 2, item)
+            count += 1
+
+        self.del_sel.Show()
+        event.Skip()
+
+    def m_listCtrlSelectionsOnColClick(self, event):
+        '''
+        列見出しがクリックされた
+        '''
+
+        print("column clicked %d"%event.GetColumn())
+
+        if event.GetColumn() == 0:
+            item = self.del_sel.m_listCtrlSelections.GetColumn(0)
+
+            #print item.GetText()
+            item_count = self.del_sel.m_listCtrlSelections.GetItemCount()
+            if item.GetText() == "check":
+                item.SetText("uncheck")
+                self.del_sel.m_listCtrlSelections.SetColumn(0, item)
+                for i in range(item_count):
+                    self.del_sel.m_listCtrlSelections.CheckItem(i, True)
+            else:
+                item.SetText("check")
+                self.del_sel.m_listCtrlSelections.SetColumn(0, item)
+                for i in range(item_count):
+                    self.del_sel.m_listCtrlSelections.CheckItem(i, False)
+
+        event.Skip()
+
+    def SelectorBoxOnClose(self, event):
+        '''
+        選択ボックスCloseボタン
+        '''
+
+        if self.del_sel is not None:
+            self.del_sel.m_listCtrlSelections.ClearAll()
+            self.del_sel.Close()
+            del self.del_sel
+            self.del_sel = None
+
+        event.Skip()
+
+    def m_sdbSizer2OnCancelButtonClick(self, event):
+        '''
+        選択ボックスCancelボタン
+        '''
+
+        self.del_sel.Close()
+        del self.del_sel
+        self.del_sel = None
+
+        event.Skip()
+
+    def m_sdbSizer2OnOKButtonClick(self, event):
+        '''
+        選択ボックスOkボタン
+        '''
+
+        selections = {}
+        item_count = self.del_sel.m_listCtrlSelections.GetItemCount()
+        for i in range(item_count):
+            if self.del_sel.m_listCtrlSelections.IsChecked(i) is True:
+                name = self.del_sel.m_listCtrlSelections.GetItem(i, 1).GetText()
+                inventory_id = self.del_sel.m_listCtrlSelections.GetItem(i, 2).GetText()
+                selections[name] = inventory_id
+
+        if len(selections) == 0:
+            self.del_sel.Close()
+            del self.del_sel
+            self.del_sel = None
+            return
+
+        userid, token = self.CheckUpdateUserIDAndToken()
+        if userid is False or token is False:
+            return
+
+        updateURL = self.m_comboBoxUpdateURL.GetValue()
+        if self.VersionList[updateURL]["version"] == "3.0":
+            weburl = updateURL + '/inventory-update-api/v3/'
+        else:
+            weburl = updateURL + '/inventory-api/v1/'
+
+        for key in selections:
+            print("key = %s / id = %s"%(key, selections[key]))
+            if selections[key][0] == "D":                   # descriptors
+                path = weburl + "descriptors/"
+            elif selections[key][0] == "M":                 # prediction-models
+                path = weburl + "prediction-models/"
+            elif selections[key][0] == "T":                 # software-tools
+                path = weburl + "software-tools/"
+            else:
+                print("unknown inventory-type.")
+                self.del_sel.Close()
+                del self.del_sel
+                self.del_sel = None
+                return
+
+            path = path + "%s"%selections[key]
+            ret = self.InventoryAPI(token, path, "delete")
+
+        self.del_sel.Close()
+        del self.del_sel
+        self.del_sel = None
 
         event.Skip()
 
@@ -556,7 +784,7 @@ class InventoryOperator(InventoryOperatorGUI):
     
     #------------------ここまでイベントハンドラ----------------------
     #------------------ここからメンバー関数--------------------------
-    def InventoryGet(self, token, weburl, invdata=None):
+    def InventoryAPI(self, token, weburl, method="get", invdata=None):
         '''
         Inventory Reference API Get method
         @param token(64character barer type token)
@@ -574,15 +802,20 @@ class InventoryOperator(InventoryOperatorGUI):
         session = requests.Session()
         session.trust_env = False
 
-        res = session.get(weburl, json=invdata, headers=headers)
+        if method == "get":
+            res = session.get(weburl, json=invdata, headers=headers)
+        elif method == "delete":
+            res = session.delete(weburl, json=invdata, headers=headers)
+        #print res
 
         if str(res.status_code) != "200":
-            print("error")
+            print("error   : ")
             print('status  : ' + str(res.status_code))
             print('body    : ' + res.text)
             print('-------------------------------------------------------------------')
             print('url     : ' + weburl)
-            print('headers : ' + str(headers))
+            #print('headers : ' + str(res.headers))
+            #print('headers : ' + str(headers))
             return None
 
         #body_dict = ast.literal_eval(res.json())
@@ -805,44 +1038,40 @@ class InventoryOperator(InventoryOperatorGUI):
                 savevalue["Update"]["UserID"] = parser.get("Update", "UserID")
             if parser.has_option("Update", "Token") is True:
                 savevalue["Update"]["Token"] = parser.get("Update", "Token")
-        if parser.has_section("https://nims.mintsys.jp:50443") is True:
-            self.UserList["https://nims.mintsys.jp:50443"] = {}
-            usernames = userids = tokenlist = None
-            if parser.has_option("https://nims.mintsys.jp:50443", "username") is True:
-                usernames = parser.get("https://nims.mintsys.jp:50443", "username").split(",")
-            if parser.has_option("https://nims.mintsys.jp:50443", "userid") is True:
-                userids = parser.get("https://nims.mintsys.jp:50443", "userid").split()
-            if parser.has_option("https://nims.mintsys.jp:50443", "token") is True:
-                tokenlist = parser.get("https://nims.mintsys.jp:50443", "token").split()
-            if usernames is not None and userids is not None and tokenlist is not None:
-                for i in range(len(usernames)):
-                    self.UserList["https://nims.mintsys.jp:50443"][usernames[i]] = userids[i] + ":" + tokenlist[i]
-        if parser.has_section("https://u-tokyo.mintsys.jp:50443") is True:
-            self.UserList["https://u-tokyo.mintsys.jp:50443"] = {}
-            usernames = userids = tokenlist = None
-            if parser.has_option("https://u-tokyo.mintsys.jp:50443", "username") is True:
-                usernames = parser.get("https://u-tokyo.mintsys.jp:50443", "username").split(",")
-            if parser.has_option("https://u-tokyo.mintsys.jp:50443", "userid") is True:
-                userids = parser.get("https://u-tokyo.mintsys.jp:50443", "userid").split()
-            if parser.has_option("https://u-tokyo.mintsys.jp:50443", "token") is True:
-                tokenlist = parser.get("https://u-tokyo.mintsys.jp:50443", "token").split()
-            if usernames is not None and userids is not None and tokenlist is not None:
-                for i in range(len(usernames)):
-                    self.UserList["https://u-tokyo.mintsys.jp:50443"][usernames[i]] = userids[i] + ":" + tokenlist[i]
-        if parser.has_section("https://dev-u-tokyo.mintsys.jp:50443") is True:
-            self.UserList["https://dev-u-tokyo.mintsys.jp:50443"] = {}
-            usernames = userids = tokenlist = None
-            if parser.has_option("https://dev-u-tokyo.mintsys.jp:50443", "username") is True:
-                usernames = parser.get("https://dev-u-tokyo.mintsys.jp:50443", "username").split(",")
-            if parser.has_option("https://dev-u-tokyo.mintsys.jp:50443", "userid") is True:
-                userids = parser.get("https://dev-u-tokyo.mintsys.jp:50443", "userid").split()
-            if parser.has_option("https://dev-u-tokyo.mintsys.jp:50443", "token") is True:
-                tokenlist = parser.get("https://dev-u-tokyo.mintsys.jp:50443", "token").split()
-            if usernames is not None and userids is not None and tokenlist is not None:
-                for i in range(len(usernames)):
-                    self.UserList["https://dev-u-tokyo.mintsys.jp:50443"][usernames[i]] = userids[i] + ":" + tokenlist[i]
 
-        print self.UserList
+        if parser.has_section("Servers") is True:
+            servers = None
+            if parser.has_option("Servers", "servers") is True:
+                servers = parser.get("Servers", "servers").split()
+
+        if len(servers) != 0:
+            self.m_comboBoxReferenceURL.Clear()
+            self.m_comboBoxUpdateURL.Clear()
+            self.m_comboBoxReferenceURL.SetItems(servers)
+            self.m_comboBoxUpdateURL.SetItems(servers)
+
+        for item in servers:
+            print("server : %s"%item)
+            if parser.has_section(item) is True:
+                self.UserList[item] = {}
+                self.VersionList[item] = {}
+                usernames = userids = tokenlist = None
+                if parser.has_option(item, "username") is True:
+                    usernames = parser.get(item, "username").split(",")
+                if parser.has_option(item, "userid") is True:
+                    userids = parser.get(item, "userid").split()
+                if parser.has_option(item, "token") is True:
+                    tokenlist = parser.get(item, "token").split()
+                if usernames is not None and userids is not None and tokenlist is not None:
+                    for i in range(len(usernames)):
+                        self.UserList[item][usernames[i]] = userids[i] + ":" + tokenlist[i]
+                version = "3.0"
+                if parser.has_option(item, "version") is True:
+                    version = parser.get(item, "version")
+                self.VersionList[item]["version"] = version
+
+        #print self.UserList
+        #print self.VersionList
         return savevalue
 
     def MakeConfigFile(self, userid, token, path, query=None):
