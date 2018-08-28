@@ -503,6 +503,7 @@ class InventoryOperator(InventoryOperatorGUI):
         self.del_sel.m_listCtrlSelections.InsertColumn(0, "check", wx.LIST_FORMAT_LEFT, 60)
         self.del_sel.m_listCtrlSelections.InsertColumn(1, "Inventory Name", wx.LIST_FORMAT_LEFT, 200)
         self.del_sel.m_listCtrlSelections.InsertColumn(2, "Inventory ID", wx.LIST_FORMAT_LEFT, 200)
+        self.del_sel.m_listCtrlSelections.InsertColumn(3, "Deleted", wx.LIST_FORMAT_LEFT, 200)
 
         count = 0
         if self.VersionList[updateURL]["version"] == "3.0":
@@ -523,11 +524,14 @@ class InventoryOperator(InventoryOperatorGUI):
             path = path + "%s"%item
 
             ret = self.InventoryAPI(token, path)
-            if ret is None:
-                continue
             self.del_sel.m_listCtrlSelections.InsertStringItem(count, "%d"%count)
             self.del_sel.m_listCtrlSelections.SetStringItem(count, 1, results[item])
             self.del_sel.m_listCtrlSelections.SetStringItem(count, 2, item)
+            if ret is None:
+                self.del_sel.m_listCtrlSelections.SetItemBackgroundColour(count, wx.RED)
+                self.del_sel.m_listCtrlSelections.SetStringItem(count, 3, "Deleted. in the Dictionary or the Folder")
+            else:
+                self.del_sel.m_listCtrlSelections.SetStringItem(count, 3, "")
             count += 1
 
         self.del_sel.Show()
@@ -588,12 +592,21 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
 
         selections = {}
+        deleted = {}
         item_count = self.del_sel.m_listCtrlSelections.GetItemCount()
+        print("item_count = %d"%item_count)
         for i in range(item_count):
+            inventory_id = self.del_sel.m_listCtrlSelections.GetItem(i, 2).GetText()
             if self.del_sel.m_listCtrlSelections.IsChecked(i) is True:
-                name = self.del_sel.m_listCtrlSelections.GetItem(i, 1).GetText()
-                inventory_id = self.del_sel.m_listCtrlSelections.GetItem(i, 2).GetText()
-                selections[name] = inventory_id
+                selections[inventory_id] = True
+            else:
+                selections[inventory_id] = False
+
+            items = self.del_sel.m_listCtrlSelections.GetItem(i, 3).GetText()
+            if items != "":
+                deleted[inventory_id] = True
+            else:
+                deleted[inventory_id] = False
 
         if len(selections) == 0:
             self.del_sel.Close()
@@ -605,19 +618,21 @@ class InventoryOperator(InventoryOperatorGUI):
         if userid is False or token is False:
             return
 
+        dict_folder = self.m_staticTextDictionaryAndFolderIDUpdate.GetLabel()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
         if self.VersionList[updateURL]["version"] == "3.0":
             weburl = updateURL + '/inventory-update-api/v3/'
         else:
             weburl = updateURL + '/inventory-api/v1/'
 
+        count = 1
         for key in selections:
-            print("key = %s / id = %s"%(key, selections[key]))
-            if selections[key][0] == "D":                   # descriptors
+            #print("key = %s / id = %s"%(key, selections[key]))
+            if key[0] == "D":                   # descriptors
                 path = weburl + "descriptors/"
-            elif selections[key][0] == "M":                 # prediction-models
+            elif key[0] == "M":                 # prediction-models
                 path = weburl + "prediction-models/"
-            elif selections[key][0] == "T":                 # software-tools
+            elif key[0] == "T":                 # software-tools
                 path = weburl + "software-tools/"
             else:
                 print("unknown inventory-type.")
@@ -626,9 +641,16 @@ class InventoryOperator(InventoryOperatorGUI):
                 self.del_sel = None
                 return
 
-            path = path + "%s"%selections[key]
+            if deleted[key] is True:                        # delete entry under dictionary and folder
+                path = weburl + dict_folder + "/%s"%key
+            else:                                           # delete inventory 
+                path = path + "%s"%key
+
+            #print("%04d:path = %s"%(count, path))
+            count += 1
             ret = self.InventoryAPI(token, path, "delete")
 
+        #print deleted
         self.del_sel.Close()
         del self.del_sel
         self.del_sel = None
