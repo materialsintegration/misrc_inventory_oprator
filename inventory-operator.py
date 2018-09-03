@@ -6,7 +6,6 @@ NIMS野口さん作成のインベントリAPIプログラムのラッパープ�
 '''
 
 import sys, os
-import ast
 import time
 import json
 import datetime
@@ -153,12 +152,12 @@ class InventoryOperator(InventoryOperatorGUI):
         self.UserList = {}                          # URL毎のUserIDをキーにしたTokenの辞書
         self.VersionList = {}                       # URL毎のバージョンの指定
 
-        inifilename = "inventory-operator.ini"
+        #inifilename = "inventory-operator.ini"
+        inifilename = "Inventory.conf"
         if os.path.exists(inifilename) is True:
             print "found init file"
             infile = open(inifilename)
             lines = infile.read()
-            #init_dic = ast.literal_eval(lines)
             init_dic = self.ReadIniFile()
             userid_choice = []
             if init_dic.has_key("Reference") is True:
@@ -252,7 +251,8 @@ class InventoryOperator(InventoryOperatorGUI):
         else:
             parser = configparser.ConfigParser()
 
-        inifilename = "./inventory-operator.ini"
+        #inifilename = "./inventory-operator.ini"
+        inifilename = "Inventory.conf"
         if os.path.exists(inifilename) is True:
             parser.read(inifilename)
 
@@ -841,7 +841,6 @@ class InventoryOperator(InventoryOperatorGUI):
             #print('headers : ' + str(headers))
             return None
 
-        #body_dict = ast.literal_eval(res.json())
         return res.json()
 
     def InitializeRefListCtrl(self):
@@ -1036,7 +1035,8 @@ class InventoryOperator(InventoryOperatorGUI):
         else:
             parser = configparser.ConfigParser()
 
-        inifilename = "./inventory-operator.ini"
+        #inifilename = "./inventory-operator.ini"
+        inifilename = "Inventory.conf"
         if os.path.exists(inifilename) is True:
             parser.read(inifilename)
 
@@ -1062,8 +1062,8 @@ class InventoryOperator(InventoryOperatorGUI):
             if parser.has_option("Update", "Token") is True:
                 savevalue["Update"]["Token"] = parser.get("Update", "Token")
 
+        servers = ""
         if parser.has_section("Servers") is True:
-            servers = None
             if parser.has_option("Servers", "servers") is True:
                 servers = parser.get("Servers", "servers").split()
 
