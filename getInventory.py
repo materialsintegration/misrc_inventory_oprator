@@ -11,7 +11,6 @@
 
 import os
 import sys
-import ast
 import requests
 if sys.version_info[0] <= 2:
     import ConfigParser
@@ -176,7 +175,6 @@ def getInventory_main(webapi_refroot,):
         # call webapi
         rlt = inv.webapi_inventory(token, dest_url, None, 'get')
         #print("results = %s"%rlt.text)
-        #rlt_dic = ast.literal_eval(rlt.text) 
         rlt_dic = rlt.json()
    
         if (rlt.status_code != httpcode_success):
