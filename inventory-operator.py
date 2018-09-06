@@ -267,7 +267,8 @@ class InventoryOperator(InventoryOperatorGUI):
             parser.set("Update", "UserID", upd_dict["UserID"])
             parser.set("Update", "Token", upd_dict["Token"])
 
-        outfile = open("inventory-operator.ini", "w")
+        #outfile = open("inventory-operator.ini", "w")
+        outfile = open("Inventory.conf", "w")
         parser.write(outfile)
         outfile.close()
 
