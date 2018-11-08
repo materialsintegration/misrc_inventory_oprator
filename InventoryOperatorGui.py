@@ -132,8 +132,8 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText352.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText352, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrl10 = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
-		fgSizer8.Add( self.m_textCtrl10, 0, wx.RIGHT|wx.LEFT, 5 )
+		self.m_textCtrlReferencePasswd = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
+		fgSizer8.Add( self.m_textCtrlReferencePasswd, 0, wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_staticTextReferenceUserID = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticTextReferenceUserID.Wrap( -1 )
