@@ -216,6 +216,8 @@ class InventoryOperator(InventoryOperatorGUI):
         self.InitializeRefListCtrl()
         self.InitializeUpdListCtrl()
 
+        self.progressDialog = None
+
     #------------------ここからイベントハンドラ----------------------
     def InventoryOperatorGUIOnClose( self, event ):
         '''
@@ -267,7 +269,8 @@ class InventoryOperator(InventoryOperatorGUI):
             parser.set("Update", "UserID", upd_dict["UserID"])
             parser.set("Update", "Token", upd_dict["Token"])
 
-        outfile = open("inventory-operator.ini", "w")
+        #outfile = open("inventory-operator.ini", "w")
+        outfile = open("Inventory.conf", "w")
         parser.write(outfile)
         outfile.close()
 
@@ -290,12 +293,15 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         referenceURL = self.m_comboBoxReferenceURL.GetValue()
-        if self.VersionList[referenceURL]["version"] == "3.0":
-            weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
-        else:
-            weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        #if self.VersionList[referenceURL]["version"] == "3.0":
+        #    weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        #else:
+        #    weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        weburl = referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries'
 
-        ret = self.InventoryAPI(token, weburl)
+        result, ret = self.InventoryAPI(token, weburl)
+
+        ret = ret.json()
 
         self.ref_dictdict = ret["dictionaries"]
 
@@ -306,11 +312,14 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.ref_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    if self.VersionList[referenceURL]["version"] == "3.0":
-                        weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    else:
-                        weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    ret = self.InventoryAPI(token, weburl)
+                    #if self.VersionList[referenceURL]["version"] == "3.0":
+                    #    weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    #else:
+                    #    weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    result, ret = self.InventoryAPI(token, weburl)
+
+                    ret = ret.json()
 
                     if ret.has_key(ROOT_FOLDER) is True:
                         items2 = ret[ROOT_FOLDER]
@@ -336,12 +345,14 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
-        else:
-            weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        #if self.VersionList[updateURL]["version"] == "3.0":
+        #    weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        #else:
+        #    weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        weburl = updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries'
 
-        ret = self.InventoryAPI(token, weburl)
+        result, ret = self.InventoryAPI(token, weburl, debug_print=True)
+        ret = ret.json()
 
         self.upd_dictdict = ret["dictionaries"]
 
@@ -352,11 +363,13 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.upd_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    if self.VersionList[updateURL]["version"] == "3.0":
-                        weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    else:
-                        weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    ret = self.InventoryAPI(token, weburl)
+                    #if self.VersionList[updateURL]["version"] == "3.0":
+                    #    weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    #else:
+                    #    weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    result, ret = self.InventoryAPI(token, weburl)
+                    ret = ret.json()
 
                     if ret.has_key(ROOT_FOLDER) is True:
                         items2 = ret[ROOT_FOLDER]
@@ -487,11 +500,13 @@ class InventoryOperator(InventoryOperatorGUI):
         path = url
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
 
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-api/v3/' + path
-        else:
-            weburl = updateURL + '/inventory-api/v1/' + path
-        ret = self.InventoryAPI(token, weburl)
+        #if self.VersionList[updateURL]["version"] == "3.0":
+        #    weburl = updateURL + '/inventory-api/v3/' + path
+        #else:
+        #    weburl = updateURL + '/inventory-api/v1/' + path
+        weburl = updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"] + path
+        result, ret = self.InventoryAPI(token, weburl)
+        ret = ret.json()
 
         results = dict_print(ret, "")
 
@@ -503,14 +518,23 @@ class InventoryOperator(InventoryOperatorGUI):
 
         self.del_sel.m_listCtrlSelections.InsertColumn(0, "check", wx.LIST_FORMAT_LEFT, 60)
         self.del_sel.m_listCtrlSelections.InsertColumn(1, "Inventory Name", wx.LIST_FORMAT_LEFT, 200)
-        self.del_sel.m_listCtrlSelections.InsertColumn(2, "Inventory ID", wx.LIST_FORMAT_LEFT, 200)
-        self.del_sel.m_listCtrlSelections.InsertColumn(3, "Deleted", wx.LIST_FORMAT_LEFT, 200)
+        self.del_sel.m_listCtrlSelections.InsertColumn(2, "Inventory ID", wx.LIST_FORMAT_LEFT, 130)
+        self.del_sel.m_listCtrlSelections.InsertColumn(3, "created time", wx.LIST_FORMAT_LEFT, 120)
+        self.del_sel.m_listCtrlSelections.InsertColumn(4, "modified time", wx.LIST_FORMAT_LEFT, 120)
+        self.del_sel.m_listCtrlSelections.InsertColumn(5, "created by", wx.LIST_FORMAT_LEFT, 100)
+        self.del_sel.m_listCtrlSelections.InsertColumn(6, "Deleted", wx.LIST_FORMAT_LEFT, 50)
+
+        self.progressBar(0)
+        self.progressDialog = wx.ProgressDialog(parent=self, title=u"Progress Dialog", message=u"Getting inventories...")
+        self.progressDialog.Show()
 
         count = 0
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-api/v3/'
-        else:
-            weburl = updateURL + '/inventory-api/v1/'
+        pcount = 1
+        #if self.VersionList[updateURL]["version"] == "3.0":
+        #    weburl = updateURL + '/inventory-api/v3/'
+        #else:
+        #    weburl = updateURL + '/inventory-api/v1/'
+        weburl = updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"]
         for item in results:
             #print("key = %s / contens = %s"%(item, results[item]))
             if item[0] == "D":                   # descriptors
@@ -524,19 +548,43 @@ class InventoryOperator(InventoryOperatorGUI):
 
             path = path + "%s"%item
 
-            ret = self.InventoryAPI(token, path)
+            rslt, ret = self.InventoryAPI(token, path)
+            self.progressBar(int(float(pcount) / float(len(results)) * 100))
+            pcount += 1
+            if rslt is False:
+                continue
+            ret = ret.json()
             self.del_sel.m_listCtrlSelections.InsertStringItem(count, "%d"%count)
             self.del_sel.m_listCtrlSelections.SetStringItem(count, 1, results[item])
             self.del_sel.m_listCtrlSelections.SetStringItem(count, 2, item)
-            if ret is None:
+            if rslt is False:
                 self.del_sel.m_listCtrlSelections.SetItemBackgroundColour(count, wx.RED)
-                self.del_sel.m_listCtrlSelections.SetStringItem(count, 3, "Deleted. in the Dictionary or the Folder")
+                self.del_sel.m_listCtrlSelections.SetStringItem(count, 6, "Deleted. in the Dictionary or the Folder")
             else:
-                self.del_sel.m_listCtrlSelections.SetStringItem(count, 3, "")
+                self.del_sel.m_listCtrlSelections.SetStringItem(count, 6, "")
+
+                if ("creation_time" in ret) is True:
+                    self.del_sel.m_listCtrlSelections.SetStringItem(count, 3, ret["creation_time"].replace("-", "/").replace("T", " "))
+                if ("modified_time" in ret) is True:
+                    self.del_sel.m_listCtrlSelections.SetStringItem(count, 4, ret["modified_time"].replace("-", "/").replace("T", " "))
+                if ("created_by" in ret) is True:
+                    self.del_sel.m_listCtrlSelections.SetStringItem(count, 5, ret["created_by"].replace("-", "/").replace("T", " "))
             count += 1
+
+        self.progressBar(100)
+        self.progressDialog.Destroy()
+        self.progressDialog = None
 
         self.del_sel.Show()
         event.Skip()
+
+    def progressBar(self, pos):
+        '''
+        プログレスバーの操作
+        '''
+
+        if self.progressDialog is not None:
+            self.progressDialog.Update(pos)
 
     def m_listCtrlSelectionsOnColClick(self, event):
         '''
@@ -603,7 +651,7 @@ class InventoryOperator(InventoryOperatorGUI):
             else:
                 selections[inventory_id] = False
 
-            items = self.del_sel.m_listCtrlSelections.GetItem(i, 3).GetText()
+            items = self.del_sel.m_listCtrlSelections.GetItem(i, 6).GetText()
             if items != "":
                 deleted[inventory_id] = True
             else:
@@ -621,8 +669,8 @@ class InventoryOperator(InventoryOperatorGUI):
 
         dict_folder = self.m_staticTextDictionaryAndFolderIDUpdate.GetLabel()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-update-api/v3/'
+        if self.VersionList[updateURL]["version"] != "1":
+            weburl = updateURL + '/inventory-update-api/v%s/'%self.VersionList[referenceURL]["version"]
         else:
             weburl = updateURL + '/inventory-api/v1/'
 
@@ -642,14 +690,19 @@ class InventoryOperator(InventoryOperatorGUI):
                 self.del_sel = None
                 return
 
+            if selections[key] is False:
+                continue
+
             if deleted[key] is True:                        # delete entry under dictionary and folder
                 path = weburl + dict_folder + "/%s"%key
             else:                                           # delete inventory 
                 path = path + "%s"%key
 
             #print("%04d:path = %s"%(count, path))
+            result, ret = self.InventoryAPI(token, path, "delete")
+            if result is True:
+                print("successfully delete id(%s) of descriptor"%key)
             count += 1
-            ret = self.InventoryAPI(token, path, "delete")
 
         #print deleted
         self.del_sel.Close()
@@ -807,7 +860,7 @@ class InventoryOperator(InventoryOperatorGUI):
     
     #------------------ここまでイベントハンドラ----------------------
     #------------------ここからメンバー関数--------------------------
-    def InventoryAPI(self, token, weburl, method="get", invdata=None):
+    def InventoryAPI(self, token, weburl, method="get", invdata=None, debug_print=False):
         '''
         Inventory Reference API Get method
         @param token(64character barer type token)
@@ -829,19 +882,20 @@ class InventoryOperator(InventoryOperatorGUI):
             res = session.get(weburl, json=invdata, headers=headers)
         elif method == "delete":
             res = session.delete(weburl, json=invdata, headers=headers)
-        #print res
+        print res
 
         if str(res.status_code) != "200":
-            print("error   : ")
-            print('status  : ' + str(res.status_code))
-            print('body    : ' + res.text)
-            print('-------------------------------------------------------------------')
-            print('url     : ' + weburl)
-            #print('headers : ' + str(res.headers))
-            #print('headers : ' + str(headers))
-            return None
+            if debug_print is True:
+                print("error   : ")
+                print('status  : ' + str(res.status_code))
+                print('body    : ' + res.text)
+                print('-------------------------------------------------------------------')
+                print('url     : ' + weburl)
+                #print('headers : ' + str(res.headers))
+                #print('headers : ' + str(headers))
+            return False, res
 
-        return res.json()
+        return True, res
 
     def InitializeRefListCtrl(self):
         '''

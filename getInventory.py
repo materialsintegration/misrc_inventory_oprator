@@ -93,7 +93,8 @@ def configParse(file_path) :
 
         # check section
         if not sect_a in config_settings :
-            raise KeyError(sect)
+            continue
+            #raise KeyError(sect)
 
         for opt_attr in config_settings[sect_a] :
             # check need attributes
