@@ -293,10 +293,11 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         referenceURL = self.m_comboBoxReferenceURL.GetValue()
-        if self.VersionList[referenceURL]["version"] == "3.0":
-            weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
-        else:
-            weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        #if self.VersionList[referenceURL]["version"] == "3.0":
+        #    weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        #else:
+        #    weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        weburl = referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries'
 
         result, ret = self.InventoryAPI(token, weburl)
 
@@ -311,10 +312,11 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.ref_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    if self.VersionList[referenceURL]["version"] == "3.0":
-                        weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    else:
-                        weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    #if self.VersionList[referenceURL]["version"] == "3.0":
+                    #    weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    #else:
+                    #    weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
                     result, ret = self.InventoryAPI(token, weburl)
 
                     ret = ret.json()
@@ -343,12 +345,13 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
-        else:
-            weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        #if self.VersionList[updateURL]["version"] == "3.0":
+        #    weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
+        #else:
+        #    weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
+        weburl = updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries'
 
-        result, ret = self.InventoryAPI(token, weburl)
+        result, ret = self.InventoryAPI(token, weburl, debug_print=True)
         ret = ret.json()
 
         self.upd_dictdict = ret["dictionaries"]
@@ -360,10 +363,11 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.upd_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    if self.VersionList[updateURL]["version"] == "3.0":
-                        weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    else:
-                        weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    #if self.VersionList[updateURL]["version"] == "3.0":
+                    #    weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    #else:
+                    #    weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
                     result, ret = self.InventoryAPI(token, weburl)
                     ret = ret.json()
 
@@ -496,10 +500,11 @@ class InventoryOperator(InventoryOperatorGUI):
         path = url
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
 
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-api/v3/' + path
-        else:
-            weburl = updateURL + '/inventory-api/v1/' + path
+        #if self.VersionList[updateURL]["version"] == "3.0":
+        #    weburl = updateURL + '/inventory-api/v3/' + path
+        #else:
+        #    weburl = updateURL + '/inventory-api/v1/' + path
+        weburl = updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"] + path
         result, ret = self.InventoryAPI(token, weburl)
         ret = ret.json()
 
@@ -525,10 +530,11 @@ class InventoryOperator(InventoryOperatorGUI):
 
         count = 0
         pcount = 1
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-api/v3/'
-        else:
-            weburl = updateURL + '/inventory-api/v1/'
+        #if self.VersionList[updateURL]["version"] == "3.0":
+        #    weburl = updateURL + '/inventory-api/v3/'
+        #else:
+        #    weburl = updateURL + '/inventory-api/v1/'
+        weburl = updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"]
         for item in results:
             #print("key = %s / contens = %s"%(item, results[item]))
             if item[0] == "D":                   # descriptors
@@ -663,8 +669,8 @@ class InventoryOperator(InventoryOperatorGUI):
 
         dict_folder = self.m_staticTextDictionaryAndFolderIDUpdate.GetLabel()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        if self.VersionList[updateURL]["version"] == "3.0":
-            weburl = updateURL + '/inventory-update-api/v3/'
+        if self.VersionList[updateURL]["version"] != "1":
+            weburl = updateURL + '/inventory-update-api/v%s/'%self.VersionList[referenceURL]["version"]
         else:
             weburl = updateURL + '/inventory-api/v1/'
 
@@ -876,7 +882,7 @@ class InventoryOperator(InventoryOperatorGUI):
             res = session.get(weburl, json=invdata, headers=headers)
         elif method == "delete":
             res = session.delete(weburl, json=invdata, headers=headers)
-        #print res
+        print res
 
         if str(res.status_code) != "200":
             if debug_print is True:
