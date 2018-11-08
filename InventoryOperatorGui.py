@@ -108,7 +108,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		bSizer8.Add( sbSizer5, 0, wx.EXPAND, 5 )
 		
-		sbSizer10 = wx.StaticBoxSizer( wx.StaticBox( self.m_panelInventoriReference, wx.ID_ANY, u"ユーザー情報（取得用）" ), wx.VERTICAL )
+		sbSizer10 = wx.StaticBoxSizer( wx.StaticBox( self.m_panelInventoriReference, wx.ID_ANY, u"サーバー設定（取得用）" ), wx.VERTICAL )
 		
 		fgSizer8 = wx.FlexGridSizer( 4, 3, 0, 0 )
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
@@ -118,25 +118,26 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText24.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText24, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 		
+		self.m_textCtrlReferenceUserName = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer8.Add( self.m_textCtrlReferenceUserName, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
 		m_comboBoxReferenceUserIDChoices = []
 		self.m_comboBoxReferenceUserID = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( -1,-1 ), m_comboBoxReferenceUserIDChoices, 0 )
-		fgSizer8.Add( self.m_comboBoxReferenceUserID, 0, wx.ALL, 5 )
+		self.m_comboBoxReferenceUserID.Enable( False )
+		self.m_comboBoxReferenceUserID.Hide()
 		
-		self.m_static351 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_static351.Wrap( -1 )
-		fgSizer8.Add( self.m_static351, 0, wx.RIGHT|wx.LEFT, 5 )
+		fgSizer8.Add( self.m_comboBoxReferenceUserID, 0, wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_staticText352 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"User ID", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText352 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"パスワード", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText352.Wrap( -1 )
 		fgSizer8.Add( self.m_staticText352, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrl10 = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
+		fgSizer8.Add( self.m_textCtrl10, 0, wx.RIGHT|wx.LEFT, 5 )
 		
 		self.m_staticTextReferenceUserID = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticTextReferenceUserID.Wrap( -1 )
 		fgSizer8.Add( self.m_staticTextReferenceUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText37 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText37.Wrap( -1 )
-		fgSizer8.Add( self.m_staticText37, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText25 = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
@@ -281,7 +282,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		bSizer9.Add( sbSizer6, 0, wx.EXPAND, 5 )
 		
-		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self.m_panelInventoryUpdate, wx.ID_ANY, u"ユーザー情報（投入または削除用）" ), wx.VERTICAL )
+		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self.m_panelInventoryUpdate, wx.ID_ANY, u"サーバー設定（投入または削除用）" ), wx.VERTICAL )
 		
 		fgSizer9 = wx.FlexGridSizer( 5, 3, 0, 0 )
 		fgSizer9.SetFlexibleDirection( wx.BOTH )
@@ -291,25 +292,25 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText241.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText241, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.m_textCtrlUpdateUserName = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer9.Add( self.m_textCtrlUpdateUserName, 0, wx.RIGHT|wx.LEFT, 5 )
+		
 		m_comboBoxUpdateUserIDChoices = []
 		self.m_comboBoxUpdateUserID = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( -1,-1 ), m_comboBoxUpdateUserIDChoices, 0 )
-		fgSizer9.Add( self.m_comboBoxUpdateUserID, 0, wx.ALL, 5 )
+		self.m_comboBoxUpdateUserID.Hide()
 		
-		self.m_staticText39 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText39.Wrap( -1 )
-		fgSizer9.Add( self.m_staticText39, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer9.Add( self.m_comboBoxUpdateUserID, 0, wx.RIGHT|wx.LEFT, 5 )
 		
-		self.m_staticText38 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"User ID", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText38 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"パスワード", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText38.Wrap( -1 )
 		fgSizer9.Add( self.m_staticText38, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrlUpdatePasswd = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
+		fgSizer9.Add( self.m_textCtrlUpdatePasswd, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticTextUpdateUserID = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticTextUpdateUserID.Wrap( -1 )
 		fgSizer9.Add( self.m_staticTextUpdateUserID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText40 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText40.Wrap( -1 )
-		fgSizer9.Add( self.m_staticText40, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText251 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText251.Wrap( -1 )
