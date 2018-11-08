@@ -547,3 +547,66 @@ class SelectorBoxProtoType ( wx.Frame ):
 		event.Skip()
 	
 
+###########################################################################
+## Class MIAuthDialog
+###########################################################################
+
+class MIAuthDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"MIシステム認証", pos = wx.DefaultPosition, size = wx.Size( 336,152 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer10 = wx.BoxSizer( wx.VERTICAL )
+		
+		fgSizer6 = wx.FlexGridSizer( 4, 2, 0, 0 )
+		fgSizer6.SetFlexibleDirection( wx.BOTH )
+		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText42 = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText42.Wrap( -1 )
+		fgSizer6.Add( self.m_staticText42, 0, wx.RIGHT|wx.LEFT, 5 )
+		
+		self.m_staticText43 = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText43.Wrap( -1 )
+		fgSizer6.Add( self.m_staticText43, 0, wx.RIGHT|wx.LEFT, 5 )
+		
+		self.m_staticText40 = wx.StaticText( self, wx.ID_ANY, u"ユーザー名", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText40.Wrap( -1 )
+		fgSizer6.Add( self.m_staticText40, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
+		
+		self.m_textCtrl5 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer6.Add( self.m_textCtrl5, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.m_staticText41 = wx.StaticText( self, wx.ID_ANY, u"パスワード", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText41.Wrap( -1 )
+		fgSizer6.Add( self.m_staticText41, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrl6 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
+		fgSizer6.Add( self.m_textCtrl6, 0, wx.ALL, 5 )
+		
+		
+		bSizer10.Add( fgSizer6, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_button10 = wx.Button( self, wx.ID_ANY, u"Ok", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer11.Add( self.m_button10, 0, wx.ALL, 5 )
+		
+		self.m_button11 = wx.Button( self, wx.ID_ANY, u"Cacnel", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer11.Add( self.m_button11, 0, wx.ALL, 5 )
+		
+		
+		bSizer10.Add( bSizer11, 0, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( bSizer10 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+	
+	def __del__( self ):
+		pass
+	
+
