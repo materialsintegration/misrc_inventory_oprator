@@ -18,6 +18,7 @@ else:
     import configparser
     #from urllib.parse import urlparse
 
+from openam_operator import *                   # MIシステム認証ライブラリ
 from InventoryOperatorGui import *
 from getInventory import *
 from postInventory4 import *
@@ -152,44 +153,52 @@ class InventoryOperator(InventoryOperatorGUI):
         self.UserList = {}                          # URL毎のUserIDをキーにしたTokenの辞書
         self.VersionList = {}                       # URL毎のバージョンの指定
 
-        #inifilename = "inventory-operator.ini"
-        inifilename = "Inventory.conf"
+        inifilename = "inventory-operator.ini"
+        #inifilename = "Inventory.conf"
         if os.path.exists(inifilename) is True:
-            print "found init file"
-            infile = open(inifilename)
-            lines = infile.read()
+            #print "found init file"
+            #infile = open(inifilename)
+            #lines = infile.read()
             init_dic = self.ReadIniFile()
+            print("length of init_dic is %d"%len(init_dic))
+            print(init_dic)
             userid_choice = []
             if init_dic.has_key("Reference") is True:
                 if init_dic["Reference"].has_key("UserID") is True:
-                    if init_dic["Reference"]["URL"] is not None:
-                        self.m_comboBoxReferenceURL.SetValue(init_dic["Reference"]["URL"])
-                        self.url_ref = init_dic["Reference"]["URL"]
-                        self.m_comboBoxReferenceURLOnCombobox(None)
                     if init_dic["Reference"]["UserID"] is not None: 
                         #self.m_textCtrlReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
                         self.m_comboBoxReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
                         self.userid_ref = init_dic["Reference"]["UserID"]
-                    if init_dic["Reference"]["Token"] is not None: 
+                if init_dic["Reference"].has_key("URL") is True:
+                    if init_dic["Reference"]["URL"] != "":
+                        self.m_comboBoxReferenceURL.SetValue(init_dic["Reference"]["URL"])
+                        self.url_ref = init_dic["Reference"]["URL"]
+                        self.m_comboBoxReferenceURLOnCombobox(None)
+                if init_dic["Reference"].has_key("Token") is True:
+                    if init_dic["Reference"]["Token"] != "":
                         self.m_textCtrlReferenceAccessToken.SetValue(init_dic["Reference"]["Token"])
                         self.token_ref = init_dic["Reference"]["Token"]
-                    if init_dic["Reference"]["ConfFile"] is not None:
+                if init_dic["Reference"].has_key("ConfFile") is True:
+                    if init_dic["Reference"]["ConfFile"] != "":
                         self.m_textCtrlConfFileNameSave.SetValue(init_dic["Reference"]["ConfFile"])
                         self.conffilesave = init_dic["Reference"]["ConfFile"]
             if init_dic.has_key("Update") is True:
                 if init_dic["Update"].has_key("UserID") is True:
-                    if init_dic["Update"]["URL"] is not None:
-                        self.m_comboBoxUpdateURL.SetValue(init_dic["Update"]["URL"])
-                        self.url_upd = init_dic["Update"]["URL"]
-                        self.m_comboBoxUpdateURLOnCombobox(None)
                     if init_dic["Update"]["UserID"] is not None: 
                         #self.m_textCtrlUpdateUserID.SetValue(init_dic["Update"]["UserID"])
                         self.m_comboBoxUpdateUserID.SetValue(init_dic["Update"]["UserID"])
                         self.userid_upd = init_dic["Update"]["UserID"]
-                    if init_dic["Update"]["Token"] is not None: 
+                if init_dic["Update"].has_key("URL") is True:
+                    if init_dic["Update"]["URL"] != "":
+                        self.m_comboBoxUpdateURL.SetValue(init_dic["Update"]["URL"])
+                        self.url_upd = init_dic["Update"]["URL"]
+                        self.m_comboBoxUpdateURLOnCombobox(None)
+                if init_dic["Update"].has_key("Token") is True:
+                    if init_dic["Update"]["Token"] != "":
                         self.m_textCtrlUpdateAccessToken.SetValue(init_dic["Update"]["Token"])
                         self.token_upd = init_dic["Update"]["Token"]
-                    if init_dic["Update"]["ConfFile"] is not None:
+                if init_dic["Update"].has_key("ConfFile") is True:
+                    if init_dic["Update"]["ConfFile"] != "":
                         self.m_textCtrlConfFileNameRead.SetValue(init_dic["Update"]["ConfFile"])
                         self.conffileread = init_dic["Update"]["ConfFile"]
 
@@ -204,6 +213,9 @@ class InventoryOperator(InventoryOperatorGUI):
 
         # ListCtrl準備
         self.del_sel = None
+
+        self.m_textCtrlUpdateAccessToken.Enable(False)
+        self.m_textCtrlReferenceAccessToken.Enable(False)
 
         self.DictionaryFoldersID = None
         self.DictionaryFoldersIDUpdate = None
@@ -253,24 +265,24 @@ class InventoryOperator(InventoryOperatorGUI):
         else:
             parser = configparser.ConfigParser()
 
-        #inifilename = "./inventory-operator.ini"
-        inifilename = "Inventory.conf"
+        inifilename = "./inventory-operator.ini"
+        #inifilename = "Inventory.conf"
         if os.path.exists(inifilename) is True:
             parser.read(inifilename)
 
         if parser.has_section("Reference") is True:
             parser.set("Reference", "URL", ref_dict["URL"])
             parser.set("Reference", "ConfFile", ref_dict["ConfFile"])
-            parser.set("Reference", "UserID", ref_dict["UserID"])
-            parser.set("Reference", "Token", ref_dict["Token"])
+            #parser.set("Reference", "UserID", ref_dict["UserID"])
+            #parser.set("Reference", "Token", ref_dict["Token"])
         if parser.has_section("Update") is True:
             parser.set("Update", "URL", upd_dict["URL"])
             parser.set("Update", "ConfFile", upd_dict["ConfFile"])
-            parser.set("Update", "UserID", upd_dict["UserID"])
-            parser.set("Update", "Token", upd_dict["Token"])
+            #parser.set("Update", "UserID", upd_dict["UserID"])
+            #parser.set("Update", "Token", upd_dict["Token"])
 
-        #outfile = open("inventory-operator.ini", "w")
-        outfile = open("Inventory.conf", "w")
+        outfile = open("inventory-operator.ini", "w")
+        #outfile = open("Inventory.conf", "w")
         parser.write(outfile)
         outfile.close()
 
@@ -293,11 +305,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         referenceURL = self.m_comboBoxReferenceURL.GetValue()
-        #if self.VersionList[referenceURL]["version"] == "3.0":
-        #    weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
-        #else:
-        #    weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
-        weburl = referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries'
+        weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries'
 
         result, ret = self.InventoryAPI(token, weburl)
 
@@ -312,11 +320,7 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.ref_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    #if self.VersionList[referenceURL]["version"] == "3.0":
-                    #    weburl = referenceURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    #else:
-                    #    weburl = referenceURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    weburl = referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
                     result, ret = self.InventoryAPI(token, weburl)
 
                     ret = ret.json()
@@ -345,11 +349,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        #if self.VersionList[updateURL]["version"] == "3.0":
-        #    weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries'
-        #else:
-        #    weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries'
-        weburl = updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries'
+        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries'
 
         result, ret = self.InventoryAPI(token, weburl, debug_print=True)
         ret = ret.json()
@@ -363,11 +363,7 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.upd_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    #if self.VersionList[updateURL]["version"] == "3.0":
-                    #    weburl = updateURL + '/inventory-api/v3/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    #else:
-                    #    weburl = updateURL + '/inventory-api/v1/users/' + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    weburl = updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
                     result, ret = self.InventoryAPI(token, weburl)
                     ret = ret.json()
 
@@ -403,7 +399,8 @@ class InventoryOperator(InventoryOperatorGUI):
         self.MakeConfigFile(userid, token, path)
 
         url = self.m_comboBoxReferenceURL.GetValue()
-        url = url + "/inventory-api/v3"
+        ReferenceURL = self.m_comboBoxReferenceURL.GetValue()
+        url = "https://%s:50443"%url + "/inventory-api/v%s"%self.VersionList[ReferenceURL]["version"]
 
         getInventory_main(url)
 
@@ -429,7 +426,8 @@ class InventoryOperator(InventoryOperatorGUI):
         self.MakeConfigFile(userid, token, path)
 
         url = self.m_comboBoxUpdateURL.GetValue()
-        url = url + "/inventory-update-api/v3"
+        updateURL = self.m_comboBoxUpdateURL.GetValue()
+        url = "https://%s:50443"%url + "/inventory-update-api/v%s"%self.VersionList[updateURL]["version"]
 
         postInventory_main(url)
 
@@ -500,11 +498,7 @@ class InventoryOperator(InventoryOperatorGUI):
         path = url
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
 
-        #if self.VersionList[updateURL]["version"] == "3.0":
-        #    weburl = updateURL + '/inventory-api/v3/' + path
-        #else:
-        #    weburl = updateURL + '/inventory-api/v1/' + path
-        weburl = updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"] + path
+        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"] + path
         result, ret = self.InventoryAPI(token, weburl)
         ret = ret.json()
 
@@ -530,11 +524,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         count = 0
         pcount = 1
-        #if self.VersionList[updateURL]["version"] == "3.0":
-        #    weburl = updateURL + '/inventory-api/v3/'
-        #else:
-        #    weburl = updateURL + '/inventory-api/v1/'
-        weburl = updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"]
+        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"]
         for item in results:
             #print("key = %s / contens = %s"%(item, results[item]))
             if item[0] == "D":                   # descriptors
@@ -670,9 +660,9 @@ class InventoryOperator(InventoryOperatorGUI):
         dict_folder = self.m_staticTextDictionaryAndFolderIDUpdate.GetLabel()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
         if self.VersionList[updateURL]["version"] != "1":
-            weburl = updateURL + '/inventory-update-api/v%s/'%self.VersionList[referenceURL]["version"]
+            weburl = 'https://%s:50443'%updateURL + '/inventory-update-api/v%s/'%self.VersionList[referenceURL]["version"]
         else:
-            weburl = updateURL + '/inventory-api/v1/'
+            weburl = 'https://%s:50443'%updateURL + '/inventory-api/v1/'
 
         count = 1
         for key in selections:
@@ -1089,8 +1079,8 @@ class InventoryOperator(InventoryOperatorGUI):
         else:
             parser = configparser.ConfigParser()
 
-        #inifilename = "./inventory-operator.ini"
-        inifilename = "Inventory.conf"
+        inifilename = "./inventory-operator.ini"
+        #inifilename = "Inventory.conf"
         if os.path.exists(inifilename) is True:
             parser.read(inifilename)
 
@@ -1123,7 +1113,9 @@ class InventoryOperator(InventoryOperatorGUI):
 
         if len(servers) != 0:
             self.m_comboBoxReferenceURL.Clear()
+            self.m_comboBoxReferenceURL.SetValue("")
             self.m_comboBoxUpdateURL.Clear()
+            self.m_comboBoxUpdateURL.SetValue("")
             self.m_comboBoxReferenceURL.SetItems(servers)
             self.m_comboBoxUpdateURL.SetItems(servers)
 
@@ -1192,6 +1184,28 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照用ユーザーIDとTokenの確認
         '''
+
+        # 認証
+        passwd = self.m_textCtrlReferencePasswd.GetValue()
+        username = self.m_textCtrlReferenceUserName.GetValue()
+        if passwd == "" or username == "":
+            dialog = wx.MessageDialog(self, u"User Nameかパスワードが空です", "Error", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            return False, False
+        server = self.m_comboBoxReferenceURL.GetValue()
+
+        ret, uid, token = miauth(server, username, passwd)
+
+        if ret is False:
+            dialog = wx.MessageDialog(self, u"ユーザー認証に失敗しました", "Error", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            return False, False
+
+        self.m_staticTextReferenceUserID.SetLabel(uid)
+        token = self.m_textCtrlReferenceAccessToken.SetValue(token)
+
         userid = self.m_staticTextReferenceUserID.GetLabel()
         if userid is None or userid == "":
             dialog = wx.MessageDialog(self, u"UserIDが空です", "Error", style=wx.OK)
@@ -1211,6 +1225,28 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         更新用ユーザーIDとTokenの確認
         '''
+
+        # 認証
+        passwd = self.m_textCtrlUpdatePasswd.GetValue()
+        username = self.m_textCtrlUpdateUserName.GetValue()
+        if passwd == "" or username == "":
+            dialog = wx.MessageDialog(self, u"User Nameかパスワードが空です", "Error", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            return False, False
+        server = self.m_comboBoxUpdateURL.GetValue()
+
+        ret, uid, token = miauth(server, username, passwd)
+
+        if ret is False:
+            dialog = wx.MessageDialog(self, u"ユーザー認証に失敗しました", "Error", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            return False, False
+
+        self.m_staticTextUpdateUserID.SetLabel(uid)
+        token = self.m_textCtrlUpdateAccessToken.SetValue(token)
+
         userid = self.m_staticTextUpdateUserID.GetLabel()
         if userid is None or userid == "":
             dialog = wx.MessageDialog(self, u"UserIDが空です", "Error", style=wx.OK)

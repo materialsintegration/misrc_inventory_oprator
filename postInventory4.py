@@ -281,14 +281,16 @@ def postInventory_main(webapi_updroot):
 
         # replace old-new id
         new_xml = base_xml
+        oldnew = open("old_new.lst", "w")
         for o, n in zip(oldIDs, newIDs):
             new_xml = new_xml.replace(o, n)
+            oldnew.write("%s %s\n"%(o, n))
 
         # output new xml
         f = open(mod_outf, 'w')
         f.write(new_xml)
         f.close()
-
+        oldnew.close()
 
     print("------------------------------")
     print("normal completion of " + __file__ + "!!!")
