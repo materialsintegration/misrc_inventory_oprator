@@ -18,7 +18,7 @@ else:
     import configparser
     #from urllib.parse import urlparse
 
-from openam_operator import *                   # MIシステム認証ライブラリ
+from openam_operator import openam_operator     # MIシステム認証ライブラリ
 from InventoryOperatorGui import *
 from getInventory import *
 from postInventory4 import *
@@ -1195,7 +1195,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return False, False
         server = self.m_comboBoxReferenceURL.GetValue()
 
-        ret, uid, token = miauth(server, username, passwd)
+        ret, uid, token = openam_operator.miauth(server, username, passwd)
 
         if ret is False:
             dialog = wx.MessageDialog(self, u"ユーザー認証に失敗しました", "Error", style=wx.OK)
@@ -1236,7 +1236,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return False, False
         server = self.m_comboBoxUpdateURL.GetValue()
 
-        ret, uid, token = miauth(server, username, passwd)
+        ret, uid, token = openam_operator.miauth(server, username, passwd)
 
         if ret is False:
             dialog = wx.MessageDialog(self, u"ユーザー認証に失敗しました", "Error", style=wx.OK)
