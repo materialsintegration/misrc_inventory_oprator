@@ -307,7 +307,7 @@ class InventoryOperator(InventoryOperatorGUI):
         referenceURL = self.m_comboBoxReferenceURL.GetValue()
         weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries'
 
-        result, ret = self.InventoryAPI(token, weburl)
+        result, ret = self.InventoryAPI(token, weburl, debug_print=True)
 
         ret = ret.json()
 
@@ -326,6 +326,7 @@ class InventoryOperator(InventoryOperatorGUI):
                     ret = ret.json()
 
                     if ret.has_key(ROOT_FOLDER) is True:
+                        print("ret = %s"%str(ret))
                         items2 = ret[ROOT_FOLDER]
                         #print items2
                         folders = folder_print(items2, "")
@@ -368,6 +369,7 @@ class InventoryOperator(InventoryOperatorGUI):
                     ret = ret.json()
 
                     if ret.has_key(ROOT_FOLDER) is True:
+                        print("ret = %s"%str(ret))
                         items2 = ret[ROOT_FOLDER]
                         #print items2
                         folders = folder_print(items2, "")
