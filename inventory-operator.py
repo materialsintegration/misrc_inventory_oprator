@@ -868,7 +868,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         # http request
         session = requests.Session()
-        session.trust_env = False
+        #session.trust_env = False
 
         if method == "get":
             res = session.get(weburl, json=invdata, headers=headers)
