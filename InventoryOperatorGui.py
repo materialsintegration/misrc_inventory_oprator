@@ -56,7 +56,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		sbSizer5.Add( bSizer10, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5 )
 		
-		fgSizer71 = wx.FlexGridSizer( 4, 3, 0, 0 )
+		fgSizer71 = wx.FlexGridSizer( 5, 3, 0, 0 )
 		fgSizer71.SetFlexibleDirection( wx.BOTH )
 		fgSizer71.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -99,6 +99,16 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		self.m_buttonSoftwareToolBrowseRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer71.Add( self.m_buttonSoftwareToolBrowseRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText431 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"modules.xml", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText431.Wrap( -1 )
+		fgSizer71.Add( self.m_staticText431, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrlModulesXMLUpdate = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		fgSizer71.Add( self.m_textCtrlModulesXMLUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_buttonModuleXMLBrowseUpdate = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer71.Add( self.m_buttonModuleXMLBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
 		sbSizer5.Add( fgSizer71, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
@@ -245,16 +255,6 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonSoftwareToolBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer711.Add( self.m_buttonSoftwareToolBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText431 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"modules.xml", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText431.Wrap( -1 )
-		fgSizer711.Add( self.m_staticText431, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_textCtrlModulesXMLUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
-		fgSizer711.Add( self.m_textCtrlModulesXMLUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_buttonModuleXMLBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer711.Add( self.m_buttonModuleXMLBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
 		
 		sbSizer51.Add( fgSizer711, 0, wx.EXPAND|wx.TOP, 5 )
 		
@@ -371,6 +371,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonDescriptorBrowseRef.Bind( wx.EVT_BUTTON, self.m_buttonDescriptorBrowseRefOnButtonClick )
 		self.m_buttonPredictionBrowsRef.Bind( wx.EVT_BUTTON, self.m_buttonPredictionBrowsRefOnButtonClick )
 		self.m_buttonSoftwareToolBrowseRef.Bind( wx.EVT_BUTTON, self.m_buttonSoftwareToolBrowseRefOnButtonClick )
+		self.m_buttonModuleXMLBrowseUpdate.Bind( wx.EVT_BUTTON, self.m_buttonModuleXMLBrowseUpdateOnButtonClick )
 		self.m_comboBoxReferenceUserID.Bind( wx.EVT_COMBOBOX, self.m_comboBoxReferenceUserIDOnCombobox )
 		self.m_buttonReferenceGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonReferenceGetAccessTokenOnButtonClick )
 		self.m_comboBoxReferenceURL.Bind( wx.EVT_COMBOBOX, self.m_comboBoxReferenceURLOnCombobox )
@@ -384,7 +385,6 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonDescriptorBrowseUpdate.Bind( wx.EVT_BUTTON, self.m_buttonDescriptorBrowseUpdateOnButtonClick )
 		self.m_buttonPredictionBrowsUpdate.Bind( wx.EVT_BUTTON, self.m_buttonPredictionBrowsUpdateOnButtonClick )
 		self.m_buttonSoftwareToolBrowseUpdate.Bind( wx.EVT_BUTTON, self.m_buttonSoftwareToolBrowseUpdateOnButtonClick )
-		self.m_buttonModuleXMLBrowseUpdate.Bind( wx.EVT_BUTTON, self.m_buttonModuleXMLBrowseUpdateOnButtonClick )
 		self.m_buttonDeleteInventories.Bind( wx.EVT_BUTTON, self.m_buttonDeleteInventoriesOnButtonClick )
 		self.m_comboBoxUpdateUserID.Bind( wx.EVT_COMBOBOX, self.m_comboBoxUpdateUserIDOnCombobox )
 		self.m_buttonUpdateGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonUpdateGetAccessTokenOnButtonClick )
@@ -428,6 +428,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def m_buttonSoftwareToolBrowseRefOnButtonClick( self, event ):
 		event.Skip()
 	
+	def m_buttonModuleXMLBrowseUpdateOnButtonClick( self, event ):
+		event.Skip()
+	
 	def m_comboBoxReferenceUserIDOnCombobox( self, event ):
 		event.Skip()
 	
@@ -465,9 +468,6 @@ class InventoryOperatorGUI ( wx.Frame ):
 		event.Skip()
 	
 	def m_buttonSoftwareToolBrowseUpdateOnButtonClick( self, event ):
-		event.Skip()
-	
-	def m_buttonModuleXMLBrowseUpdateOnButtonClick( self, event ):
 		event.Skip()
 	
 	def m_buttonDeleteInventoriesOnButtonClick( self, event ):
