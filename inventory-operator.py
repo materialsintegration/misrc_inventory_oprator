@@ -132,7 +132,7 @@ class InventoryOperator(InventoryOperatorGUI):
     '''
     '''
 
-    def __init__(self, parent):
+    def __init__(self, parent, descriptor_ref_json = "src_descriptors.json", prediction_ref_json = "src_prediction-models.json", software_tool_ref_json = "src_software-tools.json", descriptor_upd_json = "dst_descriptors.json", prediction_upd_json = "dst_prediction-models.json", software_tool_upd_json = "dst_software-tools.json"):
         '''
         初期化
         @params parent(親となるクラス。通常None)
@@ -229,6 +229,29 @@ class InventoryOperator(InventoryOperatorGUI):
         self.InitializeUpdListCtrl()
 
         self.progressDialog = None
+
+        # JSONファイル名
+        #self.descriptor_ref = "src_descriptors.json"
+        #self.prediction_ref = "src_prediction-models.json"
+        #self.software_tool_ref = "src_software-tools.json"
+        #self.descriptor_upd = "dst_descriptors.json"
+        #self.prediction_upd = "dst_prediction-models.json"
+        #self.software_tool_upd = "dst_software-tools.json"
+        self.descriptor_ref = descriptor_ref_json
+        self.prediction_ref = prediction_ref_json
+        self.software_tool_ref = software_tool_ref_json
+        self.descriptor_upd = descriptor_upd_json
+        self.prediction_upd = prediction_upd_json
+        self.software_tool_upd = software_tool_upd_json
+        self.modulesxml = "modules-zeisei.xml"
+        # JSONファイル名デフォルト値の表示
+        self.m_textCtrlDescriptorFileNameRef.SetValue(self.descriptor_ref)
+        self.m_textCtrlDescriptorFileNameUpdate.SetValue(self.descriptor_upd)
+        self.m_textCtrlPredictionModelFilenameRef.SetValue(self.prediction_ref)
+        self.m_textCtrlPredictionModelFilenameUpdate.SetValue(self.prediction_upd)
+        self.m_textCtrlSoftwareToolFilenameRef.SetValue(self.software_tool_ref)
+        self.m_textCtrlSoftwareToolFilenameUpdate.SetValue(self.software_tool_upd)
+        self.m_textCtrlModulesXMLUpdate.SetValue(self.modulesxml)
 
     #------------------ここからイベントハンドラ----------------------
     def InventoryOperatorGUIOnClose( self, event ):
@@ -849,7 +872,62 @@ class InventoryOperator(InventoryOperatorGUI):
 
         if event is not None:
             event.Skip()
-    
+
+    def m_buttonDescriptorBrowseUpdateOnButtonClick( self, event ):
+        '''
+        更新系の記述子リストのファイル名指定。
+        '''
+
+        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlDescriptorFileNameUpdate.SetValue(filename)
+
+    def m_buttonPredictionBrowsUpdateOnButtonClick( self, event ):
+        '''
+        更新系の予測モデルリストのファイル名指定。
+        '''
+        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlPredictionModelFilenameUpdate.SetValue(filename)
+
+    def m_buttonSoftwareToolBrowseUpdateOnButtonClick( self, event ):
+        '''
+        更新系のソフトウェアツールリストのファイル名指定。
+        '''
+        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlSoftwareToolFilenameUpdate.SetValue(filename)
+
+    def m_buttonDescriptorBrowseRefOnButtonClick( self, event ):
+        '''
+        参照系の記述子リストのファイル名指定。
+        '''
+        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlDescriptorFileNameRef.SetValue(filename)
+
+    def m_buttonPredictionBrowsRefOnButtonClick( self, event ):
+        '''
+        参照系の予測モデルリストのファイル名指定。
+        '''
+        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlPredictionModelFilenameRef.SetValue(filename)
+
+    def m_buttonSoftwareToolBrowseRefOnButtonClick( self, event ):
+        '''
+        参照系のソフトウェアツールリストのファイル名指定。
+        '''
+        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlSoftwareToolFilenameRef.SetValue(filename)
+
     #------------------ここまでイベントハンドラ----------------------
     #------------------ここからメンバー関数--------------------------
     def InventoryAPI(self, token, weburl, method="get", invdata=None, debug_print=False):
@@ -1173,10 +1251,27 @@ class InventoryOperator(InventoryOperatorGUI):
 
         if parser.has_section("file") is False:
             parser.add_section("file")
+
+        # 各JSONファイル名欄が埋まっていたら、設定をもってくる
+        if self.m_textCtrlDescriptorFileNameRef.GetValue() != "":
+            self.descriptor_ref = self.m_textCtrlDescriptorFileNameRef.GetValue()
+        if self.m_textCtrlPredictionModelFilenameRef.GetValue() != "":
+            self.prediction_ref = self.m_textCtrlPredictionModelFilenameRef.GetValue()
+        if self.m_textCtrlSoftwareToolFilenameRef.GetValue() != "":
+            self.software_tool_ref = self.m_textCtrlSoftwareToolFilenameRef.GetValue()
+        if self.m_textCtrlDescriptorFileNameUpdate.GetValue() != "":
+            self.descriptor_upd = self.m_textCtrlDescriptorFileNameUpdate.GetValue()
+        if self.m_textCtrlPredictionModelFilenameUpdate.GetValue() != "":
+            self.prediction_upd = self.m_textCtrlPredictionModelFilenameUpdate.GetValue()
+        if self.m_textCtrlSoftwareToolFilenameUpdate.GetValue() != "":
+            self.software_tool_upd = self.m_textCtrlSoftwareToolFilenameUpdate.GetValue()
         parser.set("file", "object", "descriptor\n       prediction-model\n       software-tool")
-        parser.set("file", "inputfile", "kushida_descriptors.json\n          kushida_prediction-models.json\n          kushida_software-tools.json")
-        parser.set("file", "outputfile", "kushida_descriptors.json\n           kushida_prediction-models.json\n           kushida_software-tools.json")
-        parser.set("file", "modules.xml", "modules-zeisei.xml")
+        #parser.set("file", "inputfile", "kushida_descriptors.json\n          kushida_prediction-models.json\n          kushida_software-tools.json")
+        #parser.set("file", "outputfile", "kushida_descriptors.json\n           kushida_prediction-models.json\n           kushida_software-tools.json")
+        #parser.set("file", "modules.xml", "modules-zeisei.xml")
+        parser.set("file", "outputfile", "%s\n          %s\n          %s"%(self.descriptor_ref, self.prediction_ref, self.software_tool_ref))
+        parser.set("file", "inputfile", "%s\n           %s\n           %s"%(self.descriptor_upd, self.prediction_upd, self.software_tool_upd))
+        parser.set("file", "modules.xml", "%s"%self.modulesxml)
 
         conffile = open(conffilename, "w")
         parser.write(conffile)
@@ -1270,16 +1365,18 @@ def main():
     '''
 
     params_len = len(sys.argv)
-#    if params_len < 4:
-#       print "python param_operater.py <src> <width %> <number> [d type] [seed]"
-#       print "    src : \u5143\u306b\u3057\u305f\u3044\u5024"
-#       print "    width: \u4e71\u6570\u767a\u751f\u306e\u5e45\uff08\uff05\uff09"
-#       print "    number: \u4e71\u6570\u767a\u751f\u3055\u305b\u308b\u6570(int)"
-#       print "    d type: \u5206\u5e03\u30bf\u30a4\u30d7\uff08\u30c7\u30d5\u30a9\u30eb\u30c8\u306fnormal\uff09"
-#       print "    seed: \u4e71\u6570\u306e\u7a2e"
+    #print("params_len = %d"%params_len)
+
+    descriptor_list = "src_descriptor.json"
+    prediction_list = "src_prediction.json"
+    software_tool_list = "src_software_tool.json"
+    if params_len == 4:
+        descriptor_list = sys.argv[1]
+        prediction_list = sys.argv[2]
+        software_tool_list = sys.argv[3]
 
     app = wx.App(False)
-    org = InventoryOperator(None)
+    org = InventoryOperator(None, descriptor_list, prediction_list, software_tool_list)
     org.Show()
 
     app.MainLoop()
