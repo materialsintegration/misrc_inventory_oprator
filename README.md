@@ -140,7 +140,7 @@ Inventory.confのfileセクション内の文字列について、現在は固�
 
 # 利用者編
 
-## 使用方法
+## 使用方法(GUI編)
 このツールは記述子、予測モデル、ソフトウェア・ツールを元になるサイトの辞書から取得して、
 展開先のサイトの辞書へ登録するスタイルです。辞書から辞書へです。
 そのため、細かな記述子、予測モデル、ソフトウェア・ツールの個別選択はできません。
@@ -187,4 +187,45 @@ Inventory.confのfileセクション内の文字列について、現在は固�
 ※１、一番上のカラムの「check」「uncheck」をクリックすると、全項目のチェックをon/offできます。
 ※２、赤い記述子、予測モデル、ソフトウェア・ツールはそれ自体は削除済みですが、辞書のエントリから削除されていないものと推測されます。今の所これを削除する方法は不明です。仕様を変更して赤くなる記述子、予測モデル、ソフトウェア・ツールは表示しないようにするかもしれません。
 
- 
+## 使用方法（非GUI編）
+このツールは記述子、予測モデル、ソフトウェアツールをinventory APIにより取り出したJSONファイルがそれぞれ存在していれば、限定的であるがGUIを使用しなくても記述子、予測モデル、ソフトウェアツールを追加することが可能である。その場合の方法を記述する。
+### 設定
+Inventory.confファイルに下記の用に設定を実施する。
+* ログイン情報（トークンなど）  
+  authorizeセクションのuser_idに自身のUSER IDを、tokenに自身のAPI アクセストークンを指定する。
+* 追加先の辞書の情報  
+  resourceセクションのurlに追加先の辞書IDを指定する。
+* 記述子、予測モデル、ソフトウェアツールの各ファイル名  
+  fileセクションのinputfileに3行にわけて、記述子、予測モデル、ソフトウェアツールの各ファイル名を指定する。
+* 予測モジュール定義ファイルのファイル名  
+  fileセクションのmodules.xmlに予測モジュール定義ファイルを指定する。
+
+出来上がりの例
+```
+[authorize]
+user_id = 200000100000001
+token = 13bedfd69583faa62be240fcbcd0c0c0b542bc92e1352070f150f8a309f441ed
+
+[resource]
+url = users/200000100000001/dictionaries/D000020000000818
+query = 
+
+[file]
+object = descriptor
+           prediction-model
+           software-tool
+inputfile = dst_descriptors.json
+               dst_prediction-models.json
+               dst_software-tools.json
+outputfile = src_descriptor.json
+              src_prediction.json
+              src_software_tool.json
+modules.xml = modules.xml
+```
+
+### 実行
+pythonプログラムを実行する。
+usage : python postInventory4.py <API URL>
+```
+$ python3.6 postInventory4.py https://nims.mintsys.jp:50443/inventory-api/v5
+```
