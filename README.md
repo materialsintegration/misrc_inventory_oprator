@@ -200,7 +200,17 @@ Inventory.confファイルに下記の用に設定を実施する。
 * 予測モジュール定義ファイルのファイル名  
   fileセクションのmodules.xmlに予測モジュール定義ファイルを指定する。
 
-出来上がりの例
+※ 辞書情報は、  
+```
+://nims.mintsys.jp/inventory/users/1100001100000210/dictionaries/110000000393/folders/110000025213?sortOrder=asc&sortColumn=1&startPage=0&length=100&search=&type=&dispAccept=
+```
+のうち、  
+```
+users/1100001100000210/dictionaries/110000000393
+```
+までを指定します。
+
+出来上がりの例(開発環境宛の設定例)
 ```
 [authorize]
 user_id = 200000100000001
