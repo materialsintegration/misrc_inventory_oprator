@@ -163,41 +163,51 @@ class InventoryOperator(InventoryOperatorGUI):
             print("length of init_dic is %d"%len(init_dic))
             print(init_dic)
             userid_choice = []
-            if init_dic.has_key("Reference") is True:
-                if init_dic["Reference"].has_key("UserID") is True:
+            #if init_dic.has_key("Reference") is True:
+            if ("Reference" in init_dic) is True:
+                #if init_dic["Reference"].has_key("UserID") is True:
+                if ("UserID" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["UserID"] is not None: 
                         #self.m_textCtrlReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
                         self.m_comboBoxReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
                         self.userid_ref = init_dic["Reference"]["UserID"]
-                if init_dic["Reference"].has_key("URL") is True:
+                #if init_dic["Reference"].has_key("URL") is True:
+                if ("URL" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["URL"] != "":
                         self.m_comboBoxReferenceURL.SetValue(init_dic["Reference"]["URL"])
                         self.url_ref = init_dic["Reference"]["URL"]
                         self.m_comboBoxReferenceURLOnCombobox(None)
-                if init_dic["Reference"].has_key("Token") is True:
+                #if init_dic["Reference"].has_key("Token") is True:
+                if ("Token" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["Token"] != "":
                         self.m_textCtrlReferenceAccessToken.SetValue(init_dic["Reference"]["Token"])
                         self.token_ref = init_dic["Reference"]["Token"]
-                if init_dic["Reference"].has_key("ConfFile") is True:
+                #if init_dic["Reference"].has_key("ConfFile") is True:
+                if ("ConfFile" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["ConfFile"] != "":
                         self.m_textCtrlConfFileNameSave.SetValue(init_dic["Reference"]["ConfFile"])
                         self.conffilesave = init_dic["Reference"]["ConfFile"]
-            if init_dic.has_key("Update") is True:
-                if init_dic["Update"].has_key("UserID") is True:
+            #if init_dic.has_key("Update") is True:
+            if ("Update" in init_dic) is True:
+                #if init_dic["Update"].has_key("UserID") is True:
+                if ("UserID" in init_dic["Update"]) is True:
                     if init_dic["Update"]["UserID"] is not None: 
                         #self.m_textCtrlUpdateUserID.SetValue(init_dic["Update"]["UserID"])
                         self.m_comboBoxUpdateUserID.SetValue(init_dic["Update"]["UserID"])
                         self.userid_upd = init_dic["Update"]["UserID"]
-                if init_dic["Update"].has_key("URL") is True:
+                #if init_dic["Update"].has_key("URL") is True:
+                if ("URL" in init_dic["Update"]) is True:
                     if init_dic["Update"]["URL"] != "":
                         self.m_comboBoxUpdateURL.SetValue(init_dic["Update"]["URL"])
                         self.url_upd = init_dic["Update"]["URL"]
                         self.m_comboBoxUpdateURLOnCombobox(None)
-                if init_dic["Update"].has_key("Token") is True:
+                #if init_dic["Update"].has_key("Token") is True:
+                if ("Token" in init_dic["Update"]) is True:
                     if init_dic["Update"]["Token"] != "":
                         self.m_textCtrlUpdateAccessToken.SetValue(init_dic["Update"]["Token"])
                         self.token_upd = init_dic["Update"]["Token"]
-                if init_dic["Update"].has_key("ConfFile") is True:
+                #if init_dic["Update"].has_key("ConfFile") is True:
+                if ("ConfFile" in init_dic["Update"]) is True:
                     if init_dic["Update"]["ConfFile"] != "":
                         self.m_textCtrlConfFileNameRead.SetValue(init_dic["Update"]["ConfFile"])
                         self.conffileread = init_dic["Update"]["ConfFile"]
@@ -352,7 +362,8 @@ class InventoryOperator(InventoryOperatorGUI):
 
                     ret = ret.json()
 
-                    if ret.has_key(ROOT_FOLDER) is True:
+                    #if ret.has_key(ROOT_FOLDER) is True:
+                    if (ROOT_FOLDER in ret) is True:
                         print("ret = %s"%str(ret))
                         items2 = ret[ROOT_FOLDER]
                         #print items2
@@ -395,7 +406,8 @@ class InventoryOperator(InventoryOperatorGUI):
                     result, ret = self.InventoryAPI(token, weburl)
                     ret = ret.json()
 
-                    if ret.has_key(ROOT_FOLDER) is True:
+                    #if ret.has_key(ROOT_FOLDER) is True:
+                    if (ROOT_FOLDER in ret) is True:
                         print("ret = %s"%str(ret))
                         items2 = ret[ROOT_FOLDER]
                         #print items2
@@ -861,7 +873,8 @@ class InventoryOperator(InventoryOperatorGUI):
         username = self.m_comboBoxReferenceUserID.GetValue()
         url = self.m_comboBoxReferenceURL.GetValue()
         ids = self.UserList[url]
-        if ids.has_key(username) is True:
+        #if ids.has_key(username) is True:
+        if (username in ids) is True:
             self.m_staticTextReferenceUserID.SetLabel(ids[username].split(":")[0])
             self.m_textCtrlReferenceAccessToken.SetValue(ids[username].split(":")[1])
 
@@ -876,7 +889,8 @@ class InventoryOperator(InventoryOperatorGUI):
         username = self.m_comboBoxUpdateUserID.GetValue()
         url = self.m_comboBoxUpdateURL.GetValue()
         ids = self.UserList[url]
-        if ids.has_key(username) is True:
+        #if ids.has_key(username) is True:
+        if (username in ids) is True:
             self.m_staticTextUpdateUserID.SetLabel(ids[username].split(":")[0])
             self.m_textCtrlUpdateAccessToken.SetValue(ids[username].split(":")[1])
 
@@ -1055,7 +1069,8 @@ class InventoryOperator(InventoryOperatorGUI):
             #print("id = %s / folders = %s"%(item, items))
             if len(items) != 1:
                 items = items[1:][0]
-                if self.RefTree.has_key(item) is True:
+                #if self.RefTree.has_key(item) is True:
+                if (item in self.RefTree) is True:
                     #print("create subtree under the folder id(%s)"%item)
                     for subitem1 in items:
                         #print("subitem1 = %s"%subitem1)
@@ -1133,7 +1148,8 @@ class InventoryOperator(InventoryOperatorGUI):
             #print("id = %s / folders = %s"%(item, items))
             if len(items) != 1:
                 items = items[1:][0]
-                if self.UpdTree.has_key(item) is True:
+                #if self.UpdTree.has_key(item) is True:
+                if (item in self.UpdTree) is True:
                     #print("create subtree under the folder id(%s)"%item)
                     for subitem1 in items:
                         #print("subitem1 = %s"%subitem1)
