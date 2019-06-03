@@ -972,7 +972,7 @@ class InventoryOperator(InventoryOperatorGUI):
             res = session.get(weburl, json=invdata, headers=headers)
         elif method == "delete":
             res = session.delete(weburl, json=invdata, headers=headers)
-        print res
+        #print res
 
         if str(res.status_code) != "200":
             if debug_print is True:
@@ -1026,7 +1026,7 @@ class InventoryOperator(InventoryOperatorGUI):
                 if item == "dictionary_name":
                     TreeItemData = wx.TreeItemData()
                     dict_instance = self.m_treeCtrlSelections.AppendItem(self.root, items[item], self.dir_pict, -1, TreeItemData)
-                    print "%20s : %s"%(item, items[item])
+                    print ("%20s : %s"%(item, items[item]))
                 if item == "dictionary_id":
                     dict_id = items[item].split("/")[-1]
                 if item == "root_folder_id":
@@ -1106,7 +1106,7 @@ class InventoryOperator(InventoryOperatorGUI):
                 if item == "dictionary_name":
                     TreeItemData = wx.TreeItemData()
                     dict_instance = self.m_treeCtrlSelectionsUpdate.AppendItem(self.root, items[item], self.dir_pict, -1, TreeItemData)
-                    print "%20s : %s"%(item, items[item])
+                    print ("%20s : %s"%(item, items[item]))
                 if item == "dictionary_id":
                     dict_id = items[item].split("/")[-1]
                 if item == "root_folder_id":
