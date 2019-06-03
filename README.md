@@ -225,7 +225,11 @@ modules.xml = modules.xml
 
 ### 実行
 pythonプログラムを実行する。
+* 使用方法
+```
 usage : python postInventory4.py <API URL>
+```
+* 実際の使用例
 ```
 $ python3.6 postInventory4.py https://nims.mintsys.jp:50443/inventory-api/v5
 ```
