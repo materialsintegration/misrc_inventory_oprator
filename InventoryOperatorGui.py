@@ -104,8 +104,8 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_staticText312.Wrap( -1 )
 		fgSizer71.Add( self.m_staticText312, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrlFoldersFilenameBrowsRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
-		fgSizer71.Add( self.m_textCtrlFoldersFilenameBrowsRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.m_textCtrlFoldersFilenameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		fgSizer71.Add( self.m_textCtrlFoldersFilenameRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_buttonFoldersBrowsRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer71.Add( self.m_buttonFoldersBrowsRef, 0, wx.RIGHT|wx.LEFT, 5 )
