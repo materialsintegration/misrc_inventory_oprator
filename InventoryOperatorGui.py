@@ -17,7 +17,7 @@ import wx.xrc
 class InventoryOperatorGUI ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Inventory Operator", pos = wx.DefaultPosition, size = wx.Size( 698,655 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Inventory Operator", pos = wx.DefaultPosition, size = wx.Size( 698,699 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -100,6 +100,16 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonSoftwareToolBrowseRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer71.Add( self.m_buttonSoftwareToolBrowseRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.m_staticText312 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"フォルダー情報", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText312.Wrap( -1 )
+		fgSizer71.Add( self.m_staticText312, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrlFoldersFilenameBrowsRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		fgSizer71.Add( self.m_textCtrlFoldersFilenameBrowsRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_buttonFoldersBrowsRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer71.Add( self.m_buttonFoldersBrowsRef, 0, wx.RIGHT|wx.LEFT, 5 )
+		
 		
 		sbSizer5.Add( fgSizer71, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
 		
@@ -168,7 +178,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoriReference.SetSizer( bSizer8 )
 		self.m_panelInventoriReference.Layout()
 		bSizer8.Fit( self.m_panelInventoriReference )
-		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", True )
+		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", False )
 		self.m_panelInventoryUpdate = wx.Panel( self.m_notebook2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -254,6 +264,16 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		self.m_buttonModuleXMLBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer711.Add( self.m_buttonModuleXMLBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText32 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"フォルダー情報", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText32.Wrap( -1 )
+		fgSizer711.Add( self.m_staticText32, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
+		
+		self.m_textCtrlFoldersFilenameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		fgSizer711.Add( self.m_textCtrlFoldersFilenameUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_buttonFoldersBorwsUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Brows...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer711.Add( self.m_buttonFoldersBorwsUpdate, 0, wx.RIGHT|wx.LEFT, 5 )
 		
 		
 		sbSizer51.Add( fgSizer711, 0, wx.EXPAND|wx.TOP, 5 )
@@ -349,7 +369,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoryUpdate.SetSizer( bSizer9 )
 		self.m_panelInventoryUpdate.Layout()
 		bSizer9.Fit( self.m_panelInventoryUpdate )
-		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", False )
+		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", True )
 		
 		bSizer4.Add( self.m_notebook2, 1, wx.EXPAND |wx.ALL, 5 )
 		
@@ -371,6 +391,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonDescriptorBrowseRef.Bind( wx.EVT_BUTTON, self.m_buttonDescriptorBrowseRefOnButtonClick )
 		self.m_buttonPredictionBrowsRef.Bind( wx.EVT_BUTTON, self.m_buttonPredictionBrowsRefOnButtonClick )
 		self.m_buttonSoftwareToolBrowseRef.Bind( wx.EVT_BUTTON, self.m_buttonSoftwareToolBrowseRefOnButtonClick )
+		self.m_buttonFoldersBrowsRef.Bind( wx.EVT_BUTTON, self.m_buttonFoldersBrowsRefOnButtonClick )
 		self.m_comboBoxReferenceUserID.Bind( wx.EVT_COMBOBOX, self.m_comboBoxReferenceUserIDOnCombobox )
 		self.m_buttonReferenceGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonReferenceGetAccessTokenOnButtonClick )
 		self.m_comboBoxReferenceURL.Bind( wx.EVT_COMBOBOX, self.m_comboBoxReferenceURLOnCombobox )
@@ -385,6 +406,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonPredictionBrowsUpdate.Bind( wx.EVT_BUTTON, self.m_buttonPredictionBrowsUpdateOnButtonClick )
 		self.m_buttonSoftwareToolBrowseUpdate.Bind( wx.EVT_BUTTON, self.m_buttonSoftwareToolBrowseUpdateOnButtonClick )
 		self.m_buttonModuleXMLBrowseUpdate.Bind( wx.EVT_BUTTON, self.m_buttonModuleXMLBrowseUpdateOnButtonClick )
+		self.m_buttonFoldersBorwsUpdate.Bind( wx.EVT_BUTTON, self.m_buttonFoldersBorwsUpdateOnButtonClick )
 		self.m_buttonDeleteInventories.Bind( wx.EVT_BUTTON, self.m_buttonDeleteInventoriesOnButtonClick )
 		self.m_comboBoxUpdateUserID.Bind( wx.EVT_COMBOBOX, self.m_comboBoxUpdateUserIDOnCombobox )
 		self.m_buttonUpdateGetAccessToken.Bind( wx.EVT_BUTTON, self.m_buttonUpdateGetAccessTokenOnButtonClick )
@@ -426,6 +448,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 		event.Skip()
 	
 	def m_buttonSoftwareToolBrowseRefOnButtonClick( self, event ):
+		event.Skip()
+	
+	def m_buttonFoldersBrowsRefOnButtonClick( self, event ):
 		event.Skip()
 	
 	def m_comboBoxReferenceUserIDOnCombobox( self, event ):
@@ -470,6 +495,9 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def m_buttonModuleXMLBrowseUpdateOnButtonClick( self, event ):
 		event.Skip()
 	
+	def m_buttonFoldersBorwsUpdateOnButtonClick( self, event ):
+		event.Skip()
+	
 	def m_buttonDeleteInventoriesOnButtonClick( self, event ):
 		event.Skip()
 	
@@ -481,167 +509,5 @@ class InventoryOperatorGUI ( wx.Frame ):
 	
 	def m_comboBoxUpdateURLOnCombobox( self, event ):
 		event.Skip()
-	
-
-###########################################################################
-## Class DictionaryFolderSelector
-###########################################################################
-
-class DictionaryFolderSelector ( wx.Frame ):
-	
-	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Dictionaries and Folders", pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
-		
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
-		
-		bSizer2 = wx.BoxSizer( wx.VERTICAL )
-		
-		m_sdbSizer = wx.StdDialogButtonSizer()
-		self.m_sdbSizerOK = wx.Button( self, wx.ID_OK )
-		m_sdbSizer.AddButton( self.m_sdbSizerOK )
-		self.m_sdbSizerCancel = wx.Button( self, wx.ID_CANCEL )
-		m_sdbSizer.AddButton( self.m_sdbSizerCancel )
-		m_sdbSizer.Realize();
-		
-		bSizer2.Add( m_sdbSizer, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
-		
-		
-		self.SetSizer( bSizer2 )
-		self.Layout()
-		
-		self.Centre( wx.BOTH )
-		
-		# Connect Events
-		self.Bind( wx.EVT_CLOSE, self.DictionaryFolderSelectorOnClose )
-		self.m_sdbSizerCancel.Bind( wx.EVT_BUTTON, self.m_sdbSizerOnCancelButtonClick )
-		self.m_sdbSizerOK.Bind( wx.EVT_BUTTON, self.m_sdbSizerOnOKButtonClick )
-	
-	def __del__( self ):
-		pass
-	
-	
-	# Virtual event handlers, overide them in your derived class
-	def DictionaryFolderSelectorOnClose( self, event ):
-		event.Skip()
-	
-	def m_sdbSizerOnCancelButtonClick( self, event ):
-		event.Skip()
-	
-	def m_sdbSizerOnOKButtonClick( self, event ):
-		event.Skip()
-	
-
-###########################################################################
-## Class SelectorBoxProtoType
-###########################################################################
-
-class SelectorBoxProtoType ( wx.Frame ):
-	
-	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Selection", pos = wx.DefaultPosition, size = wx.Size( 698,461 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
-		
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
-		
-		bSizer3 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.m_listCtrl4 = wx.ListCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_ICON )
-		bSizer3.Add( self.m_listCtrl4, 1, wx.EXPAND, 5 )
-		
-		m_sdbSizer2 = wx.StdDialogButtonSizer()
-		self.m_sdbSizer2OK = wx.Button( self, wx.ID_OK )
-		m_sdbSizer2.AddButton( self.m_sdbSizer2OK )
-		self.m_sdbSizer2Cancel = wx.Button( self, wx.ID_CANCEL )
-		m_sdbSizer2.AddButton( self.m_sdbSizer2Cancel )
-		m_sdbSizer2.Realize();
-		
-		bSizer3.Add( m_sdbSizer2, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
-		
-		
-		self.SetSizer( bSizer3 )
-		self.Layout()
-		
-		self.Centre( wx.BOTH )
-		
-		# Connect Events
-		self.Bind( wx.EVT_CLOSE, self.SelectorBoxOnClose )
-		self.m_sdbSizer2Cancel.Bind( wx.EVT_BUTTON, self.m_sdbSizer2OnCancelButtonClick )
-		self.m_sdbSizer2OK.Bind( wx.EVT_BUTTON, self.m_sdbSizer2OnOKButtonClick )
-	
-	def __del__( self ):
-		pass
-	
-	
-	# Virtual event handlers, overide them in your derived class
-	def SelectorBoxOnClose( self, event ):
-		event.Skip()
-	
-	def m_sdbSizer2OnCancelButtonClick( self, event ):
-		event.Skip()
-	
-	def m_sdbSizer2OnOKButtonClick( self, event ):
-		event.Skip()
-	
-
-###########################################################################
-## Class MIAuthDialog
-###########################################################################
-
-class MIAuthDialog ( wx.Dialog ):
-	
-	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"MIシステム認証", pos = wx.DefaultPosition, size = wx.Size( 336,152 ), style = wx.DEFAULT_DIALOG_STYLE )
-		
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
-		
-		bSizer10 = wx.BoxSizer( wx.VERTICAL )
-		
-		fgSizer6 = wx.FlexGridSizer( 4, 2, 0, 0 )
-		fgSizer6.SetFlexibleDirection( wx.BOTH )
-		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-		
-		self.m_staticText42 = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText42.Wrap( -1 )
-		fgSizer6.Add( self.m_staticText42, 0, wx.RIGHT|wx.LEFT, 5 )
-		
-		self.m_staticText43 = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText43.Wrap( -1 )
-		fgSizer6.Add( self.m_staticText43, 0, wx.RIGHT|wx.LEFT, 5 )
-		
-		self.m_staticText40 = wx.StaticText( self, wx.ID_ANY, u"ユーザー名", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText40.Wrap( -1 )
-		fgSizer6.Add( self.m_staticText40, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
-		
-		self.m_textCtrl5 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer6.Add( self.m_textCtrl5, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-		
-		self.m_staticText41 = wx.StaticText( self, wx.ID_ANY, u"パスワード", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText41.Wrap( -1 )
-		fgSizer6.Add( self.m_staticText41, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_textCtrl6 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
-		fgSizer6.Add( self.m_textCtrl6, 0, wx.ALL, 5 )
-		
-		
-		bSizer10.Add( fgSizer6, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
-		
-		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.m_button10 = wx.Button( self, wx.ID_ANY, u"Ok", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer11.Add( self.m_button10, 0, wx.ALL, 5 )
-		
-		self.m_button11 = wx.Button( self, wx.ID_ANY, u"Cacnel", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer11.Add( self.m_button11, 0, wx.ALL, 5 )
-		
-		
-		bSizer10.Add( bSizer11, 0, wx.ALIGN_RIGHT, 5 )
-		
-		
-		self.SetSizer( bSizer10 )
-		self.Layout()
-		
-		self.Centre( wx.BOTH )
-	
-	def __del__( self ):
-		pass
 	
 
