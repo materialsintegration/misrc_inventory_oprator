@@ -56,7 +56,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		sbSizer5.Add( bSizer10, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5 )
 		
-		fgSizer71 = wx.FlexGridSizer( 5, 3, 0, 0 )
+		fgSizer71 = wx.FlexGridSizer( 7, 3, 0, 0 )
 		fgSizer71.SetFlexibleDirection( wx.BOTH )
 		fgSizer71.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -178,7 +178,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoriReference.SetSizer( bSizer8 )
 		self.m_panelInventoriReference.Layout()
 		bSizer8.Fit( self.m_panelInventoriReference )
-		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", False )
+		self.m_notebook2.AddPage( self.m_panelInventoriReference, u"インベントリから取得", True )
 		self.m_panelInventoryUpdate = wx.Panel( self.m_notebook2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -211,7 +211,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		
 		sbSizer51.Add( bSizer101, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
 		
-		fgSizer711 = wx.FlexGridSizer( 5, 3, 0, 0 )
+		fgSizer711 = wx.FlexGridSizer( 7, 3, 0, 0 )
 		fgSizer711.SetFlexibleDirection( wx.BOTH )
 		fgSizer711.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -369,7 +369,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_panelInventoryUpdate.SetSizer( bSizer9 )
 		self.m_panelInventoryUpdate.Layout()
 		bSizer9.Fit( self.m_panelInventoryUpdate )
-		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", True )
+		self.m_notebook2.AddPage( self.m_panelInventoryUpdate, u"インベントリへの投入または削除", False )
 		
 		bSizer4.Add( self.m_notebook2, 1, wx.EXPAND |wx.ALL, 5 )
 		
