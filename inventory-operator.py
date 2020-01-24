@@ -24,7 +24,7 @@ from getInventory import *
 from postInventory4 import *
 from checklistctrl import *
 
-ROOT_FOLDER = "root_forder"                     # 2018/08/15:folder->forder
+ROOT_FOLDER = "root_folder"                     # 2018/08/15:folder->forder
 CONFIG_FILENAME = "Inventory.conf"              # 入出力用コンフィグファイルの名前
 
 def dict_print(elements, spc, debug=False):
@@ -364,7 +364,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
                     #if ret.has_key(ROOT_FOLDER) is True:
                     if (ROOT_FOLDER in ret) is True:
-                        print("ret = %s"%str(ret))
+                        #print("ret = %s"%str(ret))
                         items2 = ret[ROOT_FOLDER]
                         #print items2
                         folders = folder_print(items2, "")
@@ -408,7 +408,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
                     #if ret.has_key(ROOT_FOLDER) is True:
                     if (ROOT_FOLDER in ret) is True:
-                        print("ret = %s"%str(ret))
+                        #print("ret = %s"%str(ret))
                         items2 = ret[ROOT_FOLDER]
                         #print items2
                         folders = folder_print(items2, "")
@@ -980,7 +980,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         # http request
         session = requests.Session()
-        #session.trust_env = False
+        session.trust_env = False
 
         if method == "get":
             res = session.get(weburl, json=invdata, headers=headers)
