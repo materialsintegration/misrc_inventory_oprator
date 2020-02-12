@@ -73,7 +73,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonConfFileNameSave = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Borwse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer71.Add( self.m_buttonConfFileNameSave, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 
-		self.m_staticText40 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"記述子ファイル名", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText40 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"記述子設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText40.Wrap( -1 )
 
 		fgSizer71.Add( self.m_staticText40, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -84,7 +84,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonDescriptorBrowseRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer71.Add( self.m_buttonDescriptorBrowseRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_staticText41 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"予測モデルファイル名", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText41 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"予測モデル設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText41.Wrap( -1 )
 
 		fgSizer71.Add( self.m_staticText41, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -258,7 +258,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonBrowseConfFileRead = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer711.Add( self.m_buttonBrowseConfFileRead, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_staticText401 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"記述子ファイル名", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText401 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"記述子設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText401.Wrap( -1 )
 
 		fgSizer711.Add( self.m_staticText401, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -269,7 +269,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonDescriptorBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer711.Add( self.m_buttonDescriptorBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_staticText411 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"予測モデルファイル名", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText411 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"予測モデル設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText411.Wrap( -1 )
 
 		fgSizer711.Add( self.m_staticText411, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -570,7 +570,7 @@ class DictionaryFolderSelector ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Dictionaries and Folders", pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 
@@ -618,7 +618,7 @@ class SelectorBoxProtoType ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Selection", pos = wx.DefaultPosition, size = wx.Size( 698,461 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 
@@ -669,7 +669,7 @@ class MIAuthDialog ( wx.Dialog ):
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"MIシステム認証", pos = wx.DefaultPosition, size = wx.Size( 336,152 ), style = wx.DEFAULT_DIALOG_STYLE )
 
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 
