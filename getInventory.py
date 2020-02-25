@@ -136,6 +136,9 @@ def getInventory_main(webapi_refroot,):
     ifiles = lst.split('\n') 
     lst   = config['file']['outputfile']
     ofiles = lst.split('\n') 
+    ofolders   = config['file']['folders_ref']
+    ifolders   = config['file']['folders_update']
+    
 
     print('[conf file]')
     print('url         : ' + url)
@@ -143,6 +146,8 @@ def getInventory_main(webapi_refroot,):
     print('object      : ' + ', '.join(objs))
     print('input file  : ' + ', '.join(ifiles))
     print('output file : ' + ', '.join(ofiles))
+    print('in  folders : ' + ', %s'%ifolders)
+    print('out folders : ' + ', %s'%ofolders)
     print('-------------------------------------')
 
     # ///////////////////////////////

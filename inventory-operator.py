@@ -10,22 +10,62 @@ import time
 import json
 import datetime
 import codecs
-import requests
 if sys.version_info[0] <= 2:
     import ConfigParser
     #from urlparse import urlparse
 else:
     import configparser
     #from urllib.parse import urlparse
+import subprocess
+import shutil
 
 from openam_operator import openam_operator     # MIシステム認証ライブラリ
 from InventoryOperatorGui import *
 from getInventory import *
 from postInventory4 import *
 from checklistctrl import *
+from addDictionaryAndFolders import *
+from api_access import *
+from old_new import *
 
 ROOT_FOLDER = "root_folder"                     # 2018/08/15:folder->forder
 CONFIG_FILENAME = "Inventory.conf"              # 入出力用コンフィグファイルの名前
+
+def folderFactory(elements, space="", debug=True):
+    '''
+    root_folderの辞書から、再帰的にフォルダー情報とインベントリー情報を読み出し、辞書を作成する。
+    '''
+
+    space += "  "
+
+    folders = []
+    for item in elements:
+        folder = {}
+        folder_id = item["folder_id"].split("/")[-1]
+        folder_name = item["folder_name"]
+        folder["folder_id"] = folder_id
+        folder["folder_name"] = folder_name
+        folder["descriptors"] = {}
+        folder["description"] = item["description"]
+        folder["prediction_models"] = {}
+        print("%s%s - %s"%(space, folder_id, folder_name))
+        descriptors = item["descriptors"]
+        for d in descriptors:
+            print("%s  %s - %s"%(space, d["descriptor_id"].split("/")[-1], d["preferred_name"].split("@")[0])) 
+            #folder["descriptors"].append("%s:%s"%(d["descriptor_id"].split("/")[-1], d["preferred_name"].split("@")[0]))
+            #folder["descriptors"][d["preferred_name"].split("@")[0]] = d["descriptor_id"].split("/")[-1]
+            folder["descriptors"][d["descriptor_id"].split("/")[-1]] = d["preferred_name"].split("@")[0]
+        predictions = item["prediction_models"]
+        for p in predictions:
+            print("%s  %s - %s"%(space, p["prediction_model_id"].split("/")[-1], p["preferred_name"].split("@")[0])) 
+            #folder["prediction_models"].append("%s:%s"%(p["prediction_model_id"].split("/")[-1], p["preferred_name"].split("@")[0]))
+            #folder["prediction_models"][p["preferred_name"].split("@")[0]] = p["prediction_model_id"].split("/")[-1]
+            folder["prediction_models"][p["prediction_model_id"].split("/")[-1]] = p["preferred_name"].split("@")[0]
+        if ("folders" in item) is True:
+            folder["folders"] = folderFactory(item["folders"], space)
+        folders.append(folder)
+
+    return folders
 
 def dict_print(elements, spc, debug=False):
     '''
@@ -132,7 +172,7 @@ class InventoryOperator(InventoryOperatorGUI):
     '''
     '''
 
-    def __init__(self, parent, descriptor_ref_json = "src_descriptors.json", prediction_ref_json = "src_prediction-models.json", software_tool_ref_json = "src_software-tools.json", descriptor_upd_json = "dst_descriptors.json", prediction_upd_json = "dst_prediction-models.json", software_tool_upd_json = "dst_software-tools.json", modules_xml = "modules.xml"):
+    def __init__(self, parent, descriptor_ref_conf = "src_descriptors.conf", prediction_ref_conf = "src_prediction-models.conf", software_tool_ref_conf = "src_software-tools.conf", descriptor_upd_conf = "dst_descriptors.conf", prediction_upd_conf = "dst_prediction-models.conf", software_tool_upd_conf = "dst_software-tools.conf", modules_xml = "modules.xml", folders_ref_json = "src_folders.json", folders_upd_json = "dst_folders.json"):
         '''
         初期化
         @params parent(親となるクラス。通常None)
@@ -153,64 +193,106 @@ class InventoryOperator(InventoryOperatorGUI):
         self.UserList = {}                          # URL毎のUserIDをキーにしたTokenの辞書
         self.VersionList = {}                       # URL毎のバージョンの指定
 
+        self.ref_folders = {}                       # 参照側、辞書毎のフォルダー格納。辞書。
+        self.upd_folders = {}                       # 更新側、辞書毎のフォルダー格納。辞書。
+        self.workdir = "./"                         # working directory name
+        self.upd_workdir = "."                      # work directory for Update
+        self.ref_workdir = "."                      # work directory for Reference
+
+        # confファイル名
+        self.descriptor_ref_conf = descriptor_ref_conf
+        self.prediction_ref_conf = prediction_ref_conf
+        self.software_tool_ref_conf = software_tool_ref_conf
+        self.descriptor_upd_conf = descriptor_upd_conf
+        self.prediction_upd_conf = prediction_upd_conf
+        self.software_tool_upd_conf = software_tool_upd_conf
+        # jsonファイル名
+        self.descriptor_ref_json = "descriptor_ref.json"
+        self.prediction_ref_json = "prediction_ref.json"
+        self.software_tool_ref_json = "software_tool_ref.json"
+        self.descriptor_upd_json = "descirptor_upd.json"
+        self.prediction_upd_json = "prediction_upd.json"
+        self.software_tool_upd_json = "software_tool_upd.json"
+        # その他のファイル名
+        self.modulesxml = modules_xml
+        self.folders_ref = folders_ref_json
+        self.folders_upd = folders_upd_json
+        self.modulecopy_directory = "../../module_copy"
+
+        # 起動時iniファイル情報の読み込み
         inifilename = "inventory-operator.ini"
         #inifilename = "Inventory.conf"
         if os.path.exists(inifilename) is True:
             #print "found init file"
             #infile = open(inifilename)
             #lines = infile.read()
-            init_dic = self.ReadIniFile()
+            init_dic = self.readIniFile()
             print("length of init_dic is %d"%len(init_dic))
             print(init_dic)
             userid_choice = []
-            #if init_dic.has_key("Reference") is True:
             if ("Reference" in init_dic) is True:
-                #if init_dic["Reference"].has_key("UserID") is True:
                 if ("UserID" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["UserID"] is not None: 
-                        #self.m_textCtrlReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
                         self.m_comboBoxReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
                         self.userid_ref = init_dic["Reference"]["UserID"]
-                #if init_dic["Reference"].has_key("URL") is True:
                 if ("URL" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["URL"] != "":
                         self.m_comboBoxReferenceURL.SetValue(init_dic["Reference"]["URL"])
                         self.url_ref = init_dic["Reference"]["URL"]
                         self.m_comboBoxReferenceURLOnCombobox(None)
-                #if init_dic["Reference"].has_key("Token") is True:
                 if ("Token" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["Token"] != "":
                         self.m_textCtrlReferenceAccessToken.SetValue(init_dic["Reference"]["Token"])
                         self.token_ref = init_dic["Reference"]["Token"]
-                #if init_dic["Reference"].has_key("ConfFile") is True:
                 if ("ConfFile" in init_dic["Reference"]) is True:
                     if init_dic["Reference"]["ConfFile"] != "":
                         self.m_textCtrlConfFileNameSave.SetValue(init_dic["Reference"]["ConfFile"])
-                        self.conffilesave = init_dic["Reference"]["ConfFile"]
-            #if init_dic.has_key("Update") is True:
+                        self.ref_workdir = init_dic["Reference"]["ConfFile"]
+                if ("descriptor_conf" in init_dic["Reference"]) is True:
+                    if init_dic["Reference"]["descriptor_conf"] != "":
+                        self.descriptor_ref_conf = init_dic["Reference"]["descriptor_conf"]
+                if ("prediction_conf" in init_dic["Reference"]) is True:
+                    if init_dic["Reference"]["prediction_conf"] != "":
+                        self.prediction_ref_conf = init_dic["Reference"]["prediction_conf"]
+                if ("software_tool_conf" in init_dic["Reference"]) is True:
+                    if init_dic["Reference"]["software_tool_conf"] != "":
+                        self.software_tool_ref_conf = init_dic["Reference"]["software_tool_conf"]
+                if ("folder_info" in init_dic["Reference"]) is True:
+                    if init_dic["Reference"]["folder_info"] != "":
+                        self.folders_ref = init_dic["Reference"]["folder_info"]
             if ("Update" in init_dic) is True:
-                #if init_dic["Update"].has_key("UserID") is True:
                 if ("UserID" in init_dic["Update"]) is True:
                     if init_dic["Update"]["UserID"] is not None: 
-                        #self.m_textCtrlUpdateUserID.SetValue(init_dic["Update"]["UserID"])
                         self.m_comboBoxUpdateUserID.SetValue(init_dic["Update"]["UserID"])
                         self.userid_upd = init_dic["Update"]["UserID"]
-                #if init_dic["Update"].has_key("URL") is True:
                 if ("URL" in init_dic["Update"]) is True:
                     if init_dic["Update"]["URL"] != "":
                         self.m_comboBoxUpdateURL.SetValue(init_dic["Update"]["URL"])
                         self.url_upd = init_dic["Update"]["URL"]
                         self.m_comboBoxUpdateURLOnCombobox(None)
-                #if init_dic["Update"].has_key("Token") is True:
                 if ("Token" in init_dic["Update"]) is True:
                     if init_dic["Update"]["Token"] != "":
                         self.m_textCtrlUpdateAccessToken.SetValue(init_dic["Update"]["Token"])
                         self.token_upd = init_dic["Update"]["Token"]
-                #if init_dic["Update"].has_key("ConfFile") is True:
                 if ("ConfFile" in init_dic["Update"]) is True:
                     if init_dic["Update"]["ConfFile"] != "":
                         self.m_textCtrlConfFileNameRead.SetValue(init_dic["Update"]["ConfFile"])
-                        self.conffileread = init_dic["Update"]["ConfFile"]
+                        self.upd_workdir = init_dic["Update"]["ConfFile"]
+                if ("descriptor_conf" in init_dic["Update"]) is True:
+                    if init_dic["Update"]["descriptor_conf"] != "":
+                        self.descriptor_upd_conf = init_dic["Update"]["descriptor_conf"]
+                if ("prediction_conf" in init_dic["Update"]) is True:
+                    if init_dic["Update"]["prediction_conf"] != "":
+                        self.prediction_upd_conf = init_dic["Update"]["prediction_conf"]
+                if ("software_tool_conf" in init_dic["Update"]) is True:
+                    if init_dic["Update"]["software_tool_conf"] != "":
+                        self.software_tool_upd_conf = init_dic["Update"]["software_tool_conf"]
+                if ("folder_info" in init_dic["Update"]) is True:
+                    if init_dic["Update"]["folder_info"] != "":
+                        self.folders_upd = init_dic["Update"]["folder_info"]
+                if ("modules_xml_info" in init_dic["Update"]) is True:
+                    if init_dic["Update"]["modules_xml_info"] != "":
+                        self.modulesxml = init_dic["Update"]["modules_xml_info"]
 
         # TreeCtrl準備
         self.imageList = wx.ImageList(16,16)
@@ -231,7 +313,6 @@ class InventoryOperator(InventoryOperatorGUI):
         self.DictionaryFoldersIDUpdate = None
 
         self.infilefilter = "All Files (*.*) |*.*"
-        self.workdir = "./"                         # working directory name
 
         self.UserIDAndToken = {}
 
@@ -240,29 +321,18 @@ class InventoryOperator(InventoryOperatorGUI):
 
         self.progressDialog = None
 
-        # JSONファイル名
-        #self.descriptor_ref = "src_descriptors.json"
-        #self.prediction_ref = "src_prediction-models.json"
-        #self.software_tool_ref = "src_software-tools.json"
-        #self.descriptor_upd = "dst_descriptors.json"
-        #self.prediction_upd = "dst_prediction-models.json"
-        #self.software_tool_upd = "dst_software-tools.json"
-        #self.modulesxml = "modules-zeisei.xml"
-        self.descriptor_ref = descriptor_ref_json
-        self.prediction_ref = prediction_ref_json
-        self.software_tool_ref = software_tool_ref_json
-        self.descriptor_upd = descriptor_upd_json
-        self.prediction_upd = prediction_upd_json
-        self.software_tool_upd = software_tool_upd_json
-        self.modulesxml = modules_xml
+        # 前回の設定読み込み
+        self.readConfigFile()
         # JSONファイル名デフォルト値の表示
-        self.m_textCtrlDescriptorFileNameRef.SetValue(self.descriptor_ref)
-        self.m_textCtrlDescriptorFileNameUpdate.SetValue(self.descriptor_upd)
-        self.m_textCtrlPredictionModelFilenameRef.SetValue(self.prediction_ref)
-        self.m_textCtrlPredictionModelFilenameUpdate.SetValue(self.prediction_upd)
-        self.m_textCtrlSoftwareToolFilenameRef.SetValue(self.software_tool_ref)
-        self.m_textCtrlSoftwareToolFilenameUpdate.SetValue(self.software_tool_upd)
+        self.m_textCtrlDescriptorFileNameRef.SetValue(self.descriptor_ref_conf)
+        self.m_textCtrlDescriptorFileNameUpdate.SetValue(self.descriptor_upd_conf)
+        self.m_textCtrlPredictionModelFilenameRef.SetValue(self.prediction_ref_conf)
+        self.m_textCtrlPredictionModelFilenameUpdate.SetValue(self.prediction_upd_conf)
+        self.m_textCtrlSoftwareToolFilenameRef.SetValue(self.software_tool_ref_conf)
+        self.m_textCtrlSoftwareToolFilenameUpdate.SetValue(self.software_tool_upd_conf)
         self.m_textCtrlModulesXMLUpdate.SetValue(self.modulesxml)
+        self.m_textCtrlFoldersFilenameRef.SetValue(self.folders_ref)
+        self.m_textCtrlFoldersFilenameUpdate.SetValue(self.folders_upd)
 
         # ボタンの表示変更
         self.m_buttonDeleteInventories.SetLabel("inventry取得...")
@@ -283,8 +353,8 @@ class InventoryOperator(InventoryOperatorGUI):
         ref_dict["Token"] = self.token_ref
         self.url_ref = self.m_comboBoxReferenceURL.GetValue()
         ref_dict["URL"] = self.url_ref
-        self.conffilesave = self.m_textCtrlConfFileNameSave.GetValue()
-        ref_dict["ConfFile"] = self.conffilesave
+        self.ref_workdir = self.m_textCtrlConfFileNameSave.GetValue()
+        ref_dict["ConfFile"] = self.ref_workdir
         init_dict["Reference"] = ref_dict
         #self.userid_upd = self.m_textCtrlUpdateUserID.GetValue()
         self.userid_upd = self.m_comboBoxUpdateUserID.GetValue()
@@ -293,8 +363,8 @@ class InventoryOperator(InventoryOperatorGUI):
         upd_dict["Token"] = self.token_upd
         self.url_upd = self.m_comboBoxUpdateURL.GetValue()
         upd_dict["URL"] = self.url_upd
-        self.conffileread = self.m_textCtrlConfFileNameRead.GetValue()
-        upd_dict["ConfFile"] = self.conffileread
+        self.upd_workdir = self.m_textCtrlConfFileNameRead.GetValue()
+        upd_dict["ConfFile"] = self.upd_workdir
         init_dict["Update"] = upd_dict
 
         if sys.version_info[0] <= 2:
@@ -317,6 +387,9 @@ class InventoryOperator(InventoryOperatorGUI):
             parser.set("Update", "ConfFile", upd_dict["ConfFile"])
             #parser.set("Update", "UserID", upd_dict["UserID"])
             #parser.set("Update", "Token", upd_dict["Token"])
+        if parser.has_section("System") is False:
+            parser.add_section("System")
+        parser.set("System", "modulecopy", self.modulecopy_directory)
 
         outfile = open("inventory-operator.ini", "w")
         #outfile = open("Inventory.conf", "w")
@@ -344,7 +417,7 @@ class InventoryOperator(InventoryOperatorGUI):
         referenceURL = self.m_comboBoxReferenceURL.GetValue()
         weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries'
 
-        result, ret = self.InventoryAPI(token, weburl, debug_print=True)
+        result, ret = apiAccess(token, weburl, debug_print=True)
 
         ret = ret.json()
 
@@ -358,9 +431,10 @@ class InventoryOperator(InventoryOperatorGUI):
             for item in items:
                 if item == "dictionary_id":
                     weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    result, ret = self.InventoryAPI(token, weburl)
+                    result, ret = apiAccess(token, weburl)
 
                     ret = ret.json()
+                    self.ref_folders[items[item].split("/")[-1]] = ret          # 辞書毎のフォルダーを記録
 
                     #if ret.has_key(ROOT_FOLDER) is True:
                     if (ROOT_FOLDER in ret) is True:
@@ -372,6 +446,7 @@ class InventoryOperator(InventoryOperatorGUI):
                             for folder in folders:
                                 all_folders[folder] = folders[folder]
 
+        # for debug
         #for item in all_folders:
         #    print("key = %s / %s"%(item, all_folders[item]))
 
@@ -390,7 +465,7 @@ class InventoryOperator(InventoryOperatorGUI):
         updateURL = self.m_comboBoxUpdateURL.GetValue()
         weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries'
 
-        result, ret = self.InventoryAPI(token, weburl, debug_print=True)
+        result, ret = apiAccess(token, weburl, debug_print=True)
         ret = ret.json()
 
         self.upd_dictdict = ret["dictionaries"]
@@ -403,7 +478,7 @@ class InventoryOperator(InventoryOperatorGUI):
             for item in items:
                 if item == "dictionary_id":
                     weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
-                    result, ret = self.InventoryAPI(token, weburl)
+                    result, ret = apiAccess(token, weburl)
                     ret = ret.json()
 
                     #if ret.has_key(ROOT_FOLDER) is True:
@@ -436,20 +511,78 @@ class InventoryOperator(InventoryOperatorGUI):
             dialog.Destroy()
             return False, False
 
+        if os.path.exists(self.ref_workdir) is True:
+            if os.path.isfile(self.ref_workdir) is True:
+                dialog = wx.MessageDialog(self, u"作業ディレクトリ(%s)と同じ名前のファイルがあります。"%self.ref_workdir, style=wx.OK)
+                dialog.ShowModal()
+                dialog.Destroy()
+                return False, False
+        else:
+            os.mkdir(self.ref_workdir)
+
+        cwd = os.getcwd()
+        os.chdir(self.ref_workdir)
+
+        #==> 2020/01/27 フォルダー構造のjsonファイル作成
+        folders_dict = {}
+        dictid = self.m_staticTextDictionaryAndFolderID.GetLabel().split("/")[1]
+        #print(json.dumps(self.ref_folders[dictid], indent=2, ensure_ascii=False))
+        top_folder_id = self.ref_folders[dictid]["root_folder"]["folder_id"].split("/")[-1]
+        top_folder_name = self.ref_folders[dictid]["root_folder"]["folder_name"].split("@")[0]
+        top_folder_description = self.ref_folders[dictid]["root_folder"]["description"]
+        print("%s - %s"%(top_folder_id, top_folder_name))
+        folders_dict[top_folder_id] = {"folder_name": top_folder_name, "description": top_folder_description, "folders":[], "descriptors":{}, "prediction_models":{}}
+
+        if ("descriptors" in self.ref_folders[dictid]["root_folder"]) is True:         # 辞書直下にdescriptorがあれば
+            descriptors = self.ref_folders[dictid]["root_folder"]["descriptors"]
+            ds = {}
+            for d in descriptors:
+                did = d["descriptor_id"].split("/")[-1]
+                dname = d["preferred_name"].split("@")[0]
+                print("  %s - %s"%(did, dname))
+                #folders_dict[top_folder_id]["descriptors"].append({"descriptor_id":did, "preferred_name":dname})
+                folders_dict[top_folder_id]["descriptors"][did] = dname
+        if ("prediction_models" in self.ref_folders[dictid]["root_folder"]) is True:   # 辞書直下にprediction_modelがあれば
+            predictions = self.ref_folders[dictid]["root_folder"]["prediction_models"]
+            for p in predictions:
+                pid = p["prediction_model_id"].split("/")[-1]
+                pname = p["preferred_name"].split("@")[0]
+                print("  %s - %s"%(pid, pname))
+                #folders_dict[top_folder_id]["prediction_models"].append({"prediction_model_id":pid, "preferred_name":pname})
+                folders_dict[top_folder_id]["prediction_models"][pid] = pname
+
+        # root_folders/foldersデバッグプリント
+        #print(json.dumps(self.ref_folders[dictid]["root_folder"], indent=2, ensure_ascii=False))
+        # フォルダーと登録してある記述子情報の辞書作成
+        if ('folders' in self.ref_folders[dictid]["root_folder"]) is True:
+            folders = self.ref_folders[dictid]["root_folder"]["folders"]
+            folders_dict[top_folder_id]["folders"] = folderFactory(folders)
+
+        outfile = open(self.folders_ref, "w")
+        #print(json.dumps(folders_dict, indent=2, ensure_ascii=False))
+        outfile.write((json.dumps(folders_dict, indent=2, ensure_ascii=False)))
+        outfile.close()
+
         path = "users/" + self.m_staticTextReferenceUserID.GetLabel() + "/" + path
-        self.MakeConfigFile(userid, token, path)
+        self.MakeConfigFile(userid, token, path, self.ref_workdir)
 
         url = self.m_comboBoxReferenceURL.GetValue()
         ReferenceURL = self.m_comboBoxReferenceURL.GetValue()
         url = "https://%s:50443"%url + "/inventory-api/v%s"%self.VersionList[ReferenceURL]["version"]
 
+        # 従来の方法でInventory情報を入手する
         getInventory_main(url)
+
+        # 入手したInventory情報を１ID毎にばらす
+        self.divideInventories()
+
+        os.chdir(cwd)
 
         event.Skip()
 
     def m_buttonInventoryUpdateOnButtonClick( self, event ):
         '''
-        インベントリ情報の登録
+        インベントリ情報の登録(登録先は辞書)
         '''
 
         userid, token = self.CheckUpdateUserIDAndToken()
@@ -464,7 +597,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return False, False
 
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
-        self.MakeConfigFile(userid, token, path)
+        self.MakeConfigFile(userid, token, path, self.upd_workdir)
 
         url = self.m_comboBoxUpdateURL.GetValue()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
@@ -473,7 +606,225 @@ class InventoryOperator(InventoryOperatorGUI):
         postInventory_main(url)
 
         event.Skip()
-    
+
+    def m_buttonInventryUpdateWithDictFolderOnButtonClick( self, event ):
+        '''
+        インベントリ情報の登録（登録先は辞書ではない。登録後、辞書およびフォルダー作成して、それぞれ配下に登録される）
+        '''
+
+        userid, token = self.CheckUpdateUserIDAndToken()
+        if userid is False or token is False:
+            return
+
+        dialog = wx.MessageDialog(self, u"辞書・フォルダーを作成しつつインベントリを登録します。", "Info", style=wx.YES|wx.NO)
+        ret = dialog.ShowModal()
+        dialog.Destroy()
+        if ret == wx.ID_NO:
+            return
+
+        if os.path.exists(self.ref_workdir) is True:
+            if os.path.isfile(self.ref_workdir) is True:
+                dialog = wx.MessageDialog(self, u"作業ディレクトリ(%s)と同じ名前のファイルがあります。"%self.ref_workdir, style=wx.OK)
+                dialog.ShowModal()
+                dialog.Destroy()
+                return False, False
+        else:
+            dialog = wx.MessageDialog(self, u"作業ディレクトリ(%s)がありません。"%self.ref_workdir, style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            return False, False
+        
+        cwd = os.getcwd()
+        os.chdir(self.ref_workdir)
+        
+        okUpdate = True
+        needed_files = ""
+        if os.path.exists(self.descriptor_upd_conf) is False:
+            needed_files += self.descriptor_upd_conf
+            okUpdate = False
+        if os.path.exists(self.prediction_upd_conf) is False:
+            if okUpdate is False:
+                needed_files += "/"
+            needed_files += self.prediction_upd_conf
+            okUpdate = False
+        if os.path.exists(self.software_tool_upd_conf) is False:
+            if okUpdate is False:
+                needed_files += "/"
+            needed_files += self.software_tool_upd_conf
+            okUpdate = False
+        old_new_filename = "descriptors.ids"
+
+        if okUpdate is False:
+            dialog = wx.MessageDialog(self, u"作業ディレクトリに必要なファイル(%s)がありません。"%needed_files, style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            os.chdir(cwd)
+            return False, False
+
+        # 構成ファイル必要事項追加
+        if sys.version_info[0] <= 2:
+            descriptor_parser = ConfigParser.SafeConfigParser()
+            prediction_parser = ConfigParser.SafeConfigParser()
+            software_tool_parser = ConfigParser.SafeConfigParser()
+        else:
+            descriptor_parser = configparser.ConfigParser()
+            prediction_parser = configparser.ConfigParser()
+            software_tool_parser = configparser.ConfigParser()
+
+        ## 記述子用
+        descriptor_parser.read(self.descriptor_upd_conf)
+        if descriptor_parser.has_section("authorize") is True:
+            descriptor_parser.set("authorize", "user_id", userid)
+            descriptor_parser.set("authorize", "token", token)
+        outfile = open(self.descriptor_upd_conf, "w")
+        descriptor_parser.write(outfile)
+        outfile.close()
+        ## 予測モデル用
+        prediction_parser.read(self.prediction_upd_conf)
+        if prediction_parser.has_section("authorize") is True:
+            prediction_parser.set("authorize", "user_id", userid)
+            prediction_parser.set("authorize", "token", token)
+        outfile = open(self.prediction_upd_conf, "w")
+        prediction_parser.write(outfile)
+        outfile.close()
+        ## ソフトウェアツール用
+        software_tool_parser.read(self.software_tool_upd_conf)
+        if software_tool_parser.has_section("authorize") is True:
+            software_tool_parser.set("authorize", "user_id", userid)
+            software_tool_parser.set("authorize", "token", token)
+        outfile = open(self.software_tool_upd_conf, "w")
+        software_tool_parser.write(outfile)
+        outfile.close()
+        # 記述子登録
+        cmd = "/usr/local/python3.6.2/bin/python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
+
+        sys.stderr.write("記述子登録中...")
+        sys.stderr.flush()
+        p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        while True:
+            temp1 = p.stdout.read()
+            temp2 = p.stderr.read()
+
+            if temp1:
+                stdout = temp1.decode('utf-8')
+                sys.stdout.write(stdout)
+                sys.stdout.flush()
+            if temp2:
+                stderr = temp2.decode('utf-8')
+                sys.stderr.write(stdout)
+                sys.stderr.flush()
+
+            if not temp1 and p.poll() is not None:
+                break
+
+        # 予測モデル登録
+        if os.path.exists(old_new_filename) is False:
+            dialog = wx.MessageDialog(self, u"作業ディレクトリに記述子IDの新旧対応ファイル(%s)がありません。"%old_new_filename, style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            os.chdir(cwd)
+            return False, False
+
+        sys.stderr.write("\n予測モデル登録中...")
+        sys.stderr.flush()
+        cmd = "/usr/local/python3.6.2/bin/python3.6 %s/script/opeInventory3.py %s %s"%(self.modulecopy_directory, self.prediction_upd_conf, old_new_filename)
+        p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        while True:
+            temp1 = p.stdout.read()
+            temp2 = p.stderr.read()
+
+            if temp1:
+                stdout = temp1.decode('utf-8')
+                sys.stdout.write(stdout)
+                sys.stdout.flush()
+            if temp2:
+                stderr = temp2.decode('utf-8')
+                sys.stderr.write(stdout)
+                sys.stderr.flush()
+
+            if not temp1 and p.poll() is not None:
+                break
+
+        # ソフトウェアツール登録
+        sys.stderr.write("\nソフトウェアツール登録中...")
+        sys.stderr.flush()
+
+        # 記述子・予測モデル登録後、辞書・フォルダー作成と、記述子・予測モデルの辞書・フォルダーへの登録
+        srcfile = self.folders_upd
+        newfile = "folder_table.dat"
+        ret = translateOldNew(old_new_filename, srcfile, newfile)
+
+        old_new_filename = "prediction_models.ids"
+        if os.path.exists(old_new_filename) is False:
+            dialog = wx.MessageDialog(self, u"作業ディレクトリに予測モデルIDの新旧対応ファイル(%s)がありません。"%old_new_filename, style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            shutil.copyfile("folder_table.dat", self.folders_upd)
+        else:
+            srcfile = "folder_table.dat"
+            newfile = self.folders_upd
+            ret = translateOldNew(old_new_filename, srcfile, newfile)
+
+        infile = open(newfile)
+        folders_dict = json.load(infile)
+        infile.close()
+        if ret is True:
+            sys.stderr.write("\n辞書・フォルダーの登録と記述子、予測モデル、ソフトウェアツールの辞書、フォルダーへの登録中...")
+            sys.stderr.flush()
+            weburl = "https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v5/users/%s/dictionaries"%userid
+            addDictionaryAndFolders(token, weburl, folders_dict)
+
+        sys.stderr.write("\n")
+        sys.stderr.flush()
+        os.chdir(cwd)
+        return
+        event.Skip()
+
+    def m_buttonInventryUpdateWithDictFolderOnButtonClick_discarded( self, event ):
+        '''
+        インベントリ情報の登録（登録先は辞書ではない。登録後、辞書およびフォルダー作成して、それぞれ配下に登録される）
+
+        ※ ※ ※ 新しい登録方法の実装によりこちらは用途廃棄(2020/02/14)
+
+        '''
+
+        userid, token = self.CheckUpdateUserIDAndToken()
+        if userid is False or token is False:
+            return
+
+        dialog = wx.MessageDialog(self, u"辞書・フォルダーを作成しつつインベントリを登録します。", "Info", style=wx.YES|wx.NO)
+        ret = dialog.ShowModal()
+        dialog.Destroy()
+        if ret == wx.ID_NO:
+            return
+
+        path = ""
+        self.MakeConfigFile(userid, token, path, self.upd_workdir)
+
+        url = self.m_comboBoxUpdateURL.GetValue()
+        updateURL = self.m_comboBoxUpdateURL.GetValue()
+        url = "https://%s:50443"%url + "/inventory-update-api/v%s"%self.VersionList[updateURL]["version"]
+        print(url)
+
+        postInventory_main(url)
+
+        # 記述子・予測モデル登録後、辞書・フォルダー作成と、記述子・予測モデルの辞書・フォルダーへの登録
+        table_file = "old_new.lst"
+        srcfile = self.folders_upd
+        newfile = "folder_table.dat"
+        ret = translateOldNew(table_file, srcfile, newfile)
+
+        infile = open(newfile)
+        folders_dict = json.load(infile)
+        infile.close()
+        if ret is True:
+            weburl = "https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v5/users/%s/dictionaries"%userid
+            addDictionaryAndFolders(token, weburl, folders_dict)
+
+        event.Skip()
+
     def m_buttonBrowseConfFileOnReadButtonClick( self, event ):
         '''
         更新用Configファイルの設定
@@ -493,10 +844,10 @@ class InventoryOperator(InventoryOperatorGUI):
         参照用作業ディレクトリの指定
         '''
 
-        rfolder = wx.DirDialog(self, u"Config File Name for Reference", defaultPath=self.workdir)
+        rfolder = wx.DirDialog(self, u"参照作業用のディレクトリの指定", defaultPath=self.ref_workdir)
         if rfolder.ShowModal() == wx.ID_OK:
-            self.workdir = rfolder.GetPath()
-            self.m_textCtrlConfFileNameSave.SetValue(self.workdir)
+            self.ref_workdir = rfolder.GetPath()
+            self.m_textCtrlConfFileNameSave.SetValue(self.ref_workdir)
 
         rfolder.Destroy()
 
@@ -507,10 +858,10 @@ class InventoryOperator(InventoryOperatorGUI):
         Update用作業ディレクトリの指定
         '''
 
-        rfolder = wx.DirDialog(self, u"Config File Name for Reference", defaultPath=self.workdir)
+        rfolder = wx.DirDialog(self, u"更新作業用のディレクトリの指定", defaultPath=self.upd_workdir)
         if rfolder.ShowModal() == wx.ID_OK:
-            self.workdir = rfolder.GetPath()
-            self.m_textCtrlConfFileNameRead.SetValue(self.workdir)
+            self.upd_workdir = rfolder.GetPath()
+            self.m_textCtrlConfFileNameRead.SetValue(self.upd_workdir)
 
         rfolder.Destroy()
 
@@ -540,7 +891,7 @@ class InventoryOperator(InventoryOperatorGUI):
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
 
         weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"] + path
-        result, ret = self.InventoryAPI(token, weburl)
+        result, ret = apiAccess(token, weburl)
         ret = ret.json()
 
         results = dict_print(ret, "")
@@ -579,7 +930,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
             path = path + "%s"%item
 
-            rslt, ret = self.InventoryAPI(token, path)
+            rslt, ret = apiAccess(token, path)
             self.progressBar(int(float(pcount) / float(len(results)) * 100))
             pcount += 1
             if rslt is False:
@@ -736,7 +1087,7 @@ class InventoryOperator(InventoryOperatorGUI):
                 path = path + "%s"%key
 
             #print("%04d:path = %s"%(count, path))
-            result, ret = self.InventoryAPI(token, path, "delete")
+            result, ret = apiAccess(token, path, "delete")
             if result is True:
                 print("successfully delete id(%s) of descriptor"%key)
             count += 1
@@ -902,7 +1253,7 @@ class InventoryOperator(InventoryOperatorGUI):
         更新系の記述子リストのファイル名指定。
         '''
 
-        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"記述子登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlDescriptorFileNameUpdate.SetValue(filename)
@@ -911,7 +1262,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         更新系の予測モデルリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"予測モデル登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlPredictionModelFilenameUpdate.SetValue(filename)
@@ -920,7 +1271,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         更新系のソフトウェアツールリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"ソフトウェアツール登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlSoftwareToolFilenameUpdate.SetValue(filename)
@@ -929,7 +1280,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照系の記述子リストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"記述子取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlDescriptorFileNameRef.SetValue(filename)
@@ -938,7 +1289,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照系の予測モデルリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"予測モデル取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlPredictionModelFilenameRef.SetValue(filename)
@@ -947,7 +1298,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照系のソフトウェアツールリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"ソフトウェアツール取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlSoftwareToolFilenameRef.SetValue(filename)
@@ -956,50 +1307,198 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         予測モジュールXMLファイルの指定
         '''
-        filename_dialog = wx.FileDialog(self, u"記述子リストのファイル名を指定してください。", u"", u"", u"XML file (*.xml) |*.xml| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"予測モジュールのファイル名を指定してください。", self.upd_workdir, u"", u"XML file (*.xml) |*.xml| All file (*.*)|*.*", style=wx.OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlModulesXMLUpdate.SetValue(filename)
 
+    def m_buttonFoldersBorwsUpdateOnButtonClick( self, event ):
+        '''
+        更新系の辞書・フォルダー情報を格納したファイルの指定
+        '''
+
+        filename_dialog = wx.FileDialog(self, u"辞書・フォルダー情報のファイル名を指定してください。", self.upd_workdir, u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlFoldersFilenameUpdate.SetValue(filename)
+
+    def m_buttonFoldersBrowsRefOnButtonClick( self, event ):
+        '''
+        参照系の辞書・フォルダー情報を格納したファイルの指定
+        '''
+        filename_dialog = wx.FileDialog(self, u"辞書・フォルダー情報のファイル名を指定してください。", self.ref_workdir, u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        if filename_dialog.ShowModal() == wx.ID_OK:
+            filename = filename_dialog.GetFilename()
+            self.m_textCtrlFoldersFilenameRef.SetValue(filename)
 
     #------------------ここまでイベントハンドラ----------------------
     #------------------ここからメンバー関数--------------------------
-    def InventoryAPI(self, token, weburl, method="get", invdata=None, debug_print=False):
+#    def apiAccess(self, token, weburl, method="get", invdata=None, debug_print=False):
+#        '''
+#        Inventory Reference API Get method
+#        @param token(64character barer type token)
+#        @param weburl(URL for API access)
+#        @param invdata(body for access by json)
+#        @retval (json = dict) There is None if error has occured.
+#        '''
+#
+#        # parameter
+#        headers = {'Authorization': 'Bearer ' + token,
+#                   'Content-Type': 'application/json',
+#                   'Accept': 'application/json'}
+#
+#        # http request
+#        session = requests.Session()
+#        session.trust_env = False
+#
+#        if method == "get":
+#            res = session.get(weburl, json=invdata, headers=headers)
+#        elif method == "delete":
+#            res = session.delete(weburl, json=invdata, headers=headers)
+#        #print res
+#
+#        if str(res.status_code) != "200":
+#            if debug_print is True:
+#                print("error   : ")
+#                print('status  : ' + str(res.status_code))
+#                print('body    : ' + res.text)
+#                print('-------------------------------------------------------------------')
+#                print('url     : ' + weburl)
+#                #print('headers : ' + str(res.headers))
+#                #print('headers : ' + str(headers))
+#            return False, res
+#
+#        return True, res
+#
+    def divideInventories(self):
         '''
-        Inventory Reference API Get method
-        @param token(64character barer type token)
-        @param weburl(URL for API access)
-        @param invdata(body for access by json)
-        @retval (json = dict) There is None if error has occured.
+        カレントディレクトリにある各Inventoryを出力したJSONファイルを分解して、更新に備える。
+        1, 記述子、予測モデル、ソフトウェアツールのJSONをID毎のファイルに分解する。
+        2, 平行して記述子、予測モデル、ソフトウェアツールの更新用構成ファイルを分解したjsonファイルを使用して作成する。
         '''
 
-        # parameter
-        headers = {'Authorization': 'Bearer ' + token,
-                   'Content-Type': 'application/json',
-                   'Accept': 'application/json'}
+        okConvert = True
+        if os.path.exists(self.descriptor_ref_json) is False:
+            okConvert = False
+        if os.path.exists(self.prediction_ref_json) is False:
+            okConvert = False
+        if os.path.exists(self.software_tool_ref_json) is False:
+            okConvert = False
 
-        # http request
-        session = requests.Session()
-        session.trust_env = False
+        if okConvert is False:
+            dialog = wx.MessageDialog(self, u"必要なファイル(*.json)がありません", "Error", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            return
 
-        if method == "get":
-            res = session.get(weburl, json=invdata, headers=headers)
-        elif method == "delete":
-            res = session.delete(weburl, json=invdata, headers=headers)
-        #print res
+        if sys.version_info[0] <= 2:
+            descriptor_parser = ConfigParser.SafeConfigParser()
+            prediction_parser = ConfigParser.SafeConfigParser()
+            software_tool_parser = ConfigParser.SafeConfigParser()
+        else:
+            descriptor_parser = configparser.ConfigParser()
+            prediction_parser = configparser.ConfigParser()
+            software_tool_parser = configparser.ConfigParser()
 
-        if str(res.status_code) != "200":
-            if debug_print is True:
-                print("error   : ")
-                print('status  : ' + str(res.status_code))
-                print('body    : ' + res.text)
-                print('-------------------------------------------------------------------')
-                print('url     : ' + weburl)
-                #print('headers : ' + str(res.headers))
-                #print('headers : ' + str(headers))
-            return False, res
+        userid, token = self.CheckUserIDAndToken()
 
-        return True, res
+        # 記述子用
+        descriptor_parser.add_section("authorize")
+        descriptor_parser.set("authorize", "user_id", "")
+        descriptor_parser.set("authorize", "token", "")
+        descriptor_parser.add_section("object")
+        descriptor_parser.set("object", "object", "descriptors")
+        descriptor_parser.add_section("resource")
+        descriptor_parser.set("resource", "url", "descriptors")
+        descriptor_parser.set("resource", "query", "")
+        descriptor_parser.set("resource", "action", "post")
+        descriptor_parser.add_section("output")
+        descriptor_parser.set("output", "ftype", "json")
+        # 予測モデル用
+        prediction_parser.add_section("authorize")
+        prediction_parser.set("authorize", "user_id", "")
+        prediction_parser.set("authorize", "token", "")
+        prediction_parser.add_section("object")
+        prediction_parser.set("object", "object", "prediction_models")
+        prediction_parser.add_section("resource")
+        prediction_parser.set("resource", "url", "prediction-models")
+        prediction_parser.set("resource", "query", "")
+        prediction_parser.set("resource", "action", "post")
+        prediction_parser.add_section("output")
+        prediction_parser.set("output", "ftype", "json")
+        # software_tool
+        software_tool_parser.add_section("authorize")
+        software_tool_parser.set("authorize", "user_id", "")
+        software_tool_parser.set("authorize", "token", "")
+        software_tool_parser.add_section("object")
+        software_tool_parser.set("object", "object", "software_tools")
+        software_tool_parser.add_section("resource")
+        software_tool_parser.set("resource", "url", "software_tools")
+        software_tool_parser.set("resource", "query", "")
+        software_tool_parser.set("resource", "action", "post")
+        software_tool_parser.add_section("output")
+        software_tool_parser.set("output", "ftype", "json")
+
+        # 分解-記述子
+        infile = open(self.descriptor_ref_json)
+        descriptors = json.load(infile)
+        infile.close()
+        descriptor_parser.add_section("file")
+        descriptor_jsons = ""
+        for item in descriptors["descriptors"]:
+            did = item["descriptor_id"].split("/")[-1]
+            filename = "inventory_%s.json"%did
+            outfile = open(filename, "w")
+            json.dump(item, outfile, indent=2, ensure_ascii=False)
+            outfile.close()
+            if descriptor_jsons == "":
+                descriptor_jsons += "%s\n"%filename
+            else:
+                descriptor_jsons += "           %s\n"%filename
+        descriptor_parser.set("file", "inputfile", descriptor_jsons)
+        outfile = open(self.descriptor_upd_conf, "w")
+        descriptor_parser.write(outfile)
+        outfile.close()
+        # 分解-予測モデル
+        infile = open(self.prediction_ref_json)
+        predictions = json.load(infile)
+        infile.close()
+        prediction_parser.add_section("file")
+        prediction_jsons = ""
+        for item in predictions["prediction_models"]:
+            mid = item["prediction_model_id"].split("/")[-1]
+            filename = "inventory_%s.json"%mid
+            outfile = open(filename, "w")
+            json.dump(item, outfile, indent=2, ensure_ascii=False)
+            outfile.close()
+            if prediction_jsons == "":
+                prediction_jsons += "%s\n"%filename
+            else:
+                prediction_jsons += "           %s\n"%filename
+        prediction_parser.set("file", "inputfile", prediction_jsons)
+        outfile = open(self.prediction_upd_conf, "w")
+        prediction_parser.write(outfile)
+        outfile.close()
+        # 分解-ソフトウェアツール
+        infile = open(self.software_tool_ref_json)
+        software_tools = json.load(infile)
+        infile.close()
+        software_tool_parser.add_section("file")
+        software_tool_jsons = ""
+        for item in software_tools["software_tools"]:
+            mid = item["software_tool_id"].split("/")[-1]
+            filename = "inventory_%s.json"%mid
+            outfile = open(filename, "w")
+            json.dump(item, outfile, indent=2, ensure_ascii=False)
+            outfile.close()
+            if software_tool_jsons == "":
+                software_tool_jsons += "%s\n"%filename
+            else:
+                software_tool_jsons += "           %s\n"%filename
+        software_tool_parser.set("file", "inputfile", software_tool_jsons)
+        outfile = open(self.software_tool_upd_conf, "w")
+        software_tool_parser.write(outfile)
+        outfile.close()
 
     def InitializeRefListCtrl(self):
         '''
@@ -1185,7 +1684,7 @@ class InventoryOperator(InventoryOperatorGUI):
             if len(folders[item]) != 1:
                 self.AddFoldersUpdListCtrlSub(sub_tree_item, dict_id, folders[item])
 
-    def ReadIniFile(self):
+    def readIniFile(self):
         '''
         保存値、ユーザーIDリストなどの読み込み
         '''
@@ -1201,6 +1700,9 @@ class InventoryOperator(InventoryOperatorGUI):
             parser.read(inifilename)
 
         savevalue = {}
+        if parser.has_section("System") is True:
+            if parser.has_option("System", "modulecopy") is True:
+                self.modulecopy_directory = parser.get("System", "modulecopy")
         if parser.has_section("Reference") is True:
             savevalue["Reference"] = {}
             if parser.has_option("Reference", "URL") is True:
@@ -1211,6 +1713,14 @@ class InventoryOperator(InventoryOperatorGUI):
                 savevalue["Reference"]["UserID"] = parser.get("Reference", "UserID")
             if parser.has_option("Reference", "Token") is True:
                 savevalue["Reference"]["Token"] = parser.get("Reference", "Token")
+            if parser.has_option("Reference", "descriptor_conf") is True:
+                savevalue["Reference"]["descriptor_conf"] = parser.get("Reference", "descriptor_conf")
+            if parser.has_option("Reference", "prediction_conf") is True:
+                savevalue["Reference"]["prediction_conf"] = parser.get("Reference", "prediction_conf")
+            if parser.has_option("Reference", "software_tool_conf") is True:
+                savevalue["Reference"]["software_tool_conf"] = parser.get("Reference", "software_tool_conf")
+            if parser.has_option("Reference", "folder_info") is True:
+                savevalue["Reference"]["folder_info"] = parser.get("Reference", "folder_info")
         if parser.has_section("Update") is True:
             savevalue["Update"] = {}
             if parser.has_option("Update", "URL") is True:
@@ -1221,6 +1731,16 @@ class InventoryOperator(InventoryOperatorGUI):
                 savevalue["Update"]["UserID"] = parser.get("Update", "UserID")
             if parser.has_option("Update", "Token") is True:
                 savevalue["Update"]["Token"] = parser.get("Update", "Token")
+            if parser.has_option("Update", "descriptor_conf") is True:
+                savevalue["Update"]["descriptor_conf"] = parser.get("Update", "descriptor_conf")
+            if parser.has_option("Update", "prediction_conf") is True:
+                savevalue["Update"]["prediction_conf"] = parser.get("Update", "prediction_conf")
+            if parser.has_option("Update", "software_tool_conf") is True:
+                savevalue["Update"]["software_tool_conf"] = parser.get("Update", "software_tool_conf")
+            if parser.has_option("Update", "folder_info") is True:
+                savevalue["Update"]["folder_info"] = parser.get("Update", "folder_info")
+            if parser.has_option("Update", "modules_xml_info") is True:
+                savevalue["Update"]["modules_xml_info"] = parser.get("Update", "modules_xml_info")
 
         servers = ""
         if parser.has_section("Servers") is True:
@@ -1259,7 +1779,43 @@ class InventoryOperator(InventoryOperatorGUI):
         #print self.VersionList
         return savevalue
 
-    def MakeConfigFile(self, userid, token, path, query=None):
+    def readConfigFile(self):
+        '''
+        インベントリ操作用Configファイルの内容を取得する
+        '''
+
+        if sys.version_info[0] <= 2:
+            parser = ConfigParser.SafeConfigParser()
+        else:
+            parser = configparser.ConfigParser()
+
+        conffilename = os.path.join(self.workdir, CONFIG_FILENAME)
+        if os.path.exists(conffilename) is True:
+            parser.read(conffilename)
+        else:
+            return
+
+        #if parser.has_section("file") is True:
+        #    if parser.has_option("file", "object") is True:
+        #        objects = parser.get("file", "object").split()
+        #    if parser.has_option("file", "inputfile") is True:
+        #        inputfiles = parser.get("file", "inputfile").split()
+        #        self.descriptor_ref = inputfiles[0]
+        #        self.prediction_ref = inputfiles[1]
+        #        self.software_tool_ref = inputfiles[2]
+        #        
+        #    if parser.has_option("file", "outputfile") is True:
+        #        outputfiles = parser.get("file", "outputfile").split()
+        #        self.descriptor_upd = outputfiles[0]
+        #        self.prediction_upd = outputfiles[1]
+        #        self.software_tool_upd = outputfiles[2]
+        #        
+        #    if parser.has_option("file", "modules.xml") is True:
+        #        self.modulesxml = parser.get("file", "modules.xml")
+        #        self.folders_ref = parser.get("file", "folders_ref")
+        #        self.folders_upd = parser.get("file", "folders_update")
+        
+    def MakeConfigFile(self, userid, token, path, workdir, query=None):
         '''
         インベントリ操作用Configファイルの作成(存在すれば編集)
         '''
@@ -1269,7 +1825,7 @@ class InventoryOperator(InventoryOperatorGUI):
         else:
             parser = configparser.ConfigParser()
 
-        conffilename = os.path.join(self.workdir, CONFIG_FILENAME)
+        conffilename = os.path.join(workdir, CONFIG_FILENAME)
         if os.path.exists(conffilename) is True:
             parser.read(conffilename)
 
@@ -1289,28 +1845,33 @@ class InventoryOperator(InventoryOperatorGUI):
             parser.add_section("file")
 
         # 各JSONファイル名欄が埋まっていたら、設定をもってくる
-        if self.m_textCtrlDescriptorFileNameRef.GetValue() != "":
-            self.descriptor_ref = self.m_textCtrlDescriptorFileNameRef.GetValue()
-        if self.m_textCtrlPredictionModelFilenameRef.GetValue() != "":
-            self.prediction_ref = self.m_textCtrlPredictionModelFilenameRef.GetValue()
-        if self.m_textCtrlSoftwareToolFilenameRef.GetValue() != "":
-            self.software_tool_ref = self.m_textCtrlSoftwareToolFilenameRef.GetValue()
-        if self.m_textCtrlDescriptorFileNameUpdate.GetValue() != "":
-            self.descriptor_upd = self.m_textCtrlDescriptorFileNameUpdate.GetValue()
-        if self.m_textCtrlPredictionModelFilenameUpdate.GetValue() != "":
-            self.prediction_upd = self.m_textCtrlPredictionModelFilenameUpdate.GetValue()
-        if self.m_textCtrlSoftwareToolFilenameUpdate.GetValue() != "":
-            self.software_tool_upd = self.m_textCtrlSoftwareToolFilenameUpdate.GetValue()
-        if self.m_textCtrlModulesXMLUpdate.GetValue() != "":
-            self.modulesxml = self.m_textCtrlModulesXMLUpdate.GetValue()
+        #if self.m_textCtrlDescriptorFileNameRef.GetValue() != "":
+        #    self.descriptor_ref = self.m_textCtrlDescriptorFileNameRef.GetValue()
+        #if self.m_textCtrlPredictionModelFilenameRef.GetValue() != "":
+        #    self.prediction_ref = self.m_textCtrlPredictionModelFilenameRef.GetValue()
+        #if self.m_textCtrlSoftwareToolFilenameRef.GetValue() != "":
+        #    self.software_tool_ref = self.m_textCtrlSoftwareToolFilenameRef.GetValue()
+        #if self.m_textCtrlDescriptorFileNameUpdate.GetValue() != "":
+        #    self.descriptor_upd = self.m_textCtrlDescriptorFileNameUpdate.GetValue()
+        #if self.m_textCtrlPredictionModelFilenameUpdate.GetValue() != "":
+        #    self.prediction_upd = self.m_textCtrlPredictionModelFilenameUpdate.GetValue()
+        #if self.m_textCtrlSoftwareToolFilenameUpdate.GetValue() != "":
+        #    self.software_tool_upd = self.m_textCtrlSoftwareToolFilenameUpdate.GetValue()
+        #if self.m_textCtrlModulesXMLUpdate.GetValue() != "":
+        #    self.modulesxml = self.m_textCtrlModulesXMLUpdate.GetValue()
+        #if self.m_textCtrlFoldersFilenameRef.GetValue() != "":
+        #    self.folders_ref = self.m_textCtrlFoldersFilenameRef.GetValue()
+        #if self.m_textCtrlFoldersFilenameUpdate.GetValue() != "":
+        #    self.folders_upd = self.m_textCtrlFoldersFilenameUpdate.GetValue()
 
         parser.set("file", "object", "descriptor\n       prediction-model\n       software-tool")
-        #parser.set("file", "inputfile", "kushida_descriptors.json\n          kushida_prediction-models.json\n          kushida_software-tools.json")
-        #parser.set("file", "outputfile", "kushida_descriptors.json\n           kushida_prediction-models.json\n           kushida_software-tools.json")
-        #parser.set("file", "modules.xml", "modules-zeisei.xml")
-        parser.set("file", "outputfile", "%s\n          %s\n          %s"%(self.descriptor_ref, self.prediction_ref, self.software_tool_ref))
-        parser.set("file", "inputfile", "%s\n           %s\n           %s"%(self.descriptor_upd, self.prediction_upd, self.software_tool_upd))
+        #parser.set("file", "inputfile", "%s\n          %s\n          %s"%(self.descriptor_ref, self.prediction_ref, self.software_tool_ref))
+        #parser.set("file", "outputfile", "%s\n           %s\n           %s"%(self.descriptor_upd, self.prediction_upd, self.software_tool_upd))
+        parser.set("file", "inputfile", "%s\n          %s\n          %s"%(self.descriptor_ref_json, self.prediction_ref_json, self.software_tool_ref_json))
+        parser.set("file", "outputfile", "%s\n           %s\n           %s"%(self.descriptor_ref_json, self.prediction_ref_json, self.software_tool_ref_json))
         parser.set("file", "modules.xml", "%s"%self.modulesxml)
+        parser.set("file", "folders_ref", "%s"%self.folders_ref)
+        parser.set("file", "folders_update", "%s"%self.folders_upd)
 
         conffile = open(conffilename, "w")
         parser.write(conffile)
@@ -1409,6 +1970,7 @@ def main():
     descriptor_list = "src_descriptor.json"
     prediction_list = "src_prediction.json"
     software_tool_list = "src_software_tool.json"
+    folders_list = "src_folders.json"
     modules_xml = "modules.xml"
     if params_len == 5:
         descriptor_list = sys.argv[1]
@@ -1417,7 +1979,7 @@ def main():
         modules_xml = sys.argv[4]
 
     app = wx.App(False)
-    org = InventoryOperator(None, descriptor_list, prediction_list, software_tool_list, modules_xml=modules_xml)
+    org = InventoryOperator(None, descriptor_list, prediction_list, software_tool_list, modules_xml=modules_xml, folders_ref_json=folders_list)
     org.Show()
 
     app.MainLoop()

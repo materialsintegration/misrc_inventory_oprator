@@ -226,7 +226,10 @@ def postInventory_main(webapi_updroot):
         key3 = obj.replace('-', '_') + 's'   # prediction_models
         key4 = obj.replace('-','_') + '_id'  # prediction_model_id
 
-        dest_url = webapi_updroot + '/' + url + '/' + key1
+        if url == "":                        # 辞書作成モード
+            dest_url = webapi_updroot + '/' + key1
+        else:
+            dest_url = webapi_updroot + '/' + url + '/' + key1
         print('[target : ' + obj + ' / url = ' + dest_url + ']')
 
         jstat[obj] = []
@@ -242,7 +245,12 @@ def postInventory_main(webapi_updroot):
             jsontxt = json.dumps(lst)
             for o, n in zip(oldIDs, newIDs):
                 jsontxt = jsontxt.replace(o, n)
-            body = {key2:json.loads(jsontxt)}
+            if url == "":
+                body = {key2:json.loads(jsontxt)}
+                body = body[key2]
+            else:
+                body = {key2:json.loads(jsontxt)}
+            print(json.dumps(body, indent=2, ensure_ascii=False))
 
             # call webapi updater
             rlt     = inv.webapi_inventory(token, dest_url, body, 'post')
@@ -267,6 +275,13 @@ def postInventory_main(webapi_updroot):
 
     print('---------------------------------')
 
+    #
+    # 新旧対応表の作成
+    #
+    oldnew = open("old_new.lst", "w")
+    for o, n in zip(oldIDs, newIDs):
+        oldnew.write("%s %s\n"%(o, n))
+
     # ///////////////////////////////
     # make modules.xml
     # ///////////////////////////////
@@ -281,10 +296,10 @@ def postInventory_main(webapi_updroot):
 
         # replace old-new id
         new_xml = base_xml
-        oldnew = open("old_new.lst", "w")
+        #oldnew = open("old_new.lst", "w")
         for o, n in zip(oldIDs, newIDs):
             new_xml = new_xml.replace(o, n)
-            oldnew.write("%s %s\n"%(o, n))
+        #   oldnew.write("%s %s\n"%(o, n))
 
         # output new xml
         f = open(mod_outf, 'w')
