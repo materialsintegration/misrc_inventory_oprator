@@ -1123,7 +1123,10 @@ class InventoryOperator(InventoryOperatorGUI):
         #print("OnTreeSelChanged Event")
         selected = self.m_treeCtrlSelections.GetSelection()
         #print("selected tree is %s"%self.m_treeCtrlSelections.GetItemText(selected))
-        data = self.m_treeCtrlSelections.GetItemData(selected).GetData()
+        if sys.version_info[0] <= 2:
+            data = self.m_treeCtrlSelections.GetItemData(selected).GetData()
+        else:
+            data = self.m_treeCtrlSelections.GetItemData(selected)
         #print("data = %s"%data)
         #self.DictionaryFoldersID = "dictionaries/" + data[0] + "/folders/" + data[1]
         self.DictionaryFoldersID = "dictionaries/" + data[0]
