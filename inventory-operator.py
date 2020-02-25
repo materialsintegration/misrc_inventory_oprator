@@ -1574,7 +1574,9 @@ class InventoryOperator(InventoryOperatorGUI):
                     #print("create subtree under the folder id(%s)"%item)
                     for subitem1 in items:
                         #print("subitem1 = %s"%subitem1)
-                        dict_id = self.m_treeCtrlSelections.GetItemData(self.RefTree[item]).GetData()[0]
+                        #dict_id = self.m_treeCtrlSelections.GetItemData(self.RefTree[item]).GetData()[0]
+                        dict_id = self.m_treeCtrlSelections.GetItemData(self.RefTree[item])
+                        print("dict_id = %s"%str(dict_id))
                         TreeItemData = wx.TreeItemData([dict_id, subitem1])
                         tree_item = self.m_treeCtrlSelections.AppendItem(self.RefTree[item],
                                                                          items[subitem1][0],
