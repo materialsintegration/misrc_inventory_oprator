@@ -1537,7 +1537,7 @@ class InventoryOperator(InventoryOperatorGUI):
             dict_instance = None
             for item in items:
                 if item == "dictionary_name":
-                    TreeItemData = wx.TreeItemData()
+                    TreeItemData = wx.TreeItemData("Dummy")
                     dict_instance = self.m_treeCtrlSelections.AppendItem(self.root, items[item], self.dir_pict, -1, TreeItemData)
                     print ("%20s : %s"%(item, items[item]))
                 if item == "dictionary_id":
