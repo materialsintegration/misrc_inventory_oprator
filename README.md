@@ -5,9 +5,14 @@
 
 ## システム要件
 * python2.xおよびwxpython3.xが動作する、Linux/Windows/(MacOS)。
-※MacOSは未確認。（以前の経験上、動作は可能なはず）
+* python3.6以降およびwxpython4.0.6以降が動作する、Linux/Windows/(MacOS)
+※ MacOSは未確認。（以前の経験上、動作は可能なはず）
 * 追加のパッケージ
-    * requests[security]
+  + requests(security)
+  + authentication-operator(SSO対応)
+  + module_copy(Inventory操作本体)
+  + MI-API(1.2.0以降)
+  + webapi(misrc_webapi)
 
 # 管理編
 ## wxPython
@@ -16,7 +21,7 @@ wxPythonのインストール方法。
 以下のURLから python2.7系をインストールしている場合は、wxPython3.0-win64-3.0.2.0-py27.exeを取得、python2.6系をインストールしている場合は wxPython3.0-win64-3.0.2.0-py26.exeを取得し、インストールする。
 https://sourceforge.net/projects/wxpython/files/wxPython/3.0.2.0/
 
-### CentOS6
+### CentOS6とpython2.7
 Windowsと同じURLから wxPython-src-3.0.2.0.tar.bz2 を取得する。
 適当な場所に展開し、以下を実施する。
 ```
@@ -26,7 +31,7 @@ Windowsと同じURLから wxPython-src-3.0.2.0.tar.bz2 を取得する。
 ```
 pythonはシステムデフォルトまたは別インストールしたpython2.7などを使用する。
 
-### CentOS7
+### CentOS7とpython2.7
 CentOS7では環境が新しいためか、安全なインストール方法がまだほとんどありません。（検索してもあまりヒットしない）。WindowsやCentOS6用のパッケージもインストールに失敗します。このためEPELの早期？バージョンなどを取得して、yumでEPELの依存ライブラリをインストールした後、本体インストールというやや変則的なインストールを行います。また、実行中もワーニングがたくさん出るので、あまりおすすめじゃないかもしれません。GUIも表示が
 
 以下のURLから、wxPython-3.0.2.0-11.el7.centos.x86_64.rpmを取得する。
@@ -44,6 +49,15 @@ yumで依存ライブラリをインストールしておく。
 ```
 
 pythonはシステムデフォルト(2.7.5)を使用する。
+
+### CentOS7とpython3.6以降
+CentOS7とpython2.7のものより比較的簡単に構築が可能になっている。手順は以下のとおり。
+* gtk3およびgtk3-develのインストール(yum)
+* pathlib2のインストール(pip)
+* wxpythonのインストール(pip)
+
+※ gtk3は既にインストール済みかもしれないので、rpm -q -aなどで確認し、インストール済みならgtk3-develのみインストールするなど適宜対応を変えること。
+※ pathlib2とwxpythonのインストールは一緒にはできないので、別々に実施すること。
 
 ### 動作確認
 pythonを実行し、wxライブラリをimportしてみる。
@@ -73,9 +87,9 @@ $ python inventory-operator.py
 ## ユーザー情報
 InventoryAPIはアクセスのために、必要な情報として、以下の３つがあります。
 * URL
-    * 操作対象のサイトへのURL
+    * 操作対象のサイトへのURL（選択）
 * ユーザID
-* ユーザーのアクセストークン
+* パスワード
 
 Inventory-APIへのアクセスキーとして各ユーザー毎のトークンを使用しています。このトークンはユーザープロファイルのページかMI管理者に問い合わせて知ることができます。本プログラムではあらかじめinventory-operator.iniファイルにサイトに紐づくユーザーIDとトークンの組み合わせを保存してあります。このためユーザーのトークンが変更された場合は速やかにこのファイルの内容を変更する必要があります。
 
