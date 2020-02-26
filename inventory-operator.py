@@ -220,79 +220,9 @@ class InventoryOperator(InventoryOperatorGUI):
         self.modulecopy_directory = "../../module_copy"
 
         # 起動時iniファイル情報の読み込み
-        inifilename = "inventory-operator.ini"
-        #inifilename = "Inventory.conf"
-        if os.path.exists(inifilename) is True:
-            #print "found init file"
-            #infile = open(inifilename)
-            #lines = infile.read()
-            init_dic = self.readIniFile()
-            print("length of init_dic is %d"%len(init_dic))
-            print(init_dic)
-            userid_choice = []
-            if ("Reference" in init_dic) is True:
-                if ("UserID" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["UserID"] is not None: 
-                        self.m_comboBoxReferenceUserID.SetValue(init_dic["Reference"]["UserID"])
-                        self.userid_ref = init_dic["Reference"]["UserID"]
-                if ("URL" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["URL"] != "":
-                        self.m_comboBoxReferenceURL.SetValue(init_dic["Reference"]["URL"])
-                        self.url_ref = init_dic["Reference"]["URL"]
-                        self.m_comboBoxReferenceURLOnCombobox(None)
-                if ("Token" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["Token"] != "":
-                        self.m_textCtrlReferenceAccessToken.SetValue(init_dic["Reference"]["Token"])
-                        self.token_ref = init_dic["Reference"]["Token"]
-                if ("ConfFile" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["ConfFile"] != "":
-                        self.m_textCtrlConfFileNameSave.SetValue(init_dic["Reference"]["ConfFile"])
-                        self.ref_workdir = init_dic["Reference"]["ConfFile"]
-                if ("descriptor_conf" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["descriptor_conf"] != "":
-                        self.descriptor_ref_conf = init_dic["Reference"]["descriptor_conf"]
-                if ("prediction_conf" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["prediction_conf"] != "":
-                        self.prediction_ref_conf = init_dic["Reference"]["prediction_conf"]
-                if ("software_tool_conf" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["software_tool_conf"] != "":
-                        self.software_tool_ref_conf = init_dic["Reference"]["software_tool_conf"]
-                if ("folder_info" in init_dic["Reference"]) is True:
-                    if init_dic["Reference"]["folder_info"] != "":
-                        self.folders_ref = init_dic["Reference"]["folder_info"]
-            if ("Update" in init_dic) is True:
-                if ("UserID" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["UserID"] is not None: 
-                        self.m_comboBoxUpdateUserID.SetValue(init_dic["Update"]["UserID"])
-                        self.userid_upd = init_dic["Update"]["UserID"]
-                if ("URL" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["URL"] != "":
-                        self.m_comboBoxUpdateURL.SetValue(init_dic["Update"]["URL"])
-                        self.url_upd = init_dic["Update"]["URL"]
-                        self.m_comboBoxUpdateURLOnCombobox(None)
-                if ("Token" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["Token"] != "":
-                        self.m_textCtrlUpdateAccessToken.SetValue(init_dic["Update"]["Token"])
-                        self.token_upd = init_dic["Update"]["Token"]
-                if ("ConfFile" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["ConfFile"] != "":
-                        self.m_textCtrlConfFileNameRead.SetValue(init_dic["Update"]["ConfFile"])
-                        self.upd_workdir = init_dic["Update"]["ConfFile"]
-                if ("descriptor_conf" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["descriptor_conf"] != "":
-                        self.descriptor_upd_conf = init_dic["Update"]["descriptor_conf"]
-                if ("prediction_conf" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["prediction_conf"] != "":
-                        self.prediction_upd_conf = init_dic["Update"]["prediction_conf"]
-                if ("software_tool_conf" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["software_tool_conf"] != "":
-                        self.software_tool_upd_conf = init_dic["Update"]["software_tool_conf"]
-                if ("folder_info" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["folder_info"] != "":
-                        self.folders_upd = init_dic["Update"]["folder_info"]
-                if ("modules_xml_info" in init_dic["Update"]) is True:
-                    if init_dic["Update"]["modules_xml_info"] != "":
-                        self.modulesxml = init_dic["Update"]["modules_xml_info"]
+        init_dic = self.readIniFile()
+        #print("length of init_dic is %d"%len(init_dic))
+        #print(init_dic)
 
         # TreeCtrl準備
         self.imageList = wx.ImageList(16,16)
@@ -1694,7 +1624,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
     def readIniFile(self):
         '''
-        保存値、ユーザーIDリストなどの読み込み
+        保存値の読み込み
         '''
 
         if sys.version_info[0] <= 2:
@@ -1704,8 +1634,10 @@ class InventoryOperator(InventoryOperatorGUI):
 
         inifilename = "./inventory-operator.ini"
         #inifilename = "Inventory.conf"
-        if os.path.exists(inifilename) is True:
-            parser.read(inifilename)
+        if os.path.exists(inifilename) is False:             # 存在しない場合、雛形をコピーして使用
+            shutil.copy("inventory-operator.template", inifilename)
+
+        parser.read(inifilename)
 
         savevalue = {}
         if parser.has_section("System") is True:
@@ -1782,6 +1714,70 @@ class InventoryOperator(InventoryOperatorGUI):
                 if parser.has_option(item, "version") is True:
                     version = parser.get(item, "version")
                 self.VersionList[item]["version"] = version
+
+        if ("Reference" in savevalue) is True:
+            if ("UserID" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["UserID"] is not None: 
+                    self.m_comboBoxReferenceUserID.SetValue(savevalue["Reference"]["UserID"])
+                    self.userid_ref = savevalue["Reference"]["UserID"]
+            if ("URL" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["URL"] != "":
+                    self.m_comboBoxReferenceURL.SetValue(savevalue["Reference"]["URL"])
+                    self.url_ref = savevalue["Reference"]["URL"]
+                    self.m_comboBoxReferenceURLOnCombobox(None)
+            if ("Token" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["Token"] != "":
+                    self.m_textCtrlReferenceAccessToken.SetValue(savevalue["Reference"]["Token"])
+                    self.token_ref = savevalue["Reference"]["Token"]
+            if ("ConfFile" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["ConfFile"] != "":
+                    self.m_textCtrlConfFileNameSave.SetValue(savevalue["Reference"]["ConfFile"])
+                    self.ref_workdir = savevalue["Reference"]["ConfFile"]
+            if ("descriptor_conf" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["descriptor_conf"] != "":
+                    self.descriptor_ref_conf = savevalue["Reference"]["descriptor_conf"]
+            if ("prediction_conf" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["prediction_conf"] != "":
+                    self.prediction_ref_conf = savevalue["Reference"]["prediction_conf"]
+            if ("software_tool_conf" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["software_tool_conf"] != "":
+                    self.software_tool_ref_conf = savevalue["Reference"]["software_tool_conf"]
+            if ("folder_info" in savevalue["Reference"]) is True:
+                if savevalue["Reference"]["folder_info"] != "":
+                    self.folders_ref = savevalue["Reference"]["folder_info"]
+        if ("Update" in savevalue) is True:
+            if ("UserID" in savevalue["Update"]) is True:
+                if savevalue["Update"]["UserID"] is not None: 
+                    self.m_comboBoxUpdateUserID.SetValue(savevalue["Update"]["UserID"])
+                    self.userid_upd = savevalue["Update"]["UserID"]
+            if ("URL" in savevalue["Update"]) is True:
+                if savevalue["Update"]["URL"] != "":
+                    self.m_comboBoxUpdateURL.SetValue(savevalue["Update"]["URL"])
+                    self.url_upd = savevalue["Update"]["URL"]
+                    self.m_comboBoxUpdateURLOnCombobox(None)
+            if ("Token" in savevalue["Update"]) is True:
+                if savevalue["Update"]["Token"] != "":
+                    self.m_textCtrlUpdateAccessToken.SetValue(savevalue["Update"]["Token"])
+                    self.token_upd = savevalue["Update"]["Token"]
+            if ("ConfFile" in savevalue["Update"]) is True:
+                if savevalue["Update"]["ConfFile"] != "":
+                    self.m_textCtrlConfFileNameRead.SetValue(savevalue["Update"]["ConfFile"])
+                    self.upd_workdir = savevalue["Update"]["ConfFile"]
+            if ("descriptor_conf" in savevalue["Update"]) is True:
+                if savevalue["Update"]["descriptor_conf"] != "":
+                    self.descriptor_upd_conf = savevalue["Update"]["descriptor_conf"]
+            if ("prediction_conf" in savevalue["Update"]) is True:
+                if savevalue["Update"]["prediction_conf"] != "":
+                    self.prediction_upd_conf = savevalue["Update"]["prediction_conf"]
+            if ("software_tool_conf" in savevalue["Update"]) is True:
+                if savevalue["Update"]["software_tool_conf"] != "":
+                    self.software_tool_upd_conf = savevalue["Update"]["software_tool_conf"]
+            if ("folder_info" in savevalue["Update"]) is True:
+                if savevalue["Update"]["folder_info"] != "":
+                    self.folders_upd = savevalue["Update"]["folder_info"]
+            if ("modules_xml_info" in savevalue["Update"]) is True:
+                if savevalue["Update"]["modules_xml_info"] != "":
+                    self.modulesxml = savevalue["Update"]["modules_xml_info"]
 
         #print self.UserList
         #print self.VersionList
