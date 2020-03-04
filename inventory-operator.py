@@ -226,9 +226,10 @@ class InventoryOperator(InventoryOperatorGUI):
 
         # TreeCtrl準備
         self.imageList = wx.ImageList(16,16)
-        self.root_pict = self.imageList.Add(wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, (16,16)))
-        self.dir_pict = self.imageList.Add(wx.ArtProvider.GetBitmap(wx.ART_NEW_DIR, wx.ART_OTHER, (16,16)))
+        self.root_pict = self.imageList.Add(wx.ArtProvider.GetBitmap(wx.ART_HELP_BOOK, wx.ART_OTHER, (16,16)))
+        self.dir_pict = self.imageList.Add(wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, (16,16)))
         self.file_pict = self.imageList.Add(wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, (16,16)))
+        self.m_treeCtrlSelections.AssignImageList(self.imageList)
         self.root = None
         self.RefTree = {}
         self.UpdTree = {}
@@ -552,20 +553,20 @@ class InventoryOperator(InventoryOperatorGUI):
         if ret == wx.ID_NO:
             return
 
-        if os.path.exists(self.ref_workdir) is True:
-            if os.path.isfile(self.ref_workdir) is True:
-                dialog = wx.MessageDialog(self, u"作業ディレクトリ(%s)と同じ名前のファイルがあります。"%self.ref_workdir, style=wx.OK)
+        if os.path.exists(self.upd_workdir) is True:
+            if os.path.isfile(self.upd_workdir) is True:
+                dialog = wx.MessageDialog(self, u"作業ディレクトリ(%s)と同じ名前のファイルがあります。"%self.upd_workdir, style=wx.OK)
                 dialog.ShowModal()
                 dialog.Destroy()
                 return False, False
         else:
-            dialog = wx.MessageDialog(self, u"作業ディレクトリ(%s)がありません。"%self.ref_workdir, style=wx.OK)
+            dialog = wx.MessageDialog(self, u"作業ディレクトリ(%s)がありません。"%self.upd_workdir, style=wx.OK)
             dialog.ShowModal()
             dialog.Destroy()
             return False, False
         
         cwd = os.getcwd()
-        os.chdir(self.ref_workdir)
+        os.chdir(self.upd_workdir)
         
         okUpdate = True
         needed_files = ""
@@ -601,9 +602,14 @@ class InventoryOperator(InventoryOperatorGUI):
             prediction_parser = configparser.ConfigParser()
             software_tool_parser = configparser.ConfigParser()
 
+        url = self.m_comboBoxUpdateURL.GetValue()
+        updateURL = self.m_comboBoxUpdateURL.GetValue()
+
         ## 記述子用
         descriptor_parser.read(self.descriptor_upd_conf)
         if descriptor_parser.has_section("authorize") is True:
+            descriptor_parser.set("authorize", "hostPort", "%s:50443"%url)
+            descriptor_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["version"])
             descriptor_parser.set("authorize", "user_id", userid)
             descriptor_parser.set("authorize", "token", token)
         outfile = open(self.descriptor_upd_conf, "w")
@@ -612,6 +618,8 @@ class InventoryOperator(InventoryOperatorGUI):
         ## 予測モデル用
         prediction_parser.read(self.prediction_upd_conf)
         if prediction_parser.has_section("authorize") is True:
+            prediction_parser.set("authorize", "hostPort", "%s:50443"%url)
+            prediction_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["version"])
             prediction_parser.set("authorize", "user_id", userid)
             prediction_parser.set("authorize", "token", token)
         outfile = open(self.prediction_upd_conf, "w")
@@ -620,6 +628,8 @@ class InventoryOperator(InventoryOperatorGUI):
         ## ソフトウェアツール用
         software_tool_parser.read(self.software_tool_upd_conf)
         if software_tool_parser.has_section("authorize") is True:
+            software_tool_parser.set("authorize", "hostPort", "%s:50443"%url)
+            software_tool_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["version"])
             software_tool_parser.set("authorize", "user_id", userid)
             software_tool_parser.set("authorize", "token", token)
         outfile = open(self.software_tool_upd_conf, "w")
@@ -628,7 +638,7 @@ class InventoryOperator(InventoryOperatorGUI):
         # 記述子登録
         cmd = "/usr/local/python3.6.2/bin/python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
 
-        sys.stderr.write("記述子登録中...")
+        sys.stderr.write("記述子登録中...%s\n"%os.getcwd())
         sys.stderr.flush()
         p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -642,11 +652,18 @@ class InventoryOperator(InventoryOperatorGUI):
                 sys.stdout.flush()
             if temp2:
                 stderr = temp2.decode('utf-8')
-                sys.stderr.write(stdout)
+                sys.stderr.write(stderr)
                 sys.stderr.flush()
 
             if not temp1 and p.poll() is not None:
                 break
+
+        if p.returncode != 0:
+            dialog = wx.MessageDialog(self, u"記述子登録に失敗しました。", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            os.chdir(cwd)
+            return False, False
 
         # 予測モデル登録
         if os.path.exists(old_new_filename) is False:
@@ -656,7 +673,7 @@ class InventoryOperator(InventoryOperatorGUI):
             os.chdir(cwd)
             return False, False
 
-        sys.stderr.write("\n予測モデル登録中...")
+        sys.stderr.write("\n予測モデル登録中...%s\n"%os.getcwd())
         sys.stderr.flush()
         cmd = "/usr/local/python3.6.2/bin/python3.6 %s/script/opeInventory3.py %s %s"%(self.modulecopy_directory, self.prediction_upd_conf, old_new_filename)
         p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -671,14 +688,21 @@ class InventoryOperator(InventoryOperatorGUI):
                 sys.stdout.flush()
             if temp2:
                 stderr = temp2.decode('utf-8')
-                sys.stderr.write(stdout)
+                sys.stderr.write(stderr)
                 sys.stderr.flush()
 
             if not temp1 and p.poll() is not None:
                 break
 
+        if p.returncode != 0:
+            dialog = wx.MessageDialog(self, u"予測モデル登録に失敗しました。", style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            os.chdir(cwd)
+            return False, False
+
         # ソフトウェアツール登録
-        sys.stderr.write("\nソフトウェアツール登録中...")
+        sys.stderr.write("\nソフトウェアツール登録中...%s\n"%os.getcwd())
         sys.stderr.flush()
 
         # 記述子・予測モデル登録後、辞書・フォルダー作成と、記述子・予測モデルの辞書・フォルダーへの登録
@@ -701,9 +725,9 @@ class InventoryOperator(InventoryOperatorGUI):
         folders_dict = json.load(infile)
         infile.close()
         if ret is True:
-            sys.stderr.write("\n辞書・フォルダーの登録と記述子、予測モデル、ソフトウェアツールの辞書、フォルダーへの登録中...")
+            sys.stderr.write("\n辞書・フォルダーの登録と記述子、予測モデル、ソフトウェアツールの辞書、フォルダーへの登録中...\n")
             sys.stderr.flush()
-            weburl = "https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v5/users/%s/dictionaries"%userid
+            weburl = "https://%s:50443/inventory-update-api/v%s/users/%s/dictionaries"%(url, self.VersionList[updateURL]["version"], userid)
             addDictionaryAndFolders(token, weburl, folders_dict)
 
         sys.stderr.write("\n")
@@ -714,7 +738,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
     def m_buttonInventryUpdateWithDictFolderOnButtonClick_discarded( self, event ):
         '''
-        インベントリ情報の登録（登録先は辞書ではない。登録後、辞書およびフォルダー作成して、それぞれ配下に登録される）
+        インベントリ情報の登録（登録先は辞書)
 
         ※ ※ ※ 新しい登録方法の実装によりこちらは用途廃棄(2020/02/14)
 
