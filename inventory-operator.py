@@ -640,7 +640,7 @@ class InventoryOperator(InventoryOperatorGUI):
         software_tool_parser.write(outfile)
         outfile.close()
         # 記述子登録
-        cmd = "/usr/local/python3.6.2/bin/python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
+        cmd = "python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
 
         sys.stderr.write("記述子登録中...%s\n"%os.getcwd())
         sys.stderr.flush()
@@ -679,7 +679,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         sys.stderr.write("\n予測モデル登録中...%s\n"%os.getcwd())
         sys.stderr.flush()
-        cmd = "/usr/local/python3.6.2/bin/python3.6 %s/script/opeInventory3.py %s %s"%(self.modulecopy_directory, self.prediction_upd_conf, old_new_filename)
+        cmd = "python3.6 %s/script/opeInventory3.py %s %s"%(self.modulecopy_directory, self.prediction_upd_conf, old_new_filename)
         p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         while True:
@@ -1169,7 +1169,7 @@ class InventoryOperator(InventoryOperatorGUI):
             userid_choice.append(item.split(":")[0])
 
         self.m_comboBoxReferenceUserID.Clear()
-        print("userid_choice = %s"%userid_choice)
+        #print("userid_choice = %s"%userid_choice)
         self.m_comboBoxReferenceUserID.SetItems(userid_choice)
         self.m_comboBoxReferenceUserID.SetSelection(0)
         self.m_comboBoxReferenceUserIDOnCombobox(None)
@@ -1214,7 +1214,7 @@ class InventoryOperator(InventoryOperatorGUI):
         更新系の記述子リストのファイル名指定。
         '''
 
-        filename_dialog = wx.FileDialog(self, u"記述子登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"記述子登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlDescriptorFileNameUpdate.SetValue(filename)
@@ -1223,7 +1223,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         更新系の予測モデルリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"予測モデル登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"予測モデル登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlPredictionModelFilenameUpdate.SetValue(filename)
@@ -1232,7 +1232,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         更新系のソフトウェアツールリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"ソフトウェアツール登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"ソフトウェアツール登録用構成ファイルの名前を指定してください。", self.upd_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlSoftwareToolFilenameUpdate.SetValue(filename)
@@ -1241,7 +1241,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照系の記述子リストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"記述子取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"記述子取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlDescriptorFileNameRef.SetValue(filename)
@@ -1250,7 +1250,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照系の予測モデルリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"予測モデル取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"予測モデル取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlPredictionModelFilenameRef.SetValue(filename)
@@ -1259,7 +1259,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照系のソフトウェアツールリストのファイル名指定。
         '''
-        filename_dialog = wx.FileDialog(self, u"ソフトウェアツール取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"ソフトウェアツール取り出し用の構成ファイルの名前を指定してください。", self.ref_workdir, u"", u"conf file (*.conf) |*.conf| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlSoftwareToolFilenameRef.SetValue(filename)
@@ -1268,7 +1268,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         予測モジュールXMLファイルの指定
         '''
-        filename_dialog = wx.FileDialog(self, u"予測モジュールのファイル名を指定してください。", self.upd_workdir, u"", u"XML file (*.xml) |*.xml| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"予測モジュールのファイル名を指定してください。", self.upd_workdir, u"", u"XML file (*.xml) |*.xml| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlModulesXMLUpdate.SetValue(filename)
@@ -1278,7 +1278,7 @@ class InventoryOperator(InventoryOperatorGUI):
         更新系の辞書・フォルダー情報を格納したファイルの指定
         '''
 
-        filename_dialog = wx.FileDialog(self, u"辞書・フォルダー情報のファイル名を指定してください。", self.upd_workdir, u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"辞書・フォルダー情報のファイル名を指定してください。", self.upd_workdir, u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlFoldersFilenameUpdate.SetValue(filename)
@@ -1287,7 +1287,7 @@ class InventoryOperator(InventoryOperatorGUI):
         '''
         参照系の辞書・フォルダー情報を格納したファイルの指定
         '''
-        filename_dialog = wx.FileDialog(self, u"辞書・フォルダー情報のファイル名を指定してください。", self.ref_workdir, u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.OPEN)
+        filename_dialog = wx.FileDialog(self, u"辞書・フォルダー情報のファイル名を指定してください。", self.ref_workdir, u"", u"JSON file (*.json) |*.json| All file (*.*)|*.*", style=wx.FD_OPEN)
         if filename_dialog.ShowModal() == wx.ID_OK:
             filename = filename_dialog.GetFilename()
             self.m_textCtrlFoldersFilenameRef.SetValue(filename)
@@ -1724,7 +1724,7 @@ class InventoryOperator(InventoryOperatorGUI):
             self.m_comboBoxUpdateURL.SetItems(servers)
 
         for item in servers:
-            print("server : %s"%item)
+            #print("server : %s"%item)
             if parser.has_section(item) is True:
                 self.UserList[item] = {}
                 self.VersionList[item] = {}
@@ -1924,6 +1924,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return False, False
         server = self.m_comboBoxReferenceURL.GetValue()
 
+        print("server = %s"%server)
         ret, uid, token = openam_operator.miauth(server, username, passwd)
 
         if ret is False:
