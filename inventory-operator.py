@@ -19,7 +19,11 @@ else:
 import subprocess
 import shutil
 
-from openam_operator import openam_operator     # MIシステム認証ライブラリ
+if os.name == "nt":
+    import openam_operator
+else:
+    from openam_operator import openam_operator     # MIシステム認証ライブラリ
+
 from InventoryOperatorGui import *
 from getInventory import *
 from postInventory4 import *
