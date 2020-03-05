@@ -723,7 +723,7 @@ class InventoryOperator(InventoryOperatorGUI):
         if os.path.exists(prediction_module_filename) is True:
             newfile1 = os.path.splitext(prediction_module_filename)[0] + "_temp1.xml"
             newfile2 = os.path.splitext(prediction_module_filename)[0] + "_new.xml"
-            ret = translateOldNew(old_new_filename, srcfile, newfile)
+            ret = translateOldNew(old_new_filename, prediction_module_filename, newfile1)
 
         old_new_filename = "prediction_models.ids"
         if os.path.exists(old_new_filename) is False:
