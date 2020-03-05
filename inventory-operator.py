@@ -53,18 +53,20 @@ def folderFactory(elements, space="", debug=True):
         folder["description"] = item["description"]
         folder["prediction_models"] = {}
         print("%s%s - %s"%(space, folder_id, folder_name))
-        descriptors = item["descriptors"]
-        for d in descriptors:
-            print("%s  %s - %s"%(space, d["descriptor_id"].split("/")[-1], d["preferred_name"].split("@")[0])) 
-            #folder["descriptors"].append("%s:%s"%(d["descriptor_id"].split("/")[-1], d["preferred_name"].split("@")[0]))
-            #folder["descriptors"][d["preferred_name"].split("@")[0]] = d["descriptor_id"].split("/")[-1]
-            folder["descriptors"][d["descriptor_id"].split("/")[-1]] = d["preferred_name"].split("@")[0]
-        predictions = item["prediction_models"]
-        for p in predictions:
-            print("%s  %s - %s"%(space, p["prediction_model_id"].split("/")[-1], p["preferred_name"].split("@")[0])) 
-            #folder["prediction_models"].append("%s:%s"%(p["prediction_model_id"].split("/")[-1], p["preferred_name"].split("@")[0]))
-            #folder["prediction_models"][p["preferred_name"].split("@")[0]] = p["prediction_model_id"].split("/")[-1]
-            folder["prediction_models"][p["prediction_model_id"].split("/")[-1]] = p["preferred_name"].split("@")[0]
+        if ("descriptors" in item) is True:
+            descriptors = item["descriptors"]
+            for d in descriptors:
+                print("%s  %s - %s"%(space, d["descriptor_id"].split("/")[-1], d["preferred_name"].split("@")[0])) 
+                #folder["descriptors"].append("%s:%s"%(d["descriptor_id"].split("/")[-1], d["preferred_name"].split("@")[0]))
+                #folder["descriptors"][d["preferred_name"].split("@")[0]] = d["descriptor_id"].split("/")[-1]
+                folder["descriptors"][d["descriptor_id"].split("/")[-1]] = d["preferred_name"].split("@")[0]
+        if ("prediction_models" in item) is True:
+            predictions = item["prediction_models"]
+            for p in predictions:
+                print("%s  %s - %s"%(space, p["prediction_model_id"].split("/")[-1], p["preferred_name"].split("@")[0])) 
+                #folder["prediction_models"].append("%s:%s"%(p["prediction_model_id"].split("/")[-1], p["preferred_name"].split("@")[0]))
+                #folder["prediction_models"][p["preferred_name"].split("@")[0]] = p["prediction_model_id"].split("/")[-1]
+                folder["prediction_models"][p["prediction_model_id"].split("/")[-1]] = p["preferred_name"].split("@")[0]
         if ("folders" in item) is True:
             folder["folders"] = folderFactory(item["folders"], space)
         folders.append(folder)
@@ -709,10 +711,19 @@ class InventoryOperator(InventoryOperatorGUI):
         sys.stderr.write("\nソフトウェアツール登録中...%s\n"%os.getcwd())
         sys.stderr.flush()
 
+        # 予測モジュールファイル名の取得
+        prediction_module_filename = self.m_textCtrlModulesXMLUpdate.GetValue()
+
         # 記述子・予測モデル登録後、辞書・フォルダー作成と、記述子・予測モデルの辞書・フォルダーへの登録
         srcfile = self.folders_upd
         newfile = "folder_table.dat"
         ret = translateOldNew(old_new_filename, srcfile, newfile)
+
+        # 予測モジュール新旧変換その１（記述子ID）
+        if os.path.exists(prediction_module_filename) is True:
+            newfile1 = os.path.splitext(prediction_module_filename)[0] + "_temp1.xml"
+            newfile2 = os.path.splitext(prediction_module_filename)[0] + "_new.xml"
+            ret = translateOldNew(old_new_filename, srcfile, newfile)
 
         old_new_filename = "prediction_models.ids"
         if os.path.exists(old_new_filename) is False:
@@ -725,6 +736,11 @@ class InventoryOperator(InventoryOperatorGUI):
             newfile = self.folders_upd
             ret = translateOldNew(old_new_filename, srcfile, newfile)
 
+        # 予測モジュール新旧変換その２（予測モデルID）
+        if os.path.exists(prediction_module_filename) is True:
+            ret = translateOldNew(old_new_filename, newfile1, newfile2)
+            sys.stderr.write("新しい予測モジュールのファイル名は%sです。"%newfile2)
+
         infile = open(newfile)
         folders_dict = json.load(infile)
         infile.close()
@@ -736,6 +752,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         sys.stderr.write("\n")
         sys.stderr.flush()
+
         os.chdir(cwd)
         return
         event.Skip()
