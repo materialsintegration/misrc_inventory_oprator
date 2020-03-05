@@ -1518,7 +1518,7 @@ class InventoryOperator(InventoryOperatorGUI):
                     TreeItemData = wx.TreeItemData("Dummy")
                     #dict_instance = self.m_treeCtrlSelections.AppendItem(self.root, items[item], self.dir_pict, -1, TreeItemData)
                     dict_instance = self.m_treeCtrlSelections.AppendItem(self.root, items[item], self.dir_pict, -1)
-                    print ("%20s : %s"%(item, items[item]))
+                    #print ("%20s : %s"%(item, items[item]))
                 if item == "dictionary_id":
                     dict_id = items[item].split("/")[-1]
                 if item == "root_folder_id":
@@ -1601,8 +1601,10 @@ class InventoryOperator(InventoryOperatorGUI):
             dict_instance = None
             for item in items:
                 if item == "dictionary_name":
-                    TreeItemData = wx.TreeItemData()
-                    dict_instance = self.m_treeCtrlSelectionsUpdate.AppendItem(self.root, items[item], self.dir_pict, -1, TreeItemData)
+                    #TreeItemData = wx.TreeItemData()
+                    TreeItemData = wx.TreeItemData("Dummy")
+                    #dict_instance = self.m_treeCtrlSelectionsUpdate.AppendItem(self.root, items[item], self.dir_pict, -1, TreeItemData)
+                    dict_instance = self.m_treeCtrlSelectionsUpdate.AppendItem(self.root, items[item], self.dir_pict, -1)
                     print ("%20s : %s"%(item, items[item]))
                 if item == "dictionary_id":
                     dict_id = items[item].split("/")[-1]
