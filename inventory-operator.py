@@ -738,7 +738,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         # 予測モジュール新旧変換その２（予測モデルID）
         if os.path.exists(prediction_module_filename) is True:
-            ret = translateOldNew(old_new_filename, newfile1, newfile2)
+            ret2 = translateOldNew(old_new_filename, newfile1, newfile2)
             sys.stderr.write("新しい予測モジュールのファイル名は%sです。"%newfile2)
 
         infile = open(newfile)
