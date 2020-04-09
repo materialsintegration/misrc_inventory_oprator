@@ -88,7 +88,7 @@ def addDictionaryAndFolders(token, weburl, table):
         ret, result = apiAccess(token, url, "post", body, debug_print=True)
     for prediction_model in table[key]["prediction_models"]:
         body = {"prediction_model_id":prediction_model}
-        url = weburl + "/%s"%dictid + "/folders/%s"%foldeid + "/prediction-models"
+        url = weburl + "/%s"%dictid + "/folders/%s"%folderid + "/prediction-models"
         ret, result = apiAccess(token, url, "post", body, debug_print=True)
     #for item in table["folders"]:
     #    addDictionaryAndFolders(folders_dict)

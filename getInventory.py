@@ -114,7 +114,7 @@ def configParse(file_path) :
 # main
 # =======================================
 
-def getInventory_main(webapi_refroot,):
+def getInventory_main(webapi_refroot, version="6"):
     stime = time.time()
     print('----- start getInventory script -----')    
 
@@ -219,8 +219,9 @@ def getInventory_main(webapi_refroot,):
 
             # debug keyname
             debug_json = rlt.text
-            for k, v in replace_dic.items():
-                debug_json = debug_json.replace(k, v)
+            if version != "6":
+                for k, v in replace_dic.items():
+                    debug_json = debug_json.replace(k, v)
 
             # set json
             rlt_dic = json.loads(debug_json)
