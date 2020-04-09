@@ -508,7 +508,7 @@ class InventoryOperator(InventoryOperatorGUI):
         url = "https://%s:50443"%url + "/inventory-api/v%s"%self.VersionList[ReferenceURL]["version"]
 
         # 従来の方法でInventory情報を入手する
-        getInventory_main(url)
+        getInventory_main(url, self.VersionList[ReferenceURL]["version"])
 
         # 入手したInventory情報を１ID毎にばらす
         self.divideInventories()
@@ -644,7 +644,7 @@ class InventoryOperator(InventoryOperatorGUI):
         # 記述子登録
         cmd = "python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
 
-        sys.stderr.write("記述子登録中...%s\n"%os.getcwd())
+        sys.stderr.write("記述子登録中...%s\n%s"%(os.getcwd(), cmd))
         sys.stderr.flush()
         p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
