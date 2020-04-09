@@ -360,7 +360,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer9.Add( self.m_staticText241, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlUpdateUserName = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrlUpdateUserName = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size(200, -1), 0 )
 		fgSizer9.Add( self.m_textCtrlUpdateUserName, 0, wx.RIGHT|wx.LEFT, 5 )
 
 		m_comboBoxUpdateUserIDChoices = []
@@ -374,7 +374,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer9.Add( self.m_staticText38, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlUpdatePasswd = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
+		self.m_textCtrlUpdatePasswd = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size(200, -1), wx.TE_PASSWORD )
 		fgSizer9.Add( self.m_textCtrlUpdatePasswd, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticTextUpdateUserID = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
