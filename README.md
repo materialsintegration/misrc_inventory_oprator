@@ -9,10 +9,10 @@
 ※ MacOSは未確認。（以前の経験上、動作は可能なはず）
 * 追加のパッケージ
   + requests(security)
-  + authentication-operator(SSO対応)
-  + module_copy(Inventory操作本体)
+  + [authentication-operator(SSO対応)](https://gitlab.mintsys.jp/midev/authentication_operator)
+  + [module_copy(Inventory操作本体)](https://gitlab.mintsys.jp/midev/module_copy)
   + MI-API(1.2.0以降)
-  + webapi(misrc_webapi)
+  + [webapi(misrc_webapi)](https://gitlab.mintsys.jp/midev/misrc_webapi)
 
 ## 注意事項
 inventory-operatorを使用するにあたっての概要と現在判明している問題である。
