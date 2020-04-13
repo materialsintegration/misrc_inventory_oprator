@@ -19,7 +19,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Inventory Operator", pos = wx.DefaultPosition, size = wx.Size( 698,699 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 
@@ -34,7 +34,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_treeCtrlSelections = wx.TreeCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,200 ), wx.TR_DEFAULT_STYLE|wx.TR_HAS_BUTTONS|wx.TR_LINES_AT_ROOT )
 		bSizer7.Add( self.m_treeCtrlSelections, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダ一覧", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetDictionary = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダ一覧", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		bSizer7.Add( self.m_buttonGetDictionary, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 5 )
 
 
@@ -52,7 +52,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		bSizer10.Add( self.m_staticTextDictionaryAndFolderID, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonGetInventory = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Inventory取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetInventory = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Inventory取得", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		bSizer10.Add( self.m_buttonGetInventory, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
@@ -67,10 +67,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer71.Add( self.m_staticText291, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 
-		self.m_textCtrlConfFileNameSave = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlConfFileNameSave = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer71.Add( self.m_textCtrlConfFileNameSave, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 
-		self.m_buttonConfFileNameSave = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Borwse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonConfFileNameSave = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Borwse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer71.Add( self.m_buttonConfFileNameSave, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticText40 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"記述子設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -78,10 +78,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer71.Add( self.m_staticText40, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlDescriptorFileNameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlDescriptorFileNameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer71.Add( self.m_textCtrlDescriptorFileNameRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonDescriptorBrowseRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonDescriptorBrowseRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer71.Add( self.m_buttonDescriptorBrowseRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText41 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"予測モデル設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -89,10 +89,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer71.Add( self.m_staticText41, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlPredictionModelFilenameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlPredictionModelFilenameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer71.Add( self.m_textCtrlPredictionModelFilenameRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonPredictionBrowsRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonPredictionBrowsRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer71.Add( self.m_buttonPredictionBrowsRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText42 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"ソフトウェアツール", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -100,10 +100,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer71.Add( self.m_staticText42, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlSoftwareToolFilenameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlSoftwareToolFilenameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer71.Add( self.m_textCtrlSoftwareToolFilenameRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonSoftwareToolBrowseRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonSoftwareToolBrowseRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer71.Add( self.m_buttonSoftwareToolBrowseRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText312 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"フォルダー情報", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -111,10 +111,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer71.Add( self.m_staticText312, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlFoldersFilenameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlFoldersFilenameRef = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer71.Add( self.m_textCtrlFoldersFilenameRef, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonFoldersBrowsRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonFoldersBrowsRef = wx.Button( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer71.Add( self.m_buttonFoldersBrowsRef, 0, wx.RIGHT|wx.LEFT, 5 )
 
 
@@ -134,7 +134,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer8.Add( self.m_staticText24, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 
-		self.m_textCtrlReferenceUserName = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrlReferenceUserName = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,25 ), 0 )
 		fgSizer8.Add( self.m_textCtrlReferenceUserName, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		m_comboBoxReferenceUserIDChoices = []
@@ -149,7 +149,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer8.Add( self.m_staticText352, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlReferencePasswd = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
+		self.m_textCtrlReferencePasswd = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,25 ), wx.TE_PASSWORD )
 		fgSizer8.Add( self.m_textCtrlReferencePasswd, 0, wx.RIGHT|wx.LEFT, 5 )
 
 		self.m_staticTextReferenceUserID = wx.StaticText( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -162,10 +162,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer8.Add( self.m_staticText25, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlReferenceAccessToken = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+		self.m_textCtrlReferenceAccessToken = wx.TextCtrl( sbSizer10.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer8.Add( self.m_textCtrlReferenceAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonReferenceGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonReferenceGetAccessToken = wx.Button( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		self.m_buttonReferenceGetAccessToken.Enable( False )
 
 		fgSizer8.Add( self.m_buttonReferenceGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -176,7 +176,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer8.Add( self.m_staticText47, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		m_comboBoxReferenceURLChoices = [ u"https://nims.mintsys.jp:50443", u"https://dev-u-tokyo.mintsys.jp:50443", u"https://u-tokyo.mintsys.jp:50443" ]
-		self.m_comboBoxReferenceURL = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, m_comboBoxReferenceURLChoices, 0 )
+		self.m_comboBoxReferenceURL = wx.ComboBox( sbSizer10.GetStaticBox(), wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.Size( -1,25 ), m_comboBoxReferenceURLChoices, 0 )
 		self.m_comboBoxReferenceURL.SetSelection( 0 )
 		fgSizer8.Add( self.m_comboBoxReferenceURL, 0, wx.ALL, 5 )
 
@@ -203,7 +203,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		bSizer12 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_buttonGetDictionaryUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダ一覧", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonGetDictionaryUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"辞書・フォルダ一覧", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		bSizer12.Add( self.m_buttonGetDictionaryUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM|wx.EXPAND, 5 )
 
 		self.m_staticText33 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -216,10 +216,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		bSizer12.Add( self.m_staticText34, 0, wx.ALL, 5 )
 
-		self.m_buttonInventryUpdateWithDictFolder = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"投入（辞書・フォルダー作成）", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonInventryUpdateWithDictFolder = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"投入（辞書・フォルダー作成）", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		bSizer12.Add( self.m_buttonInventryUpdateWithDictFolder, 0, wx.RIGHT|wx.LEFT|wx.EXPAND, 5 )
 
-		self.m_buttonInventoryUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"辞書へ投入", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonInventoryUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"辞書へ投入", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		bSizer12.Add( self.m_buttonInventoryUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 
 
@@ -252,10 +252,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer711.Add( self.m_staticText46, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlConfFileNameRead = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlConfFileNameRead = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer711.Add( self.m_textCtrlConfFileNameRead, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonBrowseConfFileRead = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonBrowseConfFileRead = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer711.Add( self.m_buttonBrowseConfFileRead, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText401 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"記述子設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -263,10 +263,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer711.Add( self.m_staticText401, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlDescriptorFileNameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlDescriptorFileNameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer711.Add( self.m_textCtrlDescriptorFileNameUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonDescriptorBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonDescriptorBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer711.Add( self.m_buttonDescriptorBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText411 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"予測モデル設定名", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -274,10 +274,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer711.Add( self.m_staticText411, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlPredictionModelFilenameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlPredictionModelFilenameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer711.Add( self.m_textCtrlPredictionModelFilenameUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonPredictionBrowsUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonPredictionBrowsUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer711.Add( self.m_buttonPredictionBrowsUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText412 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"ソフトウェアツール", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -285,10 +285,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer711.Add( self.m_staticText412, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlSoftwareToolFilenameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlSoftwareToolFilenameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer711.Add( self.m_textCtrlSoftwareToolFilenameUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonSoftwareToolBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonSoftwareToolBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer711.Add( self.m_buttonSoftwareToolBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText431 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"modules.xml", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -296,10 +296,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer711.Add( self.m_staticText431, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlModulesXMLUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlModulesXMLUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer711.Add( self.m_textCtrlModulesXMLUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonModuleXMLBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonModuleXMLBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer711.Add( self.m_buttonModuleXMLBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticText32 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"フォルダー情報", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -307,10 +307,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer711.Add( self.m_staticText32, 0, wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.LEFT, 5 )
 
-		self.m_textCtrlFoldersFilenameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.m_textCtrlFoldersFilenameUpdate = wx.TextCtrl( sbSizer51.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,25 ), 0 )
 		fgSizer711.Add( self.m_textCtrlFoldersFilenameUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonFoldersBorwsUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Brows...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonFoldersBorwsUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Brows...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer711.Add( self.m_buttonFoldersBorwsUpdate, 0, wx.RIGHT|wx.LEFT, 5 )
 
 
@@ -340,7 +340,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer61.Add( self.m_staticText282, 0, wx.RIGHT|wx.LEFT, 5 )
 
-		self.m_buttonDeleteInventories = wx.Button( sbSizer6.GetStaticBox(), wx.ID_ANY, u"削除...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonDeleteInventories = wx.Button( sbSizer6.GetStaticBox(), wx.ID_ANY, u"削除...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer61.Add( self.m_buttonDeleteInventories, 0, wx.RIGHT|wx.LEFT, 5 )
 
 
@@ -360,7 +360,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer9.Add( self.m_staticText241, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlUpdateUserName = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size(200, -1), 0 )
+		self.m_textCtrlUpdateUserName = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,25 ), 0 )
 		fgSizer9.Add( self.m_textCtrlUpdateUserName, 0, wx.RIGHT|wx.LEFT, 5 )
 
 		m_comboBoxUpdateUserIDChoices = []
@@ -374,7 +374,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer9.Add( self.m_staticText38, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlUpdatePasswd = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size(200, -1), wx.TE_PASSWORD )
+		self.m_textCtrlUpdatePasswd = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,25 ), wx.TE_PASSWORD )
 		fgSizer9.Add( self.m_textCtrlUpdatePasswd, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_staticTextUpdateUserID = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -387,10 +387,10 @@ class InventoryOperatorGUI ( wx.Frame ):
 
 		fgSizer9.Add( self.m_staticText251, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_textCtrlUpdateAccessToken = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
+		self.m_textCtrlUpdateAccessToken = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,25 ), 0 )
 		fgSizer9.Add( self.m_textCtrlUpdateAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_buttonUpdateGetAccessToken = wx.Button( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_buttonUpdateGetAccessToken = wx.Button( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Token取得", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		self.m_buttonUpdateGetAccessToken.Enable( False )
 
 		fgSizer9.Add( self.m_buttonUpdateGetAccessToken, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -401,7 +401,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		fgSizer9.Add( self.m_staticText48, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		m_comboBoxUpdateURLChoices = [ u"https://dev-u-tokyo.mintsys.jp:50443", u"https://u-tokyo.mintsys.jp:50443", u"https://nims.mintsys.jp:50443" ]
-		self.m_comboBoxUpdateURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", wx.DefaultPosition, wx.DefaultSize, m_comboBoxUpdateURLChoices, 0 )
+		self.m_comboBoxUpdateURL = wx.ComboBox( sbSizer8.GetStaticBox(), wx.ID_ANY, u"https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v3", wx.DefaultPosition, wx.Size( -1,25 ), m_comboBoxUpdateURLChoices, 0 )
 		self.m_comboBoxUpdateURL.SetSelection( 2 )
 		fgSizer9.Add( self.m_comboBoxUpdateURL, 0, wx.ALL, 5 )
 
@@ -570,7 +570,7 @@ class DictionaryFolderSelector ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Dictionaries and Folders", pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 
@@ -618,7 +618,7 @@ class SelectorBoxProtoType ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Selection", pos = wx.DefaultPosition, size = wx.Size( 698,461 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 
@@ -669,7 +669,7 @@ class MIAuthDialog ( wx.Dialog ):
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"MIシステム認証", pos = wx.DefaultPosition, size = wx.Size( 336,152 ), style = wx.DEFAULT_DIALOG_STYLE )
 
-		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 
