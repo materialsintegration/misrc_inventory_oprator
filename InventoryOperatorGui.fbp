@@ -2922,7 +2922,7 @@
                                                 <property name="border">5</property>
                                                 <property name="flag">wxEXPAND|wxTOP</property>
                                                 <property name="proportion">0</property>
-                                                <object class="wxFlexGridSizer" expanded="0">
+                                                <object class="wxFlexGridSizer" expanded="1">
                                                     <property name="cols">3</property>
                                                     <property name="flexible_direction">wxBOTH</property>
                                                     <property name="growablecols"></property>
@@ -3758,7 +3758,7 @@
                                                             <property name="gripper">0</property>
                                                             <property name="hidden">0</property>
                                                             <property name="id">wxID_ANY</property>
-                                                            <property name="label">modules.xml</property>
+                                                            <property name="label">予測モジュール・ディレクトリ</property>
                                                             <property name="markup">0</property>
                                                             <property name="max_size"></property>
                                                             <property name="maximize_button">0</property>

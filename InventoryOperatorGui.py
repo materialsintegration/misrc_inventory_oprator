@@ -19,7 +19,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Inventory Operator", pos = wx.DefaultPosition, size = wx.Size( 698,699 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 
@@ -291,7 +291,7 @@ class InventoryOperatorGUI ( wx.Frame ):
 		self.m_buttonSoftwareToolBrowseUpdate = wx.Button( sbSizer51.GetStaticBox(), wx.ID_ANY, u"Browse...", wx.DefaultPosition, wx.Size( -1,25 ), 0 )
 		fgSizer711.Add( self.m_buttonSoftwareToolBrowseUpdate, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_staticText431 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"modules.xml", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText431 = wx.StaticText( sbSizer51.GetStaticBox(), wx.ID_ANY, u"予測モジュール・ディレクトリ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText431.Wrap( -1 )
 
 		fgSizer711.Add( self.m_staticText431, 0, wx.RIGHT|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -570,7 +570,7 @@ class DictionaryFolderSelector ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Dictionaries and Folders", pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 
@@ -618,7 +618,7 @@ class SelectorBoxProtoType ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Selection", pos = wx.DefaultPosition, size = wx.Size( 698,461 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 
@@ -669,7 +669,7 @@ class MIAuthDialog ( wx.Dialog ):
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"MIシステム認証", pos = wx.DefaultPosition, size = wx.Size( 336,152 ), style = wx.DEFAULT_DIALOG_STYLE )
 
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		#self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 
