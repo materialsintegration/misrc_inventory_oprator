@@ -9,6 +9,7 @@ InventoryAPIで読める形式のJSONスタイルファイルに変換するプ�
 import sys, os
 import csv
 import json
+from analyze_inventory_json import *
 
 class InventoryRdfOperator():
     '''
@@ -151,12 +152,18 @@ class InventoryRdfOperator():
                         label = "created_by"
                     elif key == "dc:date":
                         label = "creation_time"
+                    elif key == "mi:descriptor":
+                        label = "descriptors"
                     elif key == "mi:inputDescriptor":
-                        label = "input_descriptors"
+                        #label = "input_descriptors"
+                        label = "input_ports"
                     elif key == "mi:outputDescriptor":
-                        label = "output_descriptors"
+                        #label = "output_descriptors"
+                        label = "output_ports"
                     elif key == "dcterms:modified":
                         label = "modified_time"
+                    elif key == "mi:predictionModel":
+                        label = "prediction_models"
                     elif key == "mi:predictionModelType":
                         label = "prediction_model_type_name"
                     elif key == "mi:license":
@@ -174,6 +181,8 @@ class InventoryRdfOperator():
                             label = "prediction_model_id"
                         elif inventory_type == "software-tools":
                             label = "software_tool_id"
+                    elif key == "mi:parentFolder":
+                        label = "parentFolder"
 
                     contents = items[key].split("@")
                     items0 = items1 = items[key]
@@ -194,14 +203,39 @@ class InventoryRdfOperator():
                     elif label == "preferred_name":
                         inventory[label] = items0
                         inventory["preferred_name_language"] = items1
-                    elif label == "input_descriptors" or label == "output_descriptors":
+                    #elif label == "input_descriptors" or label == "output_descriptors":
+                    elif label == "input_ports" or label == "output_ports":
                         if inventory.has_key(label) is False:
                             inventory[label] = []
                         ids = items0.split(',')
                         for id_item in ids:
                             if id_item == ".":
                                 continue
-                            inventory[label].append(id_item.strip('<>,'))
+                            inventory[label].append(id_item.strip('<>,').split("/")[-1])
+                    elif label == "descriptors":
+                        inventory[label] = {}
+                        for item in items1.split(","):
+                            if item == "":
+                                continue
+                            descriptor_id = item.split("/")[-1].split(">")[0]
+                            inventory[label][descriptor_id] = ""
+                    elif label == "prediction_models":
+                        inventory[label] = {}
+                        for item in items1.split(","):
+                            if item == "":
+                                continue
+                            prediction_model_id = item.split("/")[-1].split(">")[0]
+                            inventory[label][prediction_model_id] = ""
+                    elif label == "folder_id":
+                        inventory[label] = items1.split("/")[-1].split(">")[0]
+                    elif label == "parentFolder":
+                        inventory[label] = items0.split("/")[-1].split(">")[0]
+                    elif label == "descriptor_id":
+                        inventory["id_not_uri"] = items1.split("/")[-1].split(">")[0]
+                        inventory[label] = items1
+                    elif label == "prediction_model_id":
+                        inventory["id_not_uri"] = items1.split("/")[-1].split(">")[0]
+                        inventory[label] = items1
                     else:
                         if label == "approval_status":
                             if items0 == "未承認":
@@ -213,16 +247,88 @@ class InventoryRdfOperator():
                         inventory[label] = items0
 
                 current_inventory_type = inventory_type
+        # foldersにある、記述子、予測モデルのIDに名前を設定する
+        for folder in folders["folders"]:
+            if ("descriptors" in folder) is True:
+                for descriptor_in_folder in folder["descriptors"]:
+                    for descritor_in_descriptor in descriptors["descriptors"]:
+                        if descriptor_in_folder == descritor_in_descriptor["id_not_uri"]:
+                            folder["descriptors"][descriptor_in_folder] = descritor_in_descriptor["preferred_name"]
+            if ("prediction_models" in folder) is True:
+                for prediction_in_folder in folder["prediction_models"]:
+                    for prediction_in_prediction in prediction_models["prediction_models"]:
+                        if prediction_in_folder == prediction_in_prediction["id_not_uri"]:
+                            folder["prediction_models"][prediction_in_folder] = prediction_in_prediction["preferred_name"]
+        # prediction_modelsのinput_ports/output_portsのIDを、記述子の内容に置き換える
+        for prediction in prediction_models["prediction_models"]:
+            #for input_port in prediction["input_ports"]:
+            for i in range(len(prediction["input_ports"])):
+                input_port = prediction["input_ports"][i]
+                for descriptor in descriptors["descriptors"]:
+                    if input_port == descriptor["id_not_uri"]:
+                        prediction["input_ports"][i] = {}
+                        prediction["input_ports"][i]["descriptor_id"] = descriptor["descriptor_id"]
+                        if ("tag_list" in descriptor) is True:
+                            prediction["input_ports"][i]["tag_list"] = descriptor["tag_list"]
+                        else:
+                            prediction["input_ports"][i]["tag_list"] = []
+                        if ("description" in descriptor) is True:
+                            prediction["input_ports"][i]["description"] = descriptor["description"]
+                        else:
+                            prediction["input_ports"][i]["description"] = "null"
+                        prediction["input_ports"][i]["preferred_name"] = descriptor["preferred_name"]
+                        if ("metadata_list" in descriptor) is True:
+                            prediction["input_ports"][i]["metadata_list"] = descriptor["metadata_list"]
+                        else:
+                            prediction["input_ports"][i]["metadata_list"] = []
+                        if ("port_display_name_ja" in descriptor) is True:
+                            prediction["input_ports"][i]["port_display_name_ja"] = descriptor["port_display_name_ja"]
+                        if ("port_display_name_en" in descriptor) is True:
+                            prediction["input_ports"][i]["port_display_name_en"] = descriptor["port_display_name_en"]
+                        prediction["input_ports"][i]["port_name"] = descriptor["preferred_name"]
+                        prediction["input_ports"][i]["preferred_name_language"] = descriptor["preferred_name_language"]
+            #for output_port in prediction["output_ports"]:
+            for i in range(len(prediction["output_ports"])):
+                output_port = prediction["output_ports"][i]
+                for descriptor in descriptors["descriptors"]:
+                    if output_port == descriptor["id_not_uri"]:
+                        prediction["output_ports"][i] = {}
+                        prediction["output_ports"][i]["descriptor_id"] = descriptor["descriptor_id"]
+                        if ("tag_list" in descriptor) is True:
+                            prediction["output_ports"][i]["tag_list"] = descriptor["tag_list"]
+                        else:
+                            prediction["output_ports"][i]["tag_list"] = []
+                        if ("description" in descriptor) is True:
+                            prediction["output_ports"][i]["description"] = descriptor["description"]
+                        else:
+                            prediction["output_ports"][i]["description"] = "null"
+                        prediction["output_ports"][i]["preferred_name"] = descriptor["preferred_name"]
+                        if ("metadata_list" in descriptor) is True:
+                            prediction["output_ports"][i]["metadata_list"] = descriptor["metadata_list"]
+                        else:
+                            prediction["output_ports"][i]["metadata_list"] = []
+                        if ("port_display_name_ja" in descriptor) is True:
+                            prediction["output_ports"][i]["port_display_name_ja"] = descriptor["port_display_name_ja"]
+                        if ("port_display_name_en" in descriptor) is True:
+                            prediction["output_ports"][i]["port_display_name_en"] = descriptor["port_display_name_en"]
+                        prediction["output_ports"][i]["port_name"] = descriptor["preferred_name"]
+                        prediction["output_ports"][i]["preferred_name_language"] = descriptor["preferred_name_language"]
 
         descout = open("kushida_descriptors.json", "w")
         predict = open("kushida_prediction-models.json", "w")
         software = open("kushida_software-tools.json", "w")
-        descout.write(json.dumps(descriptors))
-        predict.write(json.dumps(prediction_models))
-        software.write(json.dumps(software_tools))
+        folderout = open("folders.json", "w")
+        #descout.write(json.dumps(descriptors))
+        json.dump(descriptors, descout, indent=4, ensure_ascii=False)
+        json.dump(prediction_models, predict, indent=4, ensure_ascii=False)
+        json.dump(software_tools, software, indent=4, ensure_ascii=False)
+        json.dump(folders, folderout, indent=4, ensure_ascii=False)
+        #predict.write(json.dumps(prediction_models))
+        #software.write(json.dumps(software_tools))
         descout.close()
         predict.close()
         software.close()
+        folderout.close()
 
         descout = open("descriptors.json", "w")
         predict = open("prediction-models.json", "w")
@@ -393,7 +499,7 @@ def main():
     org = InventoryRdfOperator()
     org.ReadRDFFile(sys.argv[1])
 #    org.Show()
-
+    analyze_inventory_json("kushida_descriptors.json", "kushida_prediction-models.json", "kushida_software-tools.json", "descriptors.conf", "prediction-models.conf", "software-tools.conf")
 #    app.MainLoop()
 
 if __name__ == '__main__':
