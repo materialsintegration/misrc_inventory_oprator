@@ -1,4 +1,4 @@
-#!/usr/local/python2.7/bin/python
+#!/usr/bin/python3.6
 # Copyright (c) The University of Tokyo and
 # National Institute for Materials Science (NIMS). All rights reserved.
 # This document may not be reproduced or transmitted in any form,
