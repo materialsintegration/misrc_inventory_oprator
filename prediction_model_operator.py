@@ -124,6 +124,15 @@ def prediction_add_discriptor(prediction, p_id, hostname, headers):
         if ret.status_code != 200:
             print("記述子取得失敗")
             print(ret.text)
+            continue
+        print("記述子名(%s):%s"%(d_id, ret.json()["preferred_name"]))
+        if sys.version_info[0] <= 2:
+            io = raw_input("to input(1) / to output(2): ")
+        else:
+            io = input("to input(1) / to output(2): ")
+        if io != "1" and io != "2":
+            continue
+
         new_port = {}
         new_port["port_name"] = ret.json()["preferred_name"]
         new_port["required"] = "true"
@@ -132,16 +141,23 @@ def prediction_add_discriptor(prediction, p_id, hostname, headers):
         new_port["tag_list"] = []
         new_port["metadata_list"] = []
 
-        if sys.version_info[0] <= 2:
-            io = raw_input("to input(1) / to output(2): ")
-        else:
-            io = input("to input(1) / to output(2): ")
-        if io != "1" and io != "2":
-            continue
-
         if io == "1":
+            is_same = False
+            for item in prediction["input_ports"]:
+                if item["port_name"] == ret.json()["preferred_name"]:
+                    is_same = True
+            if is_same is True:
+                print("ポート名(%s) はすでに入力ポートに登録があります。"%ret.json()["preferred_name"])
+                continue
             prediction["input_ports"].append(new_port)
         else:
+            is_same = False
+            for item in prediction["output_ports"]:
+                if item["port_name"] == ret.json()["preferred_name"]:
+                    is_same = True
+            if is_same is True:
+                print("ポート名(%s) はすでに出力ポートに登録があります。"%ret.json()["preferred_name"])
+                continue
             prediction["output_ports"].append(new_port)
 
     url = "https://%s:50443/inventory-update-api/v6/prediction-models/%s"%(hostname, p_id)

@@ -1,3 +1,9 @@
+# リポジトリ概要
+本リポジトリには、以下の複数のアプリケーションがある。それぞれの説明を後述する。
+
+* inventory-operator
+* prediction_module_operator
+
 # Inventory-Operatorマニュアル
 
 ## 概要
@@ -166,6 +172,108 @@ Inventory-APIへのアクセスキーとして各ユーザー毎のトークン�
   + 取得では使用されない
   + 登録で登録用プログラムが使用する。
   + 内容は取得時作成される。
+
+# prediction_model_operatorについて
+このプログラムは予測モデルの取得、複製、入出力ポートの作成を簡易に行うプログラムである。
+## 概要
+このプログラムは３つの動作モードを備える。
+* 予測モデルの情報をJSON形式で取得、ファイルに保存
+* 予測モデルの複製
+* 予測モデルの入出力ポートの作成
+
+予測モデルの入出力ポートの作成には以下の条件がある。  
+* 記述子IDが分かっている
+* ポート名を指定した記述子IDの「主たる名前」を使う
+
+## システム要件
+inventory-operatorに準じる。
+
+## 操作の流れ
+### 取得
+```
+$ python3.6 ~/inventory-operator/prediction_model_operator.py dev-u-tokyo.mintsys.jp M000020000004486 get
+予測モデルを取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+M000020000004486 の予測モデルの詳細情報を取得しました
+$ ls -ltr prediction-M000020000004486.json
+-rw-rw-r-- 1 misystem misystem 26405  8月 27 09:04 2020 prediction-M000020000004486.json
+```
+
+### 複製
+```
+python3.6 ~/inventory-operator/prediction_model_operator.py dev-u-tokyo.mintsys.jp M000020000004387 copy
+予測モデルを取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+M000020000004387 の予測モデルの詳細情報を取得しました
+{'prediction_model_id': 'http://mintsys.jp/inventory/prediction-models/M000020000004489'}
+```
+実行が成功すると最後の新しい予測モデルID「M000020000004489」が表示される。
+
+### 
+1. ログイン - プログラム実行後、最初の一度だけ
+2. 記述子IDの入力。IDを入力したら3.へ。空白なら指定した記述子で予測モデルを更新して終了。「end」なら更新せずに終了。
+3. 指定したIDの主たる名前の表示
+4. この記述子を入力ポーとか出力ポートのどちらに追加するか？
+5. 2.に戻る。
+
+### 注意事項
+* 指定した記述子IDに関する確認
+  + すでに入力済みか？
+  ```
+  追加する記述子IDの入力
+  記述子ID: D000020000031484
+  記述子名(D000020000031484):Hf_質量百分率
+  to input(1) / to output(2): 2
+  ポート名(Hf_質量百分率) はすでに出力ポートに登録があります。
+  追加する記述子IDの入力
+  記述子ID:
+  ```
+  + 存在しているかどうか？
+  ```
+  追加する記述子IDの入力
+  記述子ID: D000020000031485
+  記述子取得失敗
+  {"errors":[{"code":"0050","message":"記述子 が存在しません。 (ID:http://mintsys.jp/inventory/descriptors/D000020000031485)"}]}
+  追加する記述子IDの入力
+  記述子ID:
+  ```
+* ポート名の編集は不可（将来対応予定）
+
+## 実際の操作(入出力追加)
+```
+$ python3.6 prediction_model_operator.py dev-u-tokyo.mintsys.jp M000020000004387 put_desc
+予測モデルを取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+M000020000004387 の予測モデルの詳細情報を取得しました
+追加する記述子IDの入力
+記述子ID: D000020000031459
+記述子名(D000020000031459):Zr_質量百分率
+to input(1) / to output(2): 1
+追加する記述子IDの入力
+記述子ID: D000020000031484
+記述子名(D000020000031484):Hf_質量百分率
+to input(1) / to output(2): 1
+追加する記述子IDの入力
+記述子ID: 
+予測モデルを変更して終了します。
+```
+## 使用方法 
+
+## ヘルプの表示
+```
+予測モデル複製プログラム
+Usage:
+$ python3.6 /home/misystem/inventory-operator/prediction_model_operator.py <site_url> <prediction model id> <mode>
+```
+* site url : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
+* prediction model id : Mxxxxxyyyyyyyyyy
+* mode : 以下のどれか
+  + get : 指定したIDの予測モデルをMIntシステムから取得し、```prediction-<予測モデルID>.json```として保存する。
+  + copy : 指定したIDの予測モデルをMIntシステムから取得し、新規予測モデルとして複製する。取得した予測モデル情報は```prediction-<予測モデルID>.json```として保存する。
+  + put_desc : 指定した記述子IDの予測モデルの入出力ポートに連続して記述子を追加する。
 
 # 利用者編
 
