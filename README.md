@@ -3,6 +3,7 @@
 
 * inventory-operator
 * prediction_module_operator
+* descriptor_operator
 
 # Inventory-Operatorマニュアル
 
@@ -174,7 +175,7 @@ Inventory-APIへのアクセスキーとして各ユーザー毎のトークン�
   + 内容は取得時作成される。
 
 # prediction_model_operatorについて
-このプログラムは予測モデルの取得、複製、入出力ポートの作成を簡易に行うプログラムである。
+このプログラムは予測モデルの取得、複製、入出力ポートの作成を簡易にコマンドラインから行うプログラムである。
 ## 概要
 このプログラムは３つの動作モードを備える。
 * 予測モデルの情報をJSON形式で取得、ファイルに保存
@@ -274,6 +275,78 @@ $ python3.6 /home/misystem/inventory-operator/prediction_model_operator.py <site
   + get : 指定したIDの予測モデルをMIntシステムから取得し、```prediction-<予測モデルID>.json```として保存する。
   + copy : 指定したIDの予測モデルをMIntシステムから取得し、新規予測モデルとして複製する。取得した予測モデル情報は```prediction-<予測モデルID>.json```として保存する。
   + put_desc : 指定した記述子IDの予測モデルの入出力ポートに連続して記述子を追加する。
+
+# descriptor_operatorについて
+このプログラムは記述子の取得、複製を簡易にコマンドラインから行うプログラムである。
+## 概要
+このプログラムは２つの動作モードを備える。
+* 記述子の情報をJSON形式で取得、ファイルに保存
+* 記述子の複製
+
+また、履歴ファイル(inventory-operatorで作成される、descriptors.idsなど)を指定することで、記述子複製の履歴を追記していくことが可能である。
+
+## システム要件
+inventory-operatorに準じる。
+
+## 操作の流れ
+### 取得
+```
+$ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp mode:get descriptor_id:D000020000031457
+記述子を取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+ID(D000020000031457) の記述子の詳細情報を取得しました
+```
+$ ls -l descriptor-D000020000031457.json
+-rw-rw-r-- 1 misystem misystem 620  9月 14 11:44 2020 descriptor-D000020000031457.json
+```
+
+### 複製
+```
+$ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp misystem_to:nims.mintsys.jp mode:copy history:組成分解ツール/descriptors.ids descriptor_id:D000020000031462
+記述子を取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+ID(D000020000031462) の記述子の詳細情報を取得しました
+記述子を複製する側のログイン情報入力
+ログインID: manaka
+パスワード: 
+{'descriptor_id': 'http://mintsys.jp/inventory/descriptors/D000110000018756'}
+```
+実行が成功すると最後の新しい記述子ID「D000110000018756」が表示される。
+
+### 追加情報
+* token_fromとtoken_to
+  + token_fromとtoken_to(他環境への複製の場合）を指定すると、ログインプロンプトの入力は不要。
+* history指定
+  + 既存の履歴ファイル(invneotry-operator作成のdescriptors.idsなど）を指定すると、追記される。
+  + 指定し無い場合、カレントディレクトリにdescritors.idsを作る。（存在すれば追記）
+
+## ヘルプの表示
+```
+$ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp
+記述子IDを指定してください。
+
+記述子複製プログラム
+Usage:
+$ python3.6 decriptor_operator.py [options]
+  Options:
+
+     mode          : copy 記述子複製を実行する
+                   : get 記述子取得のみを実行する
+     misystem_from : 複製元の環境指定（e.g. dev-u-tokyo.mintsys.jp）
+     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製
+     token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）
+     token_to      : 複製先のAPIトークン（同上）
+     descriptor_id : 複製したい記述子ID（e.g. D000020000031477）
+     history       : 複製元と複製先のIDテーブル出力ファイル名）
+```
+* misystem from : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
+* misystem to : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
+* descriptor id : Mxxxxxyyyyyyyyyy
+* mode : 以下のどれか
+  + get : 指定したIDの記述子をMIntシステムから取得し、```descriptor-<記述子ID>.json```として保存する。
+  + copy : 指定したIDの記述子をMIntシステムから取得し、新規記述子として複製する。取得した記述子情報は```prediction-<予測モデルID>.json```として保存する。
 
 # 利用者編
 
