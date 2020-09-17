@@ -1,8 +1,13 @@
 #!python3.6
 # -*- coding: utf-8 -*-
+# Copyright (c) The University of Tokyo and
+# National Institute for Materials Science (NIMS). All rights reserved.
+# This document may not be reproduced or transmitted in any form,
+# in whole or in part, without the express written permission of
+# the copyright owners.
 
 '''
-予測モデル１こを取得する
+予測モデル操作プログラム
 '''
 
 import requests
@@ -10,6 +15,24 @@ import sys, os
 from openam_operator import openam_operator
 from getpass import getpass
 import json
+
+def auth_info(hostname, message):
+    '''
+    ログイン
+    '''
+
+    print(message)
+    if sys.version_info[0] <= 2:
+        name = raw_input("ログインID: ")
+    else:
+        name = input("ログインID: ")
+    password = getpass("パスワード: ")
+
+    ret, uid, token = openam_operator.miauth(hostname, name, password)
+    if ret is False:
+        if uid.status_code == 401:
+            print(uid.json()["message"])
+        sys.exit(1)
 
 def prediction_add_model_type_code(prediction, version=5):
     '''
@@ -37,7 +60,7 @@ def prediction_add_model_type_code(prediction, version=5):
 
     return new_prediction
 
-def prediction_get(hostname, p_id):
+def prediction_get(hostname, p_id, token=None):
     '''
     予測モデルの詳細を取得する
     @param hostname (string)
@@ -45,25 +68,15 @@ def prediction_get(hostname, p_id):
     @retval json 
     '''
 
-    print("予測モデルを取得する側のログイン情報入力")
-    if sys.version_info[0] <= 2:
-        name = raw_input("ログインID: ")
-    else:
-        name = input("ログインID: ")
-    password = getpass("パスワード: ")
+    if token is None:
+        uid, token = auth_info(hostname, "予測モデルを取得する側のログイン情報入力")
 
-    ret, uid, token = openam_operator.miauth(hostname, name, password)
-    if ret is False:
-        if uid.status_code == 401:
-            print(uid.json()["message"])
-        sys.exit(1)
     session = requests.Session()
     url = "https://%s:50443/inventory-api/v6/prediction-models/%s"%(hostname, p_id)
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
                'Content-Type': app_format,
                'Accept': app_format}
-
 
     ret = session.get(url, headers=headers)
     if ret.status_code != 500:
@@ -81,13 +94,21 @@ def prediction_get(hostname, p_id):
 
     return prediction, headers
 
-def prediction_copy(prediction, hostname, headers):
+def prediction_copy(prediction, hostname, token=None):
     '''
     予測モデル複製
     '''
 
     new_prediction = prediction_add_model_type_code(prediction, version=6)
+
+    if token is None:
+        uid, token = auth_info(hostname, "予測モデルを複製する側のログイン情報入力")
     
+    app_format = 'application/json'
+    headers = {'Authorization': 'Bearer ' + token,
+               'Content-Type': app_format,
+               'Accept': app_format}
+
     session = requests.Session()
     url = "https://%s:50443/inventory-update-api/v6/prediction-models"%hostname
     #print(url)
@@ -95,10 +116,69 @@ def prediction_copy(prediction, hostname, headers):
     if ret.status_code != 500:
         print(ret.json())
 
-def prediction_add_discriptor(prediction, p_id, hostname, headers):
+def prediction_update(p1_dict, p2_dict, hostname, history, token=None):
+    '''
+    予測モデル更新
+    @param p1_dict : 更新元の予測モデル詳細辞書
+    @param p2_dict : 更新先の予測モデル詳細辞書
+    '''
+
+    if token is None:
+        uid, token = auth_info(hostname, "予測モデルを更新する側のログイン情報入力")
+    
+    app_format = 'application/json'
+    headers = {'Authorization': 'Bearer ' + token,
+               'Content-Type': app_format,
+               'Accept': app_format}
+
+    # 更新する予測モデルID
+    p_id = p2_dict["prediction_model_id"].split("/")[-1]
+
+    # 更新先のキーと同じ更新元のキーの内容を更新先へコピー
+    for key in p2_dict:
+        if (key in p1_dict) is True:
+            p2_dict[key] = p1_dict[key]
+
+    # 記述子ID変更
+    infile = open(history)
+    d_ids = json.load(infile)
+    infile.close()
+
+    # 出力ポートの記述子
+    for port in p2_dict["output_ports"]:
+        port_d_id = port["descriptor_id"].split("/")[-1]
+        for h_d_id in d_ids:
+            if port_d_id == h_d_id:
+                port["descriptor_id"] = "http://mintsys.jp/inventory/descriptors/%s"%d_ids[h_d_id]
+    # 入力ポートの記述子
+    for port in p2_dict["input_ports"]:
+        port_d_id = port["descriptor_id"].split("/")[-1]
+        for h_d_id in d_ids:
+            if port_d_id == h_d_id:
+                port["descriptor_id"] = "http://mintsys.jp/inventory/descriptors/%s"%d_ids[h_d_id]
+    # メタデータ
+    # タグリスト
+
+
+    session = requests.Session()
+    url = "https://%s:50443/inventory-update-api/v6/prediction-models/%s"%(hostname, p_id)
+    #print(url)
+    ret = session.put(url, headers=headers, json=ps_dict)
+    if ret.status_code != 500:
+        print(ret.json())
+
+def prediction_add_discriptor(prediction, p_id, hostname, token=None):
     '''
     記述子追加
     '''
+
+    if token is None:
+        uid, token = auth_info(hostname, "予測モデルを編集する側のログイン情報入力")
+
+    app_format = 'application/json'
+    headers = {'Authorization': 'Bearer ' + token,
+               'Content-Type': app_format,
+               'Accept': app_format}
 
     session = requests.Session()
     while True:
@@ -179,30 +259,106 @@ def main():
     開始点
     '''
 
-    if len(sys.argv) < 4:
-        if len(sys.argv) == 2:
-            print("予測モデルIDを指定してください。")
-        elif len(sys.argv) == 1:
-            print("サイトURL(from)を指定してください。")
+    url_from = None
+    url_to = None
+    p_id = None
+    p_id_dest = None
+    mode = None
+    token_from = None
+    token_to = None
+    history_file = None
+    print_help = False
+    for item in sys.argv:
+        item = item.split(":")
+        if item[0] == "misystem_from":
+            url_from = item[1]
+        if item[0] == "misystem_to":
+            url_to = item[1]
+        if item[0] == "prediction_id":
+            d_id = item[1]
+        if item[0] == "prediction_id_dest":
+            d_id_dest = item[1]
+        if item[0] == "mode":
+            mode = item[1]
+        if item[0] == "token_from":
+            token_from = item[1]
+        if item[0] == "token_to":
+            token_to = item[1]
+        if item[0] == "history":
+            history_file = item[1]
+        if item[0] == "help":
+            print_help = True
+
+    if mode is None:
+        print("モードを指定してください。")
+        print_help = True
+    if mode == "copy" or mode == "get" or mode == "add_desc":
+        if url_from is None or d_id is None:
+            if d_id is None:
+                print("予測モデルIDを指定してください。")
+                print_help = True
+            elif url_from is None:
+                print("サイトURL(from)を指定してください。")
+                print_help = True
+    elif mode == "update":
+        if d_id is None:
+            print("更新元の予測モデルIDを指定してください。")
+            print_help = True
+        if d_id_dest is None:
+            print("更新先の予測モデルIDを指定してください。")
+            print_help = True
+        if history_file is not None:
+            if os.path.exists(history_file) is False:
+                print("記述子履歴ファイル(%s)がありません。"%history_file)
+                print_help = True
+        else:
+            print("記述子履歴ファイルを指定してください")
+            print_help = True
+    else:
+        print("不明なモード指定です(%s)"%mode)
+        print_help = True
+
+    if print_help is True:
         print("")
         print("予測モデル複製プログラム")
         print("Usage:")
-        print("$ python3.6 %s <site_url> <prediction model id> <mode>"%(sys.argv[0]))
+        print("$ python3.6 %s [options]"%(sys.argv[0]))
+        print("  Options:")
+        print("")
+        print("     mode          : copy 記述子複製を実行する")
+        print("                   : get 記述子取得のみを実行する")
+        print("                   : add_desc 入出力ポートを連続で登録する。")
+        print("                   : update 複製後のアップデートを行う 要記述子履歴ファイル")
+        print("     misystem_from : 複製元の環境指定（e.g. dev-u-tokyo.mintsys.jp）")
+        print("     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製")
+        print("     token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）")
+        print("     token_to      : 複製先のAPIトークン（同上）")
+        print("     descriptor_id : 複製したい予測モデルID（e.g. M000020000031477）")
+        print("prediction_id_dest : 更新先予測モデルID(e.g. M000020000031477) ")
+        print("     history       : 複製元と複製先のIDテーブル出力ファイル名）")
         sys.exit(1)
 
-    hostname = sys.argv[1]
-    p_id = sys.argv[2]
-    mode = sys.argv[3]
-
     if mode == "copy":
-        p_dict, h = prediction_get(hostname, p_id)
-        prediction_copy(p_dict, hostname, h)
+        p_dict, h = prediction_get(url_from, p_id, token_from)
+        if url_to is None and token_to is None:
+            url_to = url_from
+            token_to = token_from
+        prediction_copy(p_dict, url_to, token_to)
     elif mode == "get":
-        p_dict, h = prediction_get(hostname, p_id)
-    elif mode == "put_desc":
-        p_dict, h = prediction_get(hostname, p_id)
-        prediction_add_discriptor(p_dict, p_id, hostname, h)
-        pass
+        p_dict, h = prediction_get(url_from, p_id, token_from)
+    elif mode == "add_desc":
+        p_dict, h = prediction_get(url_from, p_id, token_from)
+        prediction_add_discriptor(p_dict, p_id, url_from, token)
+    elif mode == "update":
+        # 更新元の情報取得
+        p1_dict, h = prediction_get(url_from, p_id, token_from)
+        if url_to is None and token_to is None:
+            url_to = url_from
+            token_to = token_from
+        # 更新先の情報取得
+        p2_dict, h = prediction_get(url_from, p_id_dest, token_from)
+        # 更新
+        prediction_update(p1_dict, p2_dict, url_to, history_file, token_to)
 
 if __name__ == '__main__':
     main()

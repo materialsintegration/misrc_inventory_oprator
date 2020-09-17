@@ -265,9 +265,27 @@ to input(1) / to output(2): 1
 
 ## ヘルプの表示
 ```
+$ python3.6 prediction_model_operator.py 
+モードを指定してください。
+不明なモード指定です(None)
+
 予測モデル複製プログラム
 Usage:
-$ python3.6 /home/misystem/inventory-operator/prediction_model_operator.py <site_url> <prediction model id> <mode>
+$ python3.6 prediction_model_operator.py [options]
+  Options:
+
+     mode          : copy 記述子複製を実行する
+                   : get 記述子取得のみを実行する
+                   : add_desc 入出力ポートを連続で登録する。
+                   : update 複製後のアップデートを行う 要記述子履歴ファイル
+     misystem_from : 複製元の環境指定（e.g. dev-u-tokyo.mintsys.jp）
+     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製
+     token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）
+     token_to      : 複製先のAPIトークン（同上）
+     descriptor_id : 複製したい予測モデルID（e.g. M000020000031477）
+prediction_id_dest : 更新先予測モデルID(e.g. M000020000031477) 
+     history       : 複製元と複製先のIDテーブル出力ファイル名）
+
 ```
 * site url : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
 * prediction model id : Mxxxxxyyyyyyyyyy
@@ -296,7 +314,6 @@ $ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp mode:get 
 ログインID: utadmin01
 パスワード: 
 ID(D000020000031457) の記述子の詳細情報を取得しました
-```
 $ ls -l descriptor-D000020000031457.json
 -rw-rw-r-- 1 misystem misystem 620  9月 14 11:44 2020 descriptor-D000020000031457.json
 ```
@@ -313,7 +330,8 @@ ID(D000020000031462) の記述子の詳細情報を取得しました
 パスワード: 
 {'descriptor_id': 'http://mintsys.jp/inventory/descriptors/D000110000018756'}
 ```
-実行が成功すると最後の新しい記述子ID「D000110000018756」が表示される。
+
+実行が成功すると最後の新しい記述子ID「D000110000018756」が作成されている。
 
 ### 追加情報
 * token_fromとtoken_to
@@ -321,6 +339,7 @@ ID(D000020000031462) の記述子の詳細情報を取得しました
 * history指定
   + 既存の履歴ファイル(invneotry-operator作成のdescriptors.idsなど）を指定すると、追記される。
   + 指定し無い場合、カレントディレクトリにdescritors.idsを作る。（存在すれば追記）
+  + まだ履歴ファイルによる操作は更新元情報をAPIで取得する形式。存在するJSONファイルへの対応を実装中。
 
 ## ヘルプの表示
 ```

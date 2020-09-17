@@ -16,6 +16,27 @@ from openam_operator import openam_operator
 from getpass import getpass
 import json
 
+def auth_info(hostname, message):
+    '''
+    ログイン
+    '''
+
+    #print("記述子を登録する側のログイン情報入力")
+    print(message)
+    if sys.version_info[0] <= 2:
+        name = raw_input("ログインID: ")
+    else:
+        name = input("ログインID: ")
+    password = getpass("パスワード: ")
+
+    ret, uid, token = openam_operator.miauth(hostname, name, password)
+    if ret is False:
+        if uid.status_code == 401:
+            print(uid.json()["message"])
+        sys.exit(1)
+
+    return uid, token
+
 def descriptor_get(hostname, d_id, token=None):
     '''
     記述子の詳細を取得する
@@ -23,6 +44,9 @@ def descriptor_get(hostname, d_id, token=None):
     @param d_id (string)
     @retval json 
     '''
+
+    if token is None:
+        uid, token = auth_info(hostname, "記述子取得する側のログイン情報入力")
 
     session = requests.Session()
     url = "https://%s:50443/inventory-api/v6/descriptors/%s"%(hostname, d_id)
@@ -41,10 +65,14 @@ def descriptor_get(hostname, d_id, token=None):
         print(ret.text)
         sys.exit(1)
 
-    descriptor = ret.json()
-    outfile = open("descriptor-%s.json"%d_id, "w")
-    json.dump(ret.json(), outfile, indent=2, ensure_ascii=False)
-    outfile.close()
+    if ret.status_code == 200 or ret.status_code == 201:
+        descriptor = ret.json()
+        outfile = open("descriptor-%s.json"%d_id, "w")
+        json.dump(ret.json(), outfile, indent=2, ensure_ascii=False)
+        outfile.close()
+    else:
+        print(ret.text)
+        sys.exit(1)
 
     return descriptor, headers
 
@@ -54,18 +82,7 @@ def descriptor_copy(descriptor, hostname, token=None, history=None):
     '''
 
     if token is None:
-        print("記述子を登録する側のログイン情報入力")
-        if sys.version_info[0] <= 2:
-            name = raw_input("ログインID: ")
-        else:
-            name = input("ログインID: ")
-        password = getpass("パスワード: ")
-
-        ret, uid, token = openam_operator.miauth(hostname, name, password)
-        if ret is False:
-            if uid.status_code == 401:
-                print(uid.json()["message"])
-            sys.exit(1)
+        uid, token = auth_info(hostname, "記述子を複製する側のログイン情報入力")
 
     session = requests.Session()
     app_format = 'application/json'
@@ -78,6 +95,9 @@ def descriptor_copy(descriptor, hostname, token=None, history=None):
     ret = session.post(url, headers=headers, json=descriptor)
     if ret.status_code == 200 or ret.status_code == 201:
         print(ret.json())
+    else:
+        print(ret.text)
+        sys.exit(1)
 
     descriptor_id_before = descriptor["descriptor_id"].split("/")[-1]
     descriptor_id_after = ret.json()["descriptor_id"].split("/")[-1]
@@ -102,6 +122,47 @@ def descriptor_copy(descriptor, hostname, token=None, history=None):
     json.dump(d, outfile, indent=4)
     outfile.close()
 
+def descriptor_update(descriptor, update_descriptor_id, hostname, token=None):
+    '''
+    記述子複製
+    '''
+
+    if token is None:
+        uid, token = auth_info(hostname, "記述子を更新する側のログイン情報入力")
+
+    session = requests.Session()
+    app_format = 'application/json'
+    headers = {'Authorization': 'Bearer ' + token,
+               'Content-Type': app_format,
+               'Accept': app_format}
+
+    # 更新される側の詳細取得
+    url = "https://%s:50443/inventory-api/v6/descriptors/%s"%(hostname, update_descriptor_id)
+    ret = session.get(url, headers=headers, json=descriptor)
+    if ret.status_code == 200 or ret.status_code == 201:
+        #print(ret.json())
+        pass
+    else:
+        print(url)
+        print(ret.text)
+        sys.exit(1)
+    
+    d_dict = ret.json()
+
+    for item in d_dict:
+        if (item in descriptor) is True:
+            d_dict[item] = descriptor[item]
+
+    url = "https://%s:50443/inventory-update-api/v6/descriptors/%s"%(hostname, update_descriptor_id)
+    ret = session.put(url, headers=headers, json=descriptor)
+    if ret.status_code == 200 or ret.status_code == 201:
+        print("記述子(%s) を更新しました。"%update_descriptor_id)
+        pass
+    else:
+        print(url)
+        print(ret.text)
+        sys.exit(1)
+    
 def main():
     '''
     開始点
@@ -114,6 +175,7 @@ def main():
     token_from = None
     token_to = None
     history_file = None
+    print_help = False
     for item in sys.argv:
         item = item.split(":")
         if item[0] == "misystem_from":
@@ -130,12 +192,33 @@ def main():
             token_to = item[1]
         if item[0] == "history":
             history_file = item[1]
+        if item[0] == "help":
+            print_help = True
 
-    if url_from is None or d_id is None or mode is None:
-        if d_id is None:
-            print("記述子IDを指定してください。")
-        elif hostname is None:
-            print("サイトURL(from)を指定してください。")
+    if mode is None:
+        print("モードを指定してください。")
+        print_help = True
+    if mode == "copy" or mode == "get":
+        if url_from is None or d_id is None or mode is None:
+            if d_id is None:
+                print("記述子IDを指定してください。")
+                print_help = True
+            elif url_from is None:
+                print("サイトURL(from)を指定してください。")
+                print_help = True
+    elif mode == "update":
+        if history_file is not None:
+            if os.path.exists(history_file) is False:
+                print("履歴ファイル(%s)がありません。"%history_file)
+                print_help = True
+        else:
+            print("履歴ファイルを指定してください")
+            print_help = True
+    else:
+        print("不明なモード指定です(%s)"%mode)
+        print_help = True
+
+    if print_help is True:
         print("")
         print("記述子複製プログラム")
         print("Usage:")
@@ -144,6 +227,7 @@ def main():
         print("")
         print("     mode          : copy 記述子複製を実行する")
         print("                   : get 記述子取得のみを実行する")
+        print("                   : update history指定のファイルから複製後のアップデートを行う")
         print("     misystem_from : 複製元の環境指定（e.g. dev-u-tokyo.mintsys.jp）")
         print("     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製")
         print("     token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）")
@@ -160,6 +244,12 @@ def main():
         descriptor_copy(d_dict, url_to, token_to, history_file)
     elif mode == "get":
         d_dict, h = descriptor_get(hostname, d_id, token)
+    elif mode == "update":
+        infile = open(history_file)
+        d_dict = json.load(infile)
+        for d_id in d_dict:
+            d_info, h = descriptor_get(url_from, d_id, token_from)
+            descriptor_update(d_info, d_dict[d_id], url_to, token_to)
     else:
         print("misyste:%s / descriptor_id:%s / mode:%s"%(hostname, d_id, mode))
 
