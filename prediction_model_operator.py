@@ -276,7 +276,7 @@ def main():
             url_to = item[1]
         if item[0] == "prediction_id":
             d_id = item[1]
-        if item[0] == "prediction_id_dest":
+        if item[0] == "prediction_id_to":
             d_id_dest = item[1]
         if item[0] == "mode":
             mode = item[1]
@@ -333,8 +333,8 @@ def main():
         print("     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製")
         print("     token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）")
         print("     token_to      : 複製先のAPIトークン（同上）")
-        print("     descriptor_id : 複製したい予測モデルID（e.g. M000020000031477）")
-        print("prediction_id_dest : 更新先予測モデルID(e.g. M000020000031477) ")
+        print("     prediction_id : 複製したい予測モデルID（e.g. M000020000031477）")
+        print("  prediction_id_to : 更新先予測モデルID(e.g. M000020000031477) ")
         print("     history       : 複製元と複製先のIDテーブル出力ファイル名）")
         sys.exit(1)
 

@@ -181,6 +181,7 @@ Inventory-APIへのアクセスキーとして各ユーザー毎のトークン�
 * 予測モデルの情報をJSON形式で取得、ファイルに保存
 * 予測モデルの複製
 * 予測モデルの入出力ポートの作成
+* 予測モデルの別環境同士の情報をシンクロ（更新）
 
 予測モデルの入出力ポートの作成には以下の条件がある。  
 * 記述子IDが分かっている
@@ -283,8 +284,8 @@ $ python3.6 prediction_model_operator.py [options]
      token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）
      token_to      : 複製先のAPIトークン（同上）
      descriptor_id : 複製したい予測モデルID（e.g. M000020000031477）
-prediction_id_dest : 更新先予測モデルID(e.g. M000020000031477) 
-     history       : 複製元と複製先のIDテーブル出力ファイル名）
+  prediction_id_to : 更新先予測モデルID(e.g. M000020000031477) 
+     history       : 複製元と複製先の記述子IDテーブル出力ファイル名）
 
 ```
 * site url : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
@@ -293,16 +294,39 @@ prediction_id_dest : 更新先予測モデルID(e.g. M000020000031477)
   + get : 指定したIDの予測モデルをMIntシステムから取得し、```prediction-<予測モデルID>.json```として保存する。
   + copy : 指定したIDの予測モデルをMIntシステムから取得し、新規予測モデルとして複製する。取得した予測モデル情報は```prediction-<予測モデルID>.json```として保存する。
   + put_desc : 指定した記述子IDの予測モデルの入出力ポートに連続して記述子を追加する。
+  + update : *_fromの予測モデル(prediction_id)を*_toの予測モデル(prediction_id_to)として更新。その時記述子IDの更新元と移植先の対応表のファイル（history）が必要。
 
 # descriptor_operatorについて
 このプログラムは記述子の取得、複製を簡易にコマンドラインから行うプログラムである。
 ## 概要
-このプログラムは２つの動作モードを備える。
+このプログラムは３つの動作モードを備える。
 * 記述子の情報をJSON形式で取得、ファイルに保存
 * 記述子の複製
+* 記述子の別環境同士の情報をシンクロ（更新）
 
 また、履歴ファイル(inventory-operatorで作成される、descriptors.idsなど)を指定することで、記述子複製の履歴を追記していくことが可能である。
 
+### 更新の流れ
+
+更新作業は以下の用に、元と先のリスト（history）を元に行われる。
+
+```mermaid
+    graph LR;
+
+    descriptors_ids[元と先のリスト<BR>D000020000029953: D000110000018703]
+    mintsystem1[開発環境]
+    subgraph descriptor_operator
+      operator1[APIで情報取得]
+      operator2[更新用作業<BR>元->先]
+    end
+    mintsystem2[運用環境]
+
+    descriptors_ids-->operator1
+    operator1--API GET<BR>D000020000029953-->mintsystem1
+    mintsystem1--API RETURN<BR>D000020000029953-->operator2
+    operator1-->operator2
+    operator2--API PUT<BR>D000110000018703-->mintsystem2
+```
 ## システム要件
 inventory-operatorに準じる。
 
