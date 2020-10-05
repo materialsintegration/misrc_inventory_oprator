@@ -294,7 +294,7 @@ $ python3.6 prediction_model_operator.py [options]
   + get : 指定したIDの予測モデルをMIntシステムから取得し、```prediction-<予測モデルID>.json```として保存する。
   + copy : 指定したIDの予測モデルをMIntシステムから取得し、新規予測モデルとして複製する。取得した予測モデル情報は```prediction-<予測モデルID>.json```として保存する。
   + put_desc : 指定した記述子IDの予測モデルの入出力ポートに連続して記述子を追加する。
-  + update : ```*_from```の予測モデル(prediction_id)を```*_to```の予測モデル(prediction_id_to)として更新。その時記述子IDの更新元と移植先の対応表のファイル（history）が必要。
+  + update : ```*_from```の予測モデル(prediction_id)を```*_to```の予測モデル(prediction_id_to)として更新。各ポートの記述子IDの更新元と移植先の対応表のファイル（history(e.g. descriptors.idsなど）が必要。
 
 # descriptor_operatorについて
 このプログラムは記述子の取得、複製を簡易にコマンドラインから行うプログラムである。
@@ -391,7 +391,7 @@ $ python3.6 decriptor_operator.py [options]
 * mode : 以下のどれか
   + get : 指定したIDの記述子をMIntシステムから取得し、```descriptor-<記述子ID>.json```として保存する。
   + copy : 指定したIDの記述子をMIntシステムから取得し、新規記述子として複製する。取得した記述子情報は```prediction-<予測モデルID>.json```として保存する。
-  + update : ```*_from```の記述子ID(descriptor_id)を```*_to```の記述子として更新(update)する。更新様のIDは記述子IDの複製元と複製先の対応表のファイル（historyで指定）使用する。
+  + update : ```*_from```の記述子IDを```*_to```の記述子として更新(update)する。更新するIDは記述子IDの複製元と複製先の対応表のファイル（historyで指定(e.g. descriptors.idsなど）から取得する。updateが指定された場合、descriptor_idにより指定されたIDは無視される。
 
 # 利用者編
 
