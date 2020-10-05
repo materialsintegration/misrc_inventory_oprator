@@ -124,7 +124,7 @@ def descriptor_copy(descriptor, hostname, token=None, history=None):
 
 def descriptor_update(descriptor, update_descriptor_id, hostname, token=None):
     '''
-    記述子複製
+    記述子更新
     '''
 
     if token is None:

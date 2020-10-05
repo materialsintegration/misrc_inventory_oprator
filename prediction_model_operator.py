@@ -163,9 +163,14 @@ def prediction_update(p1_dict, p2_dict, hostname, history, token=None):
     session = requests.Session()
     url = "https://%s:50443/inventory-update-api/v6/prediction-models/%s"%(hostname, p_id)
     #print(url)
-    ret = session.put(url, headers=headers, json=ps_dict)
-    if ret.status_code != 500:
+    ret = session.put(url, headers=headers, json=p2_dict)
+    if ret.status_code == 200 or ret.status_code == 201:
+        print("予測モデル(%d)を更新しました。")
+    else:
+        print("予測モデル(%d)の更新に失敗しました")
+        print(url)
         print(ret.json())
+        sys.exit(1)
 
 def prediction_add_discriptor(prediction, p_id, hostname, token=None):
     '''
@@ -275,9 +280,9 @@ def main():
         if item[0] == "misystem_to":
             url_to = item[1]
         if item[0] == "prediction_id":
-            d_id = item[1]
+            p_id = item[1]
         if item[0] == "prediction_id_to":
-            d_id_dest = item[1]
+            p_id_dest = item[1]
         if item[0] == "mode":
             mode = item[1]
         if item[0] == "token_from":
@@ -293,18 +298,18 @@ def main():
         print("モードを指定してください。")
         print_help = True
     if mode == "copy" or mode == "get" or mode == "add_desc":
-        if url_from is None or d_id is None:
-            if d_id is None:
+        if url_from is None or p_id is None:
+            if p_id is None:
                 print("予測モデルIDを指定してください。")
                 print_help = True
             elif url_from is None:
                 print("サイトURL(from)を指定してください。")
                 print_help = True
     elif mode == "update":
-        if d_id is None:
+        if p_id is None:
             print("更新元の予測モデルIDを指定してください。")
             print_help = True
-        if d_id_dest is None:
+        if p_id_dest is None:
             print("更新先の予測モデルIDを指定してください。")
             print_help = True
         if history_file is not None:
@@ -356,7 +361,7 @@ def main():
             url_to = url_from
             token_to = token_from
         # 更新先の情報取得
-        p2_dict, h = prediction_get(url_from, p_id_dest, token_from)
+        p2_dict, h = prediction_get(url_to, p_id_dest, token_to)
         # 更新
         prediction_update(p1_dict, p2_dict, url_to, history_file, token_to)
 
