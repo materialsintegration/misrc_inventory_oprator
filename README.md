@@ -20,6 +20,7 @@
   + [module_copy(Inventory操作本体)](https://gitlab.mintsys.jp/midev/module_copy)
   + MI-API(1.2.0以降)
   + [webapi(misrc_webapi)](https://gitlab.mintsys.jp/midev/misrc_webapi)
+  + [インベントリID一元管理ソフト](https://gitlab.mintsys.jp/midev/misrc_inventory_management.git)
 
 ## 注意事項
 inventory-operatorを使用するにあたっての概要と現在判明している問題である。
@@ -205,13 +206,17 @@ $ python3.6 prediction_model_operator.py [options]
                    : get 記述子取得のみを実行する
                    : add_desc 入出力ポートを連続で登録する。
                    : update 複製後のアップデートを行う 要記述子履歴ファイル
+ mode : 共通
      misystem_from : 複製元の環境指定（e.g. dev-u-tokyo.mintsys.jp）
-     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製
      token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）
+     prediction_id : 複製したい予測モデルID（e.g. M000020000031477）
+ mode : copy/update
+     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製
      token_to      : 複製先のAPIトークン（同上）
-     descriptor_id : 複製したい予測モデルID（e.g. M000020000031477）
   prediction_id_to : 更新先予測モデルID(e.g. M000020000031477) 
-     history       : 複製元と複製先の記述子IDテーブル出力ファイル名）
+     history       : 複製元と複製先のIDテーブル出力ファイル名
+       or
+     history_db    : misrc_inventory_managementプロジェクトの絶対パス
 ```
 * site url : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
 * prediction model id : Mxxxxxyyyyyyyyyy
@@ -220,6 +225,7 @@ $ python3.6 prediction_model_operator.py [options]
   + copy : 指定したIDの予測モデルをMIntシステムから取得し、新規予測モデルとして複製する。取得した予測モデル情報は```prediction-<予測モデルID>.json```として保存する。
   + put_desc : 指定した記述子IDの予測モデルの入出力ポートに連続して記述子を追加する。
   + update : ```*_from```の予測モデル(prediction_id)を```*_to```の予測モデル(prediction_id_to)として更新。各ポートの記述子IDの更新元と移植先の対応表のファイル（history(e.g. descriptors.idsなど）が必要。
+* history_dbを指定するようにしてください。historyは機能削除予定です。
 
 ## 取得（mode:getの場合)
 ```
