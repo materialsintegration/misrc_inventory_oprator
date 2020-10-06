@@ -190,8 +190,38 @@ Inventory-APIへのアクセスキーとして各ユーザー毎のトークン�
 ## システム要件
 inventory-operatorに準じる。
 
-## 操作の流れ
-### 取得
+## ヘルプの表示
+```
+$ python3.6 prediction_model_operator.py 
+モードを指定してください。
+不明なモード指定です(None)
+
+予測モデル複製プログラム
+Usage:
+$ python3.6 prediction_model_operator.py [options]
+  Options:
+
+     mode          : copy 記述子複製を実行する
+                   : get 記述子取得のみを実行する
+                   : add_desc 入出力ポートを連続で登録する。
+                   : update 複製後のアップデートを行う 要記述子履歴ファイル
+     misystem_from : 複製元の環境指定（e.g. dev-u-tokyo.mintsys.jp）
+     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製
+     token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）
+     token_to      : 複製先のAPIトークン（同上）
+     descriptor_id : 複製したい予測モデルID（e.g. M000020000031477）
+  prediction_id_to : 更新先予測モデルID(e.g. M000020000031477) 
+     history       : 複製元と複製先の記述子IDテーブル出力ファイル名）
+```
+* site url : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
+* prediction model id : Mxxxxxyyyyyyyyyy
+* mode : 以下のどれか
+  + get : 指定したIDの予測モデルをMIntシステムから取得し、```prediction-<予測モデルID>.json```として保存する。
+  + copy : 指定したIDの予測モデルをMIntシステムから取得し、新規予測モデルとして複製する。取得した予測モデル情報は```prediction-<予測モデルID>.json```として保存する。
+  + put_desc : 指定した記述子IDの予測モデルの入出力ポートに連続して記述子を追加する。
+  + update : ```*_from```の予測モデル(prediction_id)を```*_to```の予測モデル(prediction_id_to)として更新。各ポートの記述子IDの更新元と移植先の対応表のファイル（history(e.g. descriptors.idsなど）が必要。
+
+## 取得（mode:getの場合)
 ```
 $ python3.6 ~/inventory-operator/prediction_model_operator.py dev-u-tokyo.mintsys.jp M000020000004486 get
 予測モデルを取得する側のログイン情報入力
@@ -202,18 +232,47 @@ $ ls -ltr prediction-M000020000004486.json
 -rw-rw-r-- 1 misystem misystem 26405  8月 27 09:04 2020 prediction-M000020000004486.json
 ```
 
-### 複製
+## 複製(mode:copy)
+
 ```
-python3.6 ~/inventory-operator/prediction_model_operator.py dev-u-tokyo.mintsys.jp M000020000004387 copy
+$ python3.6 prediction_model_operator.py misystem_from:dev-u-tokyo.mintsys.jp misystem_to:nims.mintsys.jp history_db:/home/misystem/assets/modules/misrc_inventory_management mode:copy prediction_id:M000020000004491
+dev-u-tokyo.mintsys.jp から nims.mintsys.jp へ M000020000004491 の予測モデルを複製します。
 予測モデルを取得する側のログイン情報入力
 ログインID: utadmin01
 パスワード: 
-M000020000004387 の予測モデルの詳細情報を取得しました
-{'prediction_model_id': 'http://mintsys.jp/inventory/prediction-models/M000020000004489'}
+M000020000004491 の予測モデルの詳細情報を取得しました
+予測モデルを更新する側のログイン情報入力
+ログインID: manaka
+パスワード: 
+一元管理リスト
+予測モデル(M000110000005496)を複製しました。
 ```
-実行が成功すると最後の新しい予測モデルID「M000020000004489」が表示される。
 
-### 
+実行が成功すると最後の新しい予測モデルID「M000020000005496」が表示される。
+
+## 更新
+
+```
+$ python3.6 prediction_model_operator.py misystem_from:dev-u-tokyo.mintsys.jp misystem_to:nims.mintsys.jp prediction_id:M000020000004474 history_db:/home/misystem/assets/modules/misrc_inventory_management mode:update prediction_id_to:M000110000005460
+予測モデルを取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+M000020000004474 の予測モデルの詳細情報を取得しました
+予測モデルを取得する側のログイン情報入力
+ログインID: manaka
+パスワード: 
+M000110000005460 の予測モデルの詳細情報を取得しました
+一元管理リスト
+予測モデル(M000110000005460)を更新しました。
+```
+
+### 注意事項
+```
+{'errors': [{'code': '0050', 'message': '記述子 が存在しません。(ID : D000020000030805)'}]}
+```
+複製（別サイト宛）、更新作業の時、このような表示になったら、予測モデルの元IDに存在するポートの記述子に対して、複製または更新する先に対応する記述子が複製されていないことを示します。descriptor_operator.pyで該当IDの記述子を複製するか、一元管理DBに対応を追加してください。
+
+## ポートの連続追加作業
 1. ログイン - プログラム実行後、最初の一度だけ
 2. 記述子IDの入力。IDを入力したら3.へ。空白なら指定した記述子で予測モデルを更新して終了。「end」なら更新せずに終了。
 3. 指定したIDの主たる名前の表示
@@ -243,7 +302,7 @@ M000020000004387 の予測モデルの詳細情報を取得しました
   ```
 * ポート名の編集は不可（将来対応予定）
 
-## 実際の操作(入出力追加)
+### 実際の操作(入出力追加)
 ```
 $ python3.6 prediction_model_operator.py dev-u-tokyo.mintsys.jp M000020000004387 put_desc
 予測モデルを取得する側のログイン情報入力
@@ -262,39 +321,7 @@ to input(1) / to output(2): 1
 記述子ID: 
 予測モデルを変更して終了します。
 ```
-## 使用方法 
 
-## ヘルプの表示
-```
-$ python3.6 prediction_model_operator.py 
-モードを指定してください。
-不明なモード指定です(None)
-
-予測モデル複製プログラム
-Usage:
-$ python3.6 prediction_model_operator.py [options]
-  Options:
-
-     mode          : copy 記述子複製を実行する
-                   : get 記述子取得のみを実行する
-                   : add_desc 入出力ポートを連続で登録する。
-                   : update 複製後のアップデートを行う 要記述子履歴ファイル
-     misystem_from : 複製元の環境指定（e.g. dev-u-tokyo.mintsys.jp）
-     misystem_to   : 複製先の環境指定（指定がない場合は、同環境内で複製
-     token_from    : 複製元のAPIトークン（無い場合、ログインプロンプト）
-     token_to      : 複製先のAPIトークン（同上）
-     descriptor_id : 複製したい予測モデルID（e.g. M000020000031477）
-  prediction_id_to : 更新先予測モデルID(e.g. M000020000031477) 
-     history       : 複製元と複製先の記述子IDテーブル出力ファイル名）
-
-```
-* site url : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
-* prediction model id : Mxxxxxyyyyyyyyyy
-* mode : 以下のどれか
-  + get : 指定したIDの予測モデルをMIntシステムから取得し、```prediction-<予測モデルID>.json```として保存する。
-  + copy : 指定したIDの予測モデルをMIntシステムから取得し、新規予測モデルとして複製する。取得した予測モデル情報は```prediction-<予測モデルID>.json```として保存する。
-  + put_desc : 指定した記述子IDの予測モデルの入出力ポートに連続して記述子を追加する。
-  + update : ```*_from```の予測モデル(prediction_id)を```*_to```の予測モデル(prediction_id_to)として更新。各ポートの記述子IDの更新元と移植先の対応表のファイル（history(e.g. descriptors.idsなど）が必要。
 
 # descriptor_operatorについて
 このプログラムは記述子の取得、複製を簡易にコマンドラインから行うプログラムである。
