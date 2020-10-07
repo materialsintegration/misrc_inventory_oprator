@@ -276,7 +276,7 @@ M000110000005460 の予測モデルの詳細情報を取得しました
 ```
 {'errors': [{'code': '0050', 'message': '記述子 が存在しません。(ID : D000020000030805)'}]}
 ```
-複製（別サイト宛）、更新作業の時、このような表示になったら、予測モデルの元IDに存在するポートの記述子に対して、複製または更新する先に対応する記述子が複製されていないことを示します。descriptor_operator.pyで該当IDの記述子を複製するか、一元管理DBに対応を追加してください。
+別サイト宛の複製、更新作業の時、このような表示が発生することがあります。この場合、エラーとして報告されているIDの記述子（予測モデルの入出力ポートのどれか）に対して、複製または更新する先に対応する記述子が複製されていないか、一元管理DBにこのIDのエントリが無いことを示します。descriptor_operator.pyで該当IDの記述子を複製するか、複製済みであれば、一元管理DBに対応を追加してください。またこのエラーは利用するAPIの仕様上1つずつしか報告されないので、この様な状態が複数存在する場合、コマンド実行の度に報告されます。なおこのエラーが発生した場合更新、複製（別サイト宛）は行われません。
 
 ## ポートの連続追加作業
 1. ログイン - プログラム実行後、最初の一度だけ
@@ -339,79 +339,6 @@ to input(1) / to output(2): 1
 
 また、履歴ファイル(inventory-operatorで作成される、descriptors.idsなど)を指定することで、記述子複製の履歴を追記していくことが可能である。
 
-### 更新の流れ
-
-更新作業は以下の用に、元と先のリスト（history）を元に行われる。
-
-```mermaid
-    graph LR;
-
-    descriptors_ids[元と先のリスト<BR>D000020000029953: D000110000018703]
-    mintsystem1[開発環境]
-    subgraph descriptor_operator
-      operator1[APIで情報取得]
-      operator2[更新用作業<BR>元->先]
-    end
-    mintsystem2[運用環境]
-
-    descriptors_ids-->operator1
-    operator1--API GET<BR>D000020000029953-->mintsystem1
-    mintsystem1--API RETURN<BR>D000020000029953-->operator2
-    operator1-->operator2
-    operator2--API PUT<BR>D000110000018703-->mintsystem2
-```
-## システム要件
-inventory-operatorに準じる。
-
-## 操作の流れ
-### 取得
-```
-$ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp mode:get descriptor_id:D000020000031457
-記述子を取得する側のログイン情報入力
-ログインID: utadmin01
-パスワード: 
-ID(D000020000031457) の記述子の詳細情報を取得しました
-$ ls -l descriptor-D000020000031457.json
--rw-rw-r-- 1 misystem misystem 620  9月 14 11:44 2020 descriptor-D000020000031457.json
-```
-
-### 複製
-```
-$ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp misystem_to:nims.mintsys.jp mode:copy history:組成分解ツール/descriptors.ids descriptor_id:D000020000031462
-記述子を取得する側のログイン情報入力
-ログインID: utadmin01
-パスワード: 
-ID(D000020000031462) の記述子の詳細情報を取得しました
-記述子を複製する側のログイン情報入力
-ログインID: manaka
-パスワード: 
-{'descriptor_id': 'http://mintsys.jp/inventory/descriptors/D000110000018756'}
-```
-
-実行が成功すると最後の新しい記述子ID「D000110000018756」が作成されている。
-
-### 更新
-```
-$ python3.6 descriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp misystem_to:nims.mintsys.jp token_from:from側のトークン token_to:to側のトークン history:組成分解ツール/descriptors.ids mode:update
-ID(D000020000029953) の記述子の詳細情報を取得しました
-記述子(D000110000018703) を更新しました。
-ID(D000020000029954) の記述子の詳細情報を取得しました
-記述子(D000110000018704) を更新しました。
-...途中省略...
-ID(D000020000031508) の記述子の詳細情報を取得しました
-記述子(D000110000018776) を更新しました。
-ID(D000020000031457) の記述子の詳細情報を取得しました
-記述子(D000110000018777) を更新しました。
-```
-
-### 追加情報
-* token_fromとtoken_to
-  + token_fromとtoken_to(他環境への複製の場合）を指定すると、ログインプロンプトの入力は不要。
-* history指定
-  + 既存の履歴ファイル(invneotry-operator作成のdescriptors.idsなど）を指定すると、追記される。
-  + 指定し無い場合、カレントディレクトリにdescritors.idsを作る。（存在すれば追記）
-  + まだ履歴ファイルによる操作は更新元情報をAPIで取得する形式。存在するJSONファイルへの対応を実装中。
-
 ## ヘルプの表示
 ```
 $ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp
@@ -439,6 +366,79 @@ $ python3.6 decriptor_operator.py [options]
   + get : 指定したIDの記述子をMIntシステムから取得し、```descriptor-<記述子ID>.json```として保存する。
   + copy : 指定したIDの記述子をMIntシステムから取得し、新規記述子として複製する。取得した記述子情報は```prediction-<予測モデルID>.json```として保存する。
   + update : ```*_from```の記述子IDを```*_to```の記述子として更新(update)する。更新するIDは記述子IDの複製元と複製先の対応表のファイル（historyで指定(e.g. descriptors.idsなど）から取得する。updateが指定された場合、descriptor_idにより指定されたIDは無視される。
+
+## 更新の流れ
+
+更新作業は以下の用に、元と先のリスト（history）を元に行われる。
+
+```mermaid
+    graph LR;
+
+    descriptors_ids[元と先のリスト<BR>D000020000029953: D000110000018703]
+    mintsystem1[開発環境]
+    subgraph descriptor_operator
+      operator1[APIで情報取得]
+      operator2[更新用作業<BR>元->先]
+    end
+    mintsystem2[運用環境]
+
+    descriptors_ids-->operator1
+    operator1--API GET<BR>D000020000029953-->mintsystem1
+    mintsystem1--API RETURN<BR>D000020000029953-->operator2
+    operator1-->operator2
+    operator2--API PUT<BR>D000110000018703-->mintsystem2
+```
+## システム要件
+inventory-operatorに準じる。
+
+## 操作の流れ
+### 取得(mode=get)
+```
+$ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp mode:get descriptor_id:D000020000031457
+記述子を取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+ID(D000020000031457) の記述子の詳細情報を取得しました
+$ ls -l descriptor-D000020000031457.json
+-rw-rw-r-- 1 misystem misystem 620  9月 14 11:44 2020 descriptor-D000020000031457.json
+```
+
+### 複製(mode=copy)
+```
+$ python3.6 decriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp misystem_to:nims.mintsys.jp mode:copy history:組成分解ツール/descriptors.ids descriptor_id:D000020000031462
+記述子を取得する側のログイン情報入力
+ログインID: utadmin01
+パスワード: 
+ID(D000020000031462) の記述子の詳細情報を取得しました
+記述子を複製する側のログイン情報入力
+ログインID: manaka
+パスワード: 
+{'descriptor_id': 'http://mintsys.jp/inventory/descriptors/D000110000018756'}
+```
+
+実行が成功すると最後の新しい記述子ID「D000110000018756」が作成されている。
+
+### 更新(mode=update)
+```
+$ python3.6 descriptor_operator.py misystem_from:dev-u-tokyo.mintsys.jp misystem_to:nims.mintsys.jp token_from:from側のトークン token_to:to側のトークン history:組成分解ツール/descriptors.ids mode:update
+ID(D000020000029953) の記述子の詳細情報を取得しました
+記述子(D000110000018703) を更新しました。
+ID(D000020000029954) の記述子の詳細情報を取得しました
+記述子(D000110000018704) を更新しました。
+...途中省略...
+ID(D000020000031508) の記述子の詳細情報を取得しました
+記述子(D000110000018776) を更新しました。
+ID(D000020000031457) の記述子の詳細情報を取得しました
+記述子(D000110000018777) を更新しました。
+```
+
+### 追加情報
+* token_fromとtoken_to
+  + token_fromとtoken_to(他環境への複製の場合）を指定すると、ログインプロンプトの入力は不要。
+* history指定
+  + 既存の履歴ファイル(invneotry-operator作成のdescriptors.idsなど）を指定すると、追記される。
+  + 指定し無い場合、カレントディレクトリにdescritors.idsを作る。（存在すれば追記）
+  + まだ履歴ファイルによる操作は更新元情報をAPIで取得する形式。存在するJSONファイルへの対応を実装中。
 
 # 利用者編
 
