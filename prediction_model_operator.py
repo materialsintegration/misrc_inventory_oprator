@@ -13,7 +13,6 @@
 import requests
 import sys, os
 from openam_operator import openam_operator
-from getpass import getpass
 import json
 from importlib import import_module
 
@@ -21,26 +20,6 @@ history_db_package = None
 siteid_table = {"dev-u-tokyo.mintsys.jp":2,
                 "nims.mintsys.jp":11,
                 "u-tokyo.mintsys.jp":1}
-
-def auth_info(hostname, message):
-    '''
-    ログイン
-    '''
-
-    print(message)
-    if sys.version_info[0] <= 2:
-        name = raw_input("ログインID: ")
-    else:
-        name = input("ログインID: ")
-    password = getpass("パスワード: ")
-
-    ret, uid, token = openam_operator.miauth(hostname, name, password)
-    if ret is False:
-        if uid.status_code == 401:
-            print(uid.json()["message"])
-        sys.exit(1)
-
-    return uid, token
 
 def writeNewSrcDstList(src_id, dst_id):
     '''
@@ -160,7 +139,7 @@ def prediction_get(hostname, p_id, token=None):
     '''
 
     if token is None:
-        uid, token = auth_info(hostname, "予測モデルを取得する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "予測モデルを取得する側のログイン情報入力")
 
     session = requests.Session()
     url = "https://%s:50443/inventory-api/v6/prediction-models/%s"%(hostname, p_id)
@@ -194,7 +173,7 @@ def prediction_copy(prediction, hostname, token=None):
     new_prediction = prediction_add_model_type_code(prediction, version=6)
 
     if token is None:
-        uid, token = auth_info(hostname, "予測モデルを複製する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "予測モデルを複製する側のログイン情報入力")
     
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
@@ -223,7 +202,7 @@ def prediction_update(p1_dict, p2_dict, url_from, url_to, history, token=None, m
     '''
 
     if token is None:
-        uid, token = auth_info(url_to, "予測モデルを更新する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(url_to, "予測モデルを更新する側のログイン情報入力")
     
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
@@ -277,7 +256,7 @@ def prediction_add_discriptor(prediction, p_id, hostname, token=None):
     '''
 
     if token is None:
-        uid, token = auth_info(hostname, "予測モデルを編集する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "予測モデルを編集する側のログイン情報入力")
 
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
