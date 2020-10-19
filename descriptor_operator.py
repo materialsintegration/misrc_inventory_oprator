@@ -13,29 +13,7 @@
 import requests
 import sys, os
 from openam_operator import openam_operator
-from getpass import getpass
 import json
-
-def auth_info(hostname, message):
-    '''
-    ログイン
-    '''
-
-    #print("記述子を登録する側のログイン情報入力")
-    print(message)
-    if sys.version_info[0] <= 2:
-        name = raw_input("ログインID: ")
-    else:
-        name = input("ログインID: ")
-    password = getpass("パスワード: ")
-
-    ret, uid, token = openam_operator.miauth(hostname, name, password)
-    if ret is False:
-        if uid.status_code == 401:
-            print(uid.json()["message"])
-        sys.exit(1)
-
-    return uid, token
 
 def descriptor_get(hostname, d_id, token=None):
     '''
@@ -46,7 +24,7 @@ def descriptor_get(hostname, d_id, token=None):
     '''
 
     if token is None:
-        uid, token = auth_info(hostname, "記述子取得する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "記述子取得する側のログイン情報入力")
 
     session = requests.Session()
     url = "https://%s:50443/inventory-api/v6/descriptors/%s"%(hostname, d_id)
@@ -82,7 +60,7 @@ def descriptor_copy(descriptor, hostname, token=None, history=None):
     '''
 
     if token is None:
-        uid, token = auth_info(hostname, "記述子を複製する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "記述子を複製する側のログイン情報入力")
 
     session = requests.Session()
     app_format = 'application/json'
@@ -128,7 +106,7 @@ def descriptor_update(descriptor, update_descriptor_id, hostname, token=None):
     '''
 
     if token is None:
-        uid, token = auth_info(hostname, "記述子を更新する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "記述子を更新する側のログイン情報入力")
 
     session = requests.Session()
     app_format = 'application/json'
@@ -243,7 +221,7 @@ def main():
             token_to = token_from
         descriptor_copy(d_dict, url_to, token_to, history_file)
     elif mode == "get":
-        d_dict, h = descriptor_get(hostname, d_id, token)
+        d_dict, h = descriptor_get(url_from, d_id, token_from)
     elif mode == "update":
         infile = open(history_file)
         d_dict = json.load(infile)
@@ -251,7 +229,7 @@ def main():
             d_info, h = descriptor_get(url_from, d_id, token_from)
             descriptor_update(d_info, d_dict[d_id], url_to, token_to)
     else:
-        print("misyste:%s / descriptor_id:%s / mode:%s"%(hostname, d_id, mode))
+        print("misyste:%s / descriptor_id:%s / mode:%s"%(url_from, d_id, mode))
 
 if __name__ == '__main__':
     main()
