@@ -24,6 +24,7 @@ else:
     #from urllib.parse import urlparse
 import subprocess
 import shutil
+from importlib import import_module
 
 if os.name == "nt":
     import openam_operator
@@ -185,7 +186,7 @@ class InventoryOperator(InventoryOperatorGUI):
     '''
     '''
 
-    def __init__(self, parent, descriptor_ref_conf = "src_descriptors.conf", prediction_ref_conf = "src_prediction-models.conf", software_tool_ref_conf = "src_software-tools.conf", descriptor_upd_conf = "dst_descriptors.conf", prediction_upd_conf = "dst_prediction-models.conf", software_tool_upd_conf = "dst_software-tools.conf", modules_xml = "modules.xml", folders_ref_json = "src_folders.json", folders_upd_json = "dst_folders.json"):
+    def __init__(self, parent, descriptor_ref_conf = "src_descriptors.conf", prediction_ref_conf = "src_prediction-models.conf", software_tool_ref_conf = "src_software-tools.conf", descriptor_upd_conf = "dst_descriptors.conf", prediction_upd_conf = "dst_prediction-models.conf", software_tool_upd_conf = "dst_software-tools.conf", modules_xml = "modules.xml", folders_ref_json = "src_folders.json", folders_upd_json = "dst_folders.json", debug_mode=False):
         '''
         初期化
         @params parent(親となるクラス。通常None)
@@ -231,6 +232,9 @@ class InventoryOperator(InventoryOperatorGUI):
         self.folders_ref = folders_ref_json
         self.folders_upd = folders_upd_json
         self.modulecopy_directory = "../../module_copy"
+        self.inventory_management = "../../misrc_inventory_management"
+        # 動的読み込みパッケージ用
+        self.inventory_management_package = None
 
         # 起動時iniファイル情報の読み込み
         init_dic = self.readIniFile()
@@ -280,7 +284,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         # ボタンの表示変更
         self.m_buttonDeleteInventories.SetLabel("inventry取得...")
-        self.debug_mode = False
+        self.debug_mode = debug_mode
 
     #------------------ここからイベントハンドラ----------------------
     def InventoryOperatorGUIOnClose( self, event ):
@@ -324,7 +328,8 @@ class InventoryOperator(InventoryOperatorGUI):
 
         if parser.has_section("Reference") is True:
             parser.set("Reference", "URL", ref_dict["URL"])
-            parser.set("Reference", "ConfFile", ref_dict["ConfFile"])
+            parser.set("Reference", "conffile", ref_dict["ConfFile"])
+            print("Reference/ConfFile = %s"%ref_dict["ConfFile"])
             #parser.set("Reference", "UserID", ref_dict["UserID"])
             #parser.set("Reference", "Token", ref_dict["Token"])
         if parser.has_section("Update") is True:
@@ -336,6 +341,7 @@ class InventoryOperator(InventoryOperatorGUI):
         if parser.has_section("System") is False:
             parser.add_section("System")
         parser.set("System", "modulecopy", self.modulecopy_directory)
+        parser.set("System", "inventory_management", self.inventory_management)
 
         outfile = open("inventory-operator.ini", "w")
         #outfile = open("Inventory.conf", "w")
@@ -474,10 +480,12 @@ class InventoryOperator(InventoryOperatorGUI):
         dictid = self.m_staticTextDictionaryAndFolderID.GetLabel().split("/")[1]
         #print(json.dumps(self.ref_folders[dictid], indent=2, ensure_ascii=False))
         top_folder_id = self.ref_folders[dictid]["root_folder"]["folder_id"].split("/")[-1]
+        top_dictionary_id = dictid
         top_folder_name = self.ref_folders[dictid]["root_folder"]["folder_name"].split("@")[0]
         top_folder_description = self.ref_folders[dictid]["root_folder"]["description"]
         print("%s - %s"%(top_folder_id, top_folder_name))
-        folders_dict[top_folder_id] = {"folder_name": top_folder_name, "description": top_folder_description, "folders":[], "descriptors":{}, "prediction_models":{}}
+        #folders_dict[top_folder_id] = {"folder_name": top_folder_name, "description": top_folder_description, "folders":[], "descriptors":{}, "prediction_models":{}}
+        folders_dict[top_dictionary_id] = {"folder_id": top_folder_id, "folder_name": top_folder_name, "description": top_folder_description, "folders":[], "descriptors":{}, "prediction_models":{}}
 
         if ("descriptors" in self.ref_folders[dictid]["root_folder"]) is True:         # 辞書直下にdescriptorがあれば
             descriptors = self.ref_folders[dictid]["root_folder"]["descriptors"]
@@ -486,23 +494,24 @@ class InventoryOperator(InventoryOperatorGUI):
                 did = d["descriptor_id"].split("/")[-1]
                 dname = d["preferred_name"].split("@")[0]
                 print("  %s - %s"%(did, dname))
-                #folders_dict[top_folder_id]["descriptors"].append({"descriptor_id":did, "preferred_name":dname})
-                folders_dict[top_folder_id]["descriptors"][did] = dname
+                #folders_dict[top_folder_id]["descriptors"][did] = dname
+                folders_dict[top_dictionary_id]["descriptors"][did] = dname
         if ("prediction_models" in self.ref_folders[dictid]["root_folder"]) is True:   # 辞書直下にprediction_modelがあれば
             predictions = self.ref_folders[dictid]["root_folder"]["prediction_models"]
             for p in predictions:
                 pid = p["prediction_model_id"].split("/")[-1]
                 pname = p["preferred_name"].split("@")[0]
                 print("  %s - %s"%(pid, pname))
-                #folders_dict[top_folder_id]["prediction_models"].append({"prediction_model_id":pid, "preferred_name":pname})
-                folders_dict[top_folder_id]["prediction_models"][pid] = pname
+                #folders_dict[top_folder_id]["prediction_models"][pid] = pname
+                folders_dict[top_dictionary_id]["prediction_models"][pid] = pname
 
         # root_folders/foldersデバッグプリント
         #print(json.dumps(self.ref_folders[dictid]["root_folder"], indent=2, ensure_ascii=False))
         # フォルダーと登録してある記述子情報の辞書作成
         if ('folders' in self.ref_folders[dictid]["root_folder"]) is True:
             folders = self.ref_folders[dictid]["root_folder"]["folders"]
-            folders_dict[top_folder_id]["folders"] = folderFactory(folders)
+            #folders_dict[top_folder_id]["folders"] = folderFactory(folders)
+            folders_dict[top_dictionary_id]["folders"] = folderFactory(folders)
 
         outfile = open(self.folders_ref, "w")
         #print(json.dumps(folders_dict, indent=2, ensure_ascii=False))
@@ -555,7 +564,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
     def m_buttonInventryUpdateWithDictFolderOnButtonClick( self, event ):
         '''
-        インベントリ情報の登録（登録先は辞書ではない。登録後、辞書およびフォルダー作成して、それぞれ配下に登録される）
+        インベントリ情報の登録（登録先は指定しない。元となるインベントリの帰属情報に従う。登録後、辞書およびフォルダー作成して、それぞれ配下に登録される）
         '''
 
         userid, token = self.CheckUpdateUserIDAndToken()
@@ -593,6 +602,7 @@ class InventoryOperator(InventoryOperatorGUI):
         cwd = os.getcwd()
         os.chdir(self.upd_workdir)
         
+        # 各confファイルの確認
         okUpdate = True
         needed_files = ""
         if os.path.exists(self.descriptor_upd_conf) is False:
@@ -608,7 +618,7 @@ class InventoryOperator(InventoryOperatorGUI):
                 needed_files += "/"
             needed_files += self.software_tool_upd_conf
             okUpdate = False
-        old_new_filename = "descriptors.ids"
+        src_dst_filename = "descriptors.ids"
 
         if okUpdate is False:
             dialog = wx.MessageDialog(self, u"作業ディレクトリに必要なファイル(%s)がありません。"%needed_files, style=wx.OK)
@@ -629,14 +639,46 @@ class InventoryOperator(InventoryOperatorGUI):
 
         url = self.m_comboBoxUpdateURL.GetValue()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
+        site_to = url.split(".")[0]
 
         ## 記述子用
+        site_from = None
         descriptor_parser.read(self.descriptor_upd_conf)
         if descriptor_parser.has_section("authorize") is True:
             descriptor_parser.set("authorize", "hostPort", "%s:50443"%url)
             descriptor_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["version"])
             descriptor_parser.set("authorize", "user_id", userid)
             descriptor_parser.set("authorize", "token", token)
+            if descriptor_parser.has_option("authorize", "site") is True:
+                site_from = descriptor_parser.get("authorize", "site")
+
+        # 記述子一元管理テーブルにしたがって取捨選択
+        # 一元管理テーブルにあるIDはすでに複製が行われているので、ここで行わない。
+        if self.inventory_management_package is None:
+            sys.stderr.write("一元管理情報ライブラリが読み込まれていません。")
+            sys.stderr.flush()
+            return
+        new_list = []
+        # 元先リストDBから
+        src_dst = self.inventory_management_package.getInventoryData(site_from, site_to)
+        # 今回の辞書に含まれる記述子データ
+        src_table = descriptor_parser.get("file", "inputfile").split("\n")
+        # 新規コピーの必要性の確認
+        for src_item in src_table:
+            noNeedCopy = False
+            for item in src_dst:
+                if "inventory_%s.json"%item == src_item:
+                    noNeedCopy = True
+            if noNeedCopy is False:
+                new_list.append(src_item)
+        # 新規コピーのmodule_copyプログラム用構成ファイルへの登録
+        descriptor_jsons = ""
+        for item in new_list:
+            if descriptor_jsons == "":
+                descriptor_jsons += "%s\n"%item
+            else:
+                descriptor_jsons += "           %s\n"%item
+        descriptor_parser.set("file", "inputfile", descriptor_jsons)
         outfile = open(self.descriptor_upd_conf, "w")
         descriptor_parser.write(outfile)
         outfile.close()
@@ -660,75 +702,86 @@ class InventoryOperator(InventoryOperatorGUI):
         outfile = open(self.software_tool_upd_conf, "w")
         software_tool_parser.write(outfile)
         outfile.close()
+
+        return
+
         # 記述子登録
-        cmd = "python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
-
-        sys.stderr.write("記述子登録中...%s\n%s"%(os.getcwd(), cmd))
-        sys.stderr.flush()
-        p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        if self.debug_mode is True:
-            while True:
-                temp1 = p.stdout.read()
-                temp2 = p.stderr.read()
-    
-                if temp1:
-                    stdout = temp1.decode('utf-8')
-                    sys.stdout.write(stdout)
-                    sys.stdout.flush()
-                if temp2:
-                    stderr = temp2.decode('utf-8')
-                    sys.stderr.write(stderr)
-                    sys.stderr.flush()
-    
-                if not temp1 and p.poll() is not None:
-                    break
+        if descriptor_jsons == "":
+            # 一元管理データとの照合で新規コピーの必要が無い場合
+            sys.stderr.write("新規登録する記述子はありません。")
+            sys.stderr.flush()
         else:
-            stdout, stderr = p.communicate()
-            #p.wait()
+            cmd = "python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
+            sys.stderr.write("記述子登録中...%s\n%s"%(os.getcwd(), cmd))
+            sys.stderr.flush()
+            ret = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
+            lines = []
+            if self.debug_mode is True:
+                while True:
+                    line = ret.stdout.readline()
+                    if line:
+                        print("%s"%line.split("\n")[0])
+                        lines.append(line.split("\n")[0])
+                    if not line and ret.poll() is not None:
+                        break
+            else:
+                stdout, stderr = ret.communicate()
+    
+            # 新規コピー動作の確認
+            if ret.returncode != 0:
+                dialog = wx.MessageDialog(self, u"記述子登録に失敗しました。\n標準出力:\n%s\n標準エラー:\n%s"%(stdout, stderr), style=wx.OK)
+                dialog.ShowModal()
+                dialog.Destroy()
+                os.chdir(cwd)
+                print(u"記述子登録に失敗しました。\n標準出力:\n%s\n標準エラー:\n%s"%(stdout, stderr))
+                return False, False
 
-        if p.returncode != 0:
-            dialog = wx.MessageDialog(self, u"記述子登録に失敗しました。\n標準出力:\n%s\n標準エラー:\n%s"%(stdout, stderr), style=wx.OK)
-            dialog.ShowModal()
-            dialog.Destroy()
-            os.chdir(cwd)
-            print(u"記述子登録に失敗しました。\n標準出力:\n%s\n標準エラー:\n%s"%(stdout, stderr))
-            return False, False
+            # 元先リストファイルの確認
+            if os.path.exists(src_dst_filename) is False:
+                dialog = wx.MessageDialog(self, u"作業ディレクトリに記述子IDの元先対応ファイル(%s)がありません。"%src_dst_filename, style=wx.OK)
+                dialog.ShowModal()
+                dialog.Destroy()
+                os.chdir(cwd)
+                return False, False
+
+            # 元先リストの追加
+            infile = open(src_dst_filename)
+            try:
+                src_dst_dict = json.load(infile)
+            except json.decoder.JSONDecodeError as e:
+                sys.stderr.write("元先ファイル、読み込み中に例外発生\n")
+                sys.stderr.write("%s\n"%e)
+                sys.stderr.flush()
+                infile.close()
+                return
+            infile.close()
+            # 元先DBへ一旦格納
+            src_dst = self.inventory_management_package.addInventoryData(site_from, site_to, src_dst_dict)
+
+        # 元先ファイルの作成
+        outfile = open("descriptors.ids", "w")
+        json.dump(src_dst, outfile, indent=2)
+        outfile.close()
 
         # 予測モデル登録
-        if os.path.exists(old_new_filename) is False:
-            dialog = wx.MessageDialog(self, u"作業ディレクトリに記述子IDの新旧対応ファイル(%s)がありません。"%old_new_filename, style=wx.OK)
-            dialog.ShowModal()
-            dialog.Destroy()
-            os.chdir(cwd)
-            return False, False
-
-        cmd = "python3.6 %s/script/opeInventory3.py %s %s"%(self.modulecopy_directory, self.prediction_upd_conf, old_new_filename)
+        cmd = "python3.6 %s/script/opeInventory3.py %s %s"%(self.modulecopy_directory, self.prediction_upd_conf, src_dst_filename)
         sys.stderr.write("\n予測モデル登録中...%s\n%s\n"%(os.getcwd(), cmd))
         sys.stderr.flush()
-        p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ret = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if self.debug_mode is True:
             while True:
-                temp1 = p.stdout.read()
-                temp2 = p.stderr.read()
-    
-                if temp1:
-                    stdout = temp1.decode('utf-8')
-                    sys.stdout.write(stdout)
-                    sys.stdout.flush()
-                if temp2:
-                    stderr = temp2.decode('utf-8')
-                    sys.stderr.write(stderr)
-                    sys.stderr.flush()
-    
-                if not temp1 and p.poll() is not None:
+                line = ret.stdout.readline()
+                if line:
+                    print("%s"%line.split("\n")[0])
+                    lines.append(line.split("\n")[0])
+                if not line and ret.poll() is not None:
                     break
         else:
-            stdout, stderr = p.communicate()
-            #p.wait()
+            stdout, stderr = ret.communicate()
     
-        if p.returncode != 0:
+        if ret.returncode != 0:
             dialog = wx.MessageDialog(self, u"予測モデル登録に失敗しました。", style=wx.OK)
             dialog.ShowModal()
             dialog.Destroy()
@@ -746,13 +799,13 @@ class InventoryOperator(InventoryOperatorGUI):
         prediction_module_files = glob.glob("*.xml")
         os.chdir(current_dir)
 
-        # 辞書・フォルダー新旧変換その１（記述子ID）
+        # 辞書・フォルダー元先変換その１（記述子ID）
         sys.stderr.write("辞書・フォルダーテーブルの記述子IDを新しくしています。\n")
         srcfile = self.folders_upd
         newfile = "folder_table.dat"
-        ret = translateOldNew(old_new_filename, srcfile, newfile)
+        ret = translateOldNew(src_dst_filename, srcfile, newfile)
 
-        # 予測モジュール新旧変換その１（記述子ID）
+        # 予測モジュール元先変換その１（記述子ID）
         sys.stderr.write("予測モジュールの記述子IDを新しい記述子IDに変更しています。\n")
         prediction_module_files_temp = []
         prediction_module_files_new = []
@@ -764,26 +817,26 @@ class InventoryOperator(InventoryOperatorGUI):
                 prediction_module_files_temp.append(os.path.join(prediction_module_directory, newfile1))
                 newfile2 = os.path.splitext(prediction_module_filename)[0] + "_new.xml"
                 prediction_module_files_new.append(os.path.join(prediction_module_directory, newfile2))
-                ret = translateOldNew(old_new_filename, prediction_module_filename, newfile1)
+                ret = translateOldNew(src_dst_filename, prediction_module_filename, newfile1)
 
-        # 辞書・フォルダー新旧変換その２（予測モデルID）
+        # 辞書・フォルダー元先変換その２（予測モデルID）
         sys.stderr.write("辞書・フォルダーテーブルの予測モデルIDを新しくしています。\n")
-        old_new_filename = "prediction_models.ids"
-        if os.path.exists(old_new_filename) is False:
-            dialog = wx.MessageDialog(self, u"作業ディレクトリに予測モデルIDの新旧対応ファイル(%s)がありません。"%old_new_filename, style=wx.OK)
+        src_dst_filename = "prediction_models.ids"
+        if os.path.exists(src_dst_filename) is False:
+            dialog = wx.MessageDialog(self, u"作業ディレクトリに予測モデルIDの元先対応ファイル(%s)がありません。"%src_dst_filename, style=wx.OK)
             dialog.ShowModal()
             dialog.Destroy()
             shutil.copyfile("folder_table.dat", self.folders_upd)
         else:
             srcfile = "folder_table.dat"
             newfile = self.folders_upd
-            ret = translateOldNew(old_new_filename, srcfile, newfile)
+            ret = translateOldNew(src_dst_filename, srcfile, newfile)
 
-        # 予測モジュール新旧変換その２（予測モデルID）
+        # 予測モジュール元先変換その２（予測モデルID）
         sys.stderr.write("予測モジュールの予測モデルIDを新しい予測モデルIDに変更しています。\n")
         for i in range(len(prediction_module_files_temp)):
             if os.path.exists(prediction_module_files_temp[i]) is True:
-                ret2 = translateOldNew(old_new_filename, prediction_module_files_temp[i], prediction_module_files_new[i])
+                ret2 = translateOldNew(src_dst_filename, prediction_module_files_temp[i], prediction_module_files_new[i])
                 sys.stderr.write("新しい予測モジュールのファイル名は%sです。"%prediction_module_files_new[i])
 
         # 辞書とフォルダーの作成とインベントリの登録
@@ -1360,43 +1413,6 @@ class InventoryOperator(InventoryOperatorGUI):
 
     #------------------ここまでイベントハンドラ----------------------
     #------------------ここからメンバー関数--------------------------
-#    def apiAccess(self, token, weburl, method="get", invdata=None, debug_print=False):
-#        '''
-#        Inventory Reference API Get method
-#        @param token(64character barer type token)
-#        @param weburl(URL for API access)
-#        @param invdata(body for access by json)
-#        @retval (json = dict) There is None if error has occured.
-#        '''
-#
-#        # parameter
-#        headers = {'Authorization': 'Bearer ' + token,
-#                   'Content-Type': 'application/json',
-#                   'Accept': 'application/json'}
-#
-#        # http request
-#        session = requests.Session()
-#        session.trust_env = False
-#
-#        if method == "get":
-#            res = session.get(weburl, json=invdata, headers=headers)
-#        elif method == "delete":
-#            res = session.delete(weburl, json=invdata, headers=headers)
-#        #print res
-#
-#        if str(res.status_code) != "200":
-#            if debug_print is True:
-#                print("error   : ")
-#                print('status  : ' + str(res.status_code))
-#                print('body    : ' + res.text)
-#                print('-------------------------------------------------------------------')
-#                print('url     : ' + weburl)
-#                #print('headers : ' + str(res.headers))
-#                #print('headers : ' + str(headers))
-#            return False, res
-#
-#        return True, res
-#
     def divideInventories(self):
         '''
         カレントディレクトリにある各Inventoryを出力したJSONファイルを分解して、更新に備える。
@@ -1634,12 +1650,19 @@ class InventoryOperator(InventoryOperatorGUI):
         if parser.has_section("System") is True:
             if parser.has_option("System", "modulecopy") is True:
                 self.modulecopy_directory = parser.get("System", "modulecopy")
+            if parser.has_option("System", "inventory_management") is True:
+                self.inventory_management = parser.get("System", "inventory_management")
+                sys.path.append(self.inventory_management)
+                #from invenrory_ids import *
+                self.inventory_management_package = import_module("inventory_ids")
+                self.inventory_management_package.setDbDirectory(self.inventory_management)
         if parser.has_section("Reference") is True:
             savevalue["Reference"] = {}
             if parser.has_option("Reference", "URL") is True:
                 savevalue["Reference"]["URL"] = parser.get("Reference", "URL")
             if parser.has_option("Reference", "ConfFile") is True:
                 savevalue["Reference"]["ConfFile"] = parser.get("Reference", "ConfFile")
+                print("Reference/ConfFile = %s"%parser.get("Reference", "ConfFile"))
             if parser.has_option("Reference", "UserID") is True:
                 savevalue["Reference"]["UserID"] = parser.get("Reference", "UserID")
             if parser.has_option("Reference", "Token") is True:
@@ -1790,26 +1813,6 @@ class InventoryOperator(InventoryOperatorGUI):
         else:
             return
 
-        #if parser.has_section("file") is True:
-        #    if parser.has_option("file", "object") is True:
-        #        objects = parser.get("file", "object").split()
-        #    if parser.has_option("file", "inputfile") is True:
-        #        inputfiles = parser.get("file", "inputfile").split()
-        #        self.descriptor_ref = inputfiles[0]
-        #        self.prediction_ref = inputfiles[1]
-        #        self.software_tool_ref = inputfiles[2]
-        #        
-        #    if parser.has_option("file", "outputfile") is True:
-        #        outputfiles = parser.get("file", "outputfile").split()
-        #        self.descriptor_upd = outputfiles[0]
-        #        self.prediction_upd = outputfiles[1]
-        #        self.software_tool_upd = outputfiles[2]
-        #        
-        #    if parser.has_option("file", "modules.xml") is True:
-        #        self.modulesxml = parser.get("file", "modules.xml")
-        #        self.folders_ref = parser.get("file", "folders_ref")
-        #        self.folders_upd = parser.get("file", "folders_update")
-        
     def MakeConfigFile(self, userid, token, path, workdir, query=None):
         '''
         インベントリ操作用Configファイルの作成(存在すれば編集)
@@ -1839,29 +1842,7 @@ class InventoryOperator(InventoryOperatorGUI):
         if parser.has_section("file") is False:
             parser.add_section("file")
 
-        # 各JSONファイル名欄が埋まっていたら、設定をもってくる
-        #if self.m_textCtrlDescriptorFileNameRef.GetValue() != "":
-        #    self.descriptor_ref = self.m_textCtrlDescriptorFileNameRef.GetValue()
-        #if self.m_textCtrlPredictionModelFilenameRef.GetValue() != "":
-        #    self.prediction_ref = self.m_textCtrlPredictionModelFilenameRef.GetValue()
-        #if self.m_textCtrlSoftwareToolFilenameRef.GetValue() != "":
-        #    self.software_tool_ref = self.m_textCtrlSoftwareToolFilenameRef.GetValue()
-        #if self.m_textCtrlDescriptorFileNameUpdate.GetValue() != "":
-        #    self.descriptor_upd = self.m_textCtrlDescriptorFileNameUpdate.GetValue()
-        #if self.m_textCtrlPredictionModelFilenameUpdate.GetValue() != "":
-        #    self.prediction_upd = self.m_textCtrlPredictionModelFilenameUpdate.GetValue()
-        #if self.m_textCtrlSoftwareToolFilenameUpdate.GetValue() != "":
-        #    self.software_tool_upd = self.m_textCtrlSoftwareToolFilenameUpdate.GetValue()
-        #if self.m_textCtrlModulesXMLUpdate.GetValue() != "":
-        #    self.modulesxml = self.m_textCtrlModulesXMLUpdate.GetValue()
-        #if self.m_textCtrlFoldersFilenameRef.GetValue() != "":
-        #    self.folders_ref = self.m_textCtrlFoldersFilenameRef.GetValue()
-        #if self.m_textCtrlFoldersFilenameUpdate.GetValue() != "":
-        #    self.folders_upd = self.m_textCtrlFoldersFilenameUpdate.GetValue()
-
         parser.set("file", "object", "descriptor\n       prediction-model\n       software-tool")
-        #parser.set("file", "inputfile", "%s\n          %s\n          %s"%(self.descriptor_ref, self.prediction_ref, self.software_tool_ref))
-        #parser.set("file", "outputfile", "%s\n           %s\n           %s"%(self.descriptor_upd, self.prediction_upd, self.software_tool_upd))
         parser.set("file", "inputfile", "%s\n          %s\n          %s"%(self.descriptor_ref_json, self.prediction_ref_json, self.software_tool_ref_json))
         parser.set("file", "outputfile", "%s\n           %s\n           %s"%(self.descriptor_ref_json, self.prediction_ref_json, self.software_tool_ref_json))
         parser.set("file", "modules.xml", "%s"%self.modulesxml)
@@ -1963,19 +1944,20 @@ def main():
     params_len = len(sys.argv)
     #print("params_len = %d"%params_len)
 
+    # デフォルト値
     descriptor_list = "src_descriptor.json"
     prediction_list = "src_prediction.json"
     software_tool_list = "src_software_tool.json"
     folders_list = "src_folders.json"
     modules_xml = "modules.xml"
-    if params_len == 5:
-        descriptor_list = sys.argv[1]
-        prediction_list = sys.argv[2]
-        software_tool_list = sys.argv[3]
-        modules_xml = sys.argv[4]
+    debug_mode = False
+    for items in sys.argv:
+        items = items.split(":")
+        if items[0] == "debug":
+            debug_mode = True
 
     app = wx.App(False)
-    org = InventoryOperator(None, descriptor_list, prediction_list, software_tool_list, modules_xml=modules_xml, folders_ref_json=folders_list)
+    org = InventoryOperator(None, descriptor_list, prediction_list, software_tool_list, modules_xml=modules_xml, folders_ref_json=folders_list, debug_mode=debug_mode)
     org.Show()
 
     app.MainLoop()

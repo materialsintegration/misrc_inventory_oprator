@@ -26,16 +26,17 @@ def addFolder(token, weburl, dict_id, folder_id, table):
     dict_idとfoler_id以下に新しくfolderを作成していく
     '''
 
+    src_dst = {}
     for item in table:
         # まずフォルダーを追加する。
         body = {"folder_name": item["folder_name"], "description": item["description"]}
         url = weburl + "/%s"%dict_id + "/folders/%s"%folder_id + "/folders"
-        ret, result = apiAccess(token, url, "post", body, debug_print=True)
-        if ret is True:
-            new_folder = result.json()["folder_id"].split("/")[-1]
+        result, ret = apiAccess(token, url, "post", body, debug_print=True)
+        if result is True:
+            new_folder = ret.json()["folder_id"].split("/")[-1]
             print("Added new Folder name(%s) / ID(%s) under dictionary id(%s)"%(item["folder_name"], new_folder, dict_id))
         else:
-            return False
+            return {}
         # 次に登録した新しいフォルダに、記述子や予測モデルを登録する。
         for descriptor in item["descriptors"]:
             body = {"descriptor_id":descriptor}
@@ -48,9 +49,12 @@ def addFolder(token, weburl, dict_id, folder_id, table):
 
         # 配下にフォルダーがある場合は、再帰的に呼び出す。
         if ("folders" in item) is True:
-            addFolder(token, weburl, dict_id, new_folder, item["folders"])
+            ret = addFolder(token, weburl, dict_id, new_folder, item["folders"])
+            # 辞書・フォルダーIDの元先リスト再構築
+            for item in ret:
+                src_dst[item] = ret[item]
 
-    return True
+    return src_dst
 
 def addDictionary(token, weburl, name, description):
     '''
@@ -79,25 +83,33 @@ def addDictionaryAndFolders(token, weburl, table):
     '''
 
     # まずは辞書作成
-    key = sorted(table.keys())[0]
-    name = table[key]["folder_name"]
-    description = table[key]["description"]
+    dict_id = sorted(table.keys())[0]
+    name = table[dict_id]["folder_name"]
+    description = table[dict_id]["description"]
     dictid, folderid = addDictionary(token, weburl, name, description)
+
+    # 辞書・フォルダーの元先ファイル作成のため、辞書作成
+    src_dst = {}
+    src_dst["%s/%s"(dict_id, table[dict_id]["folder_id"])] = "%s/%s"%(dictid, folderid)
 
     print("")
     print("Added new dictionary name(%s) / ID(%s) / Folder ID(%s)"%(name, dictid, folderid))
     # 次に登録した新しい辞書に、記述子や予測モデルを登録する。
-    for descriptor in table[key]["descriptors"]:
+    for descriptor in table[dict_id]["descriptors"]:
         body = {"descriptor_id":descriptor}
         url = weburl + "/%s"%dictid + "/folders/%s"%folderid + "/descriptors"
         ret, result = apiAccess(token, url, "post", body, debug_print=True)
-    for prediction_model in table[key]["prediction_models"]:
+    for prediction_model in table[dict_id]["prediction_models"]:
         body = {"prediction_model_id":prediction_model}
         url = weburl + "/%s"%dictid + "/folders/%s"%folderid + "/prediction-models"
         ret, result = apiAccess(token, url, "post", body, debug_print=True)
     #for item in table["folders"]:
     #    addDictionaryAndFolders(folders_dict)
-    addFolder(token, weburl, dictid, folderid, table[key]["folders"])
+    ret = addFolder(token, weburl, dictid, folderid, table[dict_id]["folders"], src_dst)
+
+    # 辞書・フォルダーIDの元先リスト再構築
+    for item in ret:
+        src_dst[item] = ret[item]
 
 
 def main():

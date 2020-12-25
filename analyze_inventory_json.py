@@ -15,7 +15,10 @@ if sys.version_info[0] <= 2:
 else:
     import configparser
 import json
-    
+
+# 元先リストの判定用
+id_table = {"2":"dev-nims", "11":"nims", "1":"u-tokyo", "6":"dev-u-tokyo"}
+
 def analyze_inventory_json(descriptor_ref_json, prediction_ref_json, software_tool_ref_json, descriptor_upd_conf, prediction_upd_conf, software_tool_upd_conf):
     '''
     APIが出力したJSONファイルを登録用プログラムが扱える形式に分解する。
@@ -73,6 +76,12 @@ def analyze_inventory_json(descriptor_ref_json, prediction_ref_json, software_to
     infile.close()
     descriptor_parser.add_section("file")
     descriptor_jsons = ""
+    # サイトIDからサイト文字列取得
+    siteid = "%s"%int(descriptors["descriptors"][0]["descriptor_id"].split("/")[-1][1:6])
+    site_name = id_table[siteid]
+    descriptor_parser.set("authorize", "site", site_name)
+
+    # 分解
     for item in descriptors["descriptors"]:
         did = item["descriptor_id"].split("/")[-1]
         filename = "inventory_%s.json"%did
@@ -105,6 +114,7 @@ def analyze_inventory_json(descriptor_ref_json, prediction_ref_json, software_to
         else:
             prediction_jsons += "           %s\n"%filename
     prediction_parser.set("file", "inputfile", prediction_jsons)
+    prediction_parser.set("authorize", "site", site_name)
     outfile = open(prediction_upd_conf, "w")
     prediction_parser.write(outfile)
     outfile.close()
@@ -125,6 +135,7 @@ def analyze_inventory_json(descriptor_ref_json, prediction_ref_json, software_to
         else:
             software_tool_jsons += "           %s\n"%filename
     software_tool_parser.set("file", "inputfile", software_tool_jsons)
+    software_tool_parser.set("authorize", "site", site_name)
     outfile = open(software_tool_upd_conf, "w")
     software_tool_parser.write(outfile)
     outfile.close()

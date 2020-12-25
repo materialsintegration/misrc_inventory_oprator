@@ -26,16 +26,17 @@ def writeNewSrcDstList(src_id, dst_id):
     DBができるまで、実行時ディレクトリに"predictions.ids"ファイルに予測モデルの元先リストを作成する。
     '''
 
-    if os.path.exists("predictions.ids") is True:
-        infile = open("predictions.ids")
-        d = json.load(infile)
-        infile.close()
-    else:
-        d = {}
-    outfile = open("predictions.ids", "w")
-    d[src_id] = dst_id
-    json.dump(d, outfile, indent=4)
-    outfile.close()
+    #if os.path.exists("predictions.ids") is True:
+    #    infile = open("predictions.ids")
+    #    d = json.load(infile)
+    #    infile.close()
+    #else:
+    #    d = {}
+    #outfile = open("predictions.ids", "w")
+    #d[src_id] = dst_id
+    #json.dump(d, outfile, indent=4)
+    #outfile.close()
+    history_db_package.addInventoryData("nims.mintsys.jp", "dev-u-tokyo.mintsys.jp", {src_id: dst_id}, "prediction_model")
 
 def io_port_transform(p2_dict, url_from, url_to, history):
     '''
