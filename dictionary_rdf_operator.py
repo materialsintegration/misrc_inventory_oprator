@@ -83,12 +83,12 @@ class InventoryRdfOperator():
             #if results[1] == "mi:inputDescriptor":
             #    print contents
             inventory[results[1]] = contents
-            if inventory.has_key("descriptor_id") is not True:
+            if ("descriptor_id" in inventory) is not True:
                 inventory["descriptor_id"] = results[0].strip('<>')
 
         print("inventory type = %s / invetory_item = %s"%(inventory_type, inventory_item))
         if len(inventory) != 0:
-            print inventory
+            print(inventory)
             inventories[inventory_type].append(inventory)
 
         #print inventories
@@ -195,11 +195,11 @@ class InventoryRdfOperator():
                         items0 = contents[0]
                         items1 = contents[1]
                     if label == "descriptor_names":
-                        if inventory.has_key(label) is False:
+                        if (label in inventory) is False:
                             inventory[label] = []
                         inventory[label].append({"name":items0, "laguage":items1})
                     elif label == "prediction_model_names":
-                        if inventory.has_key(label) is False:
+                        if (label in inventory) is False:
                             inventory[label] = []
                         inventory[label].append({"name":items0, "laguage":items1})
                     elif label == "name":
@@ -210,7 +210,7 @@ class InventoryRdfOperator():
                         inventory["preferred_name_language"] = items1
                     #elif label == "input_descriptors" or label == "output_descriptors":
                     elif label == "input_ports" or label == "output_ports":
-                        if inventory.has_key(label) is False:
+                        if (label in inventory) is False:
                             inventory[label] = []
                         ids = items0.split(',')
                         for id_item in ids:
@@ -319,21 +319,22 @@ class InventoryRdfOperator():
                         prediction["output_ports"][i]["port_name"] = descriptor["preferred_name"]
                         prediction["output_ports"][i]["preferred_name_language"] = descriptor["preferred_name_language"]
 
-        descout = open("kushida_descriptors.json", "w")
-        predict = open("kushida_prediction-models.json", "w")
-        software = open("kushida_software-tools.json", "w")
+        # 2021/02/16 出力を抑制する。
+        #descout = open("kushida_descriptors.json", "w")
+        #predict = open("kushida_prediction-models.json", "w")
+        #software = open("kushida_software-tools.json", "w")
         folderout = open("folders.json", "w")
-        #descout.write(json.dumps(descriptors))
-        json.dump(descriptors, descout, indent=4, ensure_ascii=False)
-        json.dump(prediction_models, predict, indent=4, ensure_ascii=False)
-        json.dump(software_tools, software, indent=4, ensure_ascii=False)
+        #json.dump(descriptors, descout, indent=4, ensure_ascii=False)
+        #json.dump(prediction_models, predict, indent=4, ensure_ascii=False)
+        #json.dump(software_tools, software, indent=4, ensure_ascii=False)
         json.dump(folders, folderout, indent=4, ensure_ascii=False)
-        #predict.write(json.dumps(prediction_models))
-        #software.write(json.dumps(software_tools))
-        descout.close()
-        predict.close()
-        software.close()
+        #descout.close()
+        #predict.close()
+        #software.close()
         folderout.close()
+
+        # 2021/02/16 以下は実行しない
+        return
 
         descout = open("descriptors.json", "w")
         predict = open("prediction-models.json", "w")
@@ -347,7 +348,7 @@ class InventoryRdfOperator():
                 descout.write("        {\n")
                 kitem_keys = items.keys()
                 for k in range(len(kitem_keys)):
-                    item_key = kitem_keys[k]
+                    item_key = list(kitem_keys)[k]
                 #for item_key in items:
                     #item_key = item_keys[i]
                     if item_key == "descriptor_names":
@@ -356,7 +357,7 @@ class InventoryRdfOperator():
                         for l in range(len(items[item_key])):
                             subitem_keys = items[item_key][l].keys()
                             for m in range(len(subitem_keys)):
-                                subitem_key = subitem_keys[m]
+                                subitem_key = list(subitem_keys)[m]
                                 if m == len(subitem_keys) - 1:
                                     descout.write('                    "%s": "%s"\n'%(subitem_key, items[item_key][l][subitem_key]))
                                 else:
@@ -389,7 +390,7 @@ class InventoryRdfOperator():
                 predict.write("        {\n")
                 item_keys = items.keys()
                 for k in range(len(item_keys)):
-                    item_key = item_keys[k]
+                    item_key = list(item_keys)[k]
                 #for item_key in items:
                     if item_key == "prediction_model_names":
                         predict.write('            "%s": [\n'%item_key)
@@ -397,7 +398,7 @@ class InventoryRdfOperator():
                         for l in range(len(items[item_key])):
                             subitem_keys = items[item_key][l].keys()
                             for m in range(len(subitem_keys)):
-                                subitem_key = subitem_keys[m]
+                                subitem_key = list(subitem_keys)[m]
                                 if m == len(subitem_keys) - 1:
                                     predict.write('                    "%s": "%s"\n'%(subitem_key, items[item_key][l][subitem_key]))
                                 else:
@@ -504,7 +505,7 @@ def main():
     org = InventoryRdfOperator()
     org.ReadRDFFile(sys.argv[1])
 #    org.Show()
-    analyze_inventory_json("kushida_descriptors.json", "kushida_prediction-models.json", "kushida_software-tools.json", "descriptors.conf", "prediction-models.conf", "software-tools.conf")
+    #analyze_inventory_json("kushida_descriptors.json", "kushida_prediction-models.json", "kushida_software-tools.json", "descriptors.conf", "prediction-models.conf", "software-tools.conf")
 #    app.MainLoop()
 
 if __name__ == '__main__':
