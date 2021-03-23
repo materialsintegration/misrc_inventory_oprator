@@ -14,14 +14,16 @@
 ## システム要件
 * python2.xおよびwxpython3.xが動作する、Linux/Windows/(MacOS)。
 * python3.6以降およびwxpython4.0.6以降が動作する、Linux/Windows/(MacOS)
-※ MacOSは未確認。（以前の経験上、動作は可能なはず）
+  + MacOSは未確認。（以前の経験上、動作は可能なはず）
+  + wxpythonのインストールは難しいので、192.168.1.56にVNC環境を作成するかまたはX対応sshログインすることでwxpythonをインストールせずに使用可能である。
+  + 同様にrequestとauthentication-operatorも192.168.1.56にはインストール済みである。
 * 追加のパッケージ
   + requests(security)
-  + [authentication-operator(SSO対応)](https://gitlab.mintsys.jp/midev/authentication_operator)
-  + [module_copy(Inventory操作本体)](https://gitlab.mintsys.jp/midev/module_copy)
-  + MI-API(1.2.0以降)
-  + [webapi(misrc_webapi)](https://gitlab.mintsys.jp/midev/misrc_webapi)
-  + [インベントリID一元管理ソフト](https://gitlab.mintsys.jp/midev/misrc_inventory_management.git)
+  + [authentication-operator(SSO対応)](https://gitlab.mintsys.jp/midev/authentication_operator):必須
+  + [module_copy(Inventory操作本体)](https://gitlab.mintsys.jp/midev/module_copy):inventory_operator.pyに必須
+  + MI-API(1.2.0以降):inventory_operator.pyに必須
+  + [webapi(misrc_webapi)](https://gitlab.mintsys.jp/midev/misrc_webapi):inventory_operator.pyに必須
+  + [インベントリID一元管理ソフト](https://gitlab.mintsys.jp/midev/misrc_inventory_management.git):/home/misystem/assets/modulesに配置してある。現状ここを使うのが望ましい。
 
 ## 注意事項
 inventory-operatorを使用するにあたっての概要と現在判明している問題である。
@@ -33,16 +35,11 @@ inventory-operatorを使用するにあたっての概要と現在判明して�
 * 登録後にmodules.xmlを指定していればこれを取得時のIDから登録時のIDへ内部のIDを変換し、アセット登録で使用可能な状態にする。
   + この時使うmodules.xmlはworkflow_python_lib/predictuin_modules_cut.pyを使って切り出す。
 
-### 注意事項
-
-* メタ項目とタグ
-
-メタ項目とタグはメタIDとタグIDが一部にサイトIDを含んでおり、未対応である。現バージョンではメタIDおよびタグIDを含まないインベントリ情報のみが扱える。
-
-万一メタ項目とタグ項目を含んだインベントリをコピーした場合IDが無いという応答が発生し、登録が途中で停止する。
-
-* Windowsでの動作
+### Windowsでの動作
 基本的には問題ないはずだが、文字コードの問題がまだ一部に残っているので、しばらくは動作非対象とする。
+
+### メタ項目とメタID
+現在は対応済である。
 
 # 管理編
 ## wxPython
