@@ -80,7 +80,7 @@ def descriptor_copy(descriptors, hostname, token=None, history=None):
     if token is None:
         uid, token = openam_operator.miLogin(hostname, "記述子を複製する側(%s)のログイン情報入力"%hostname)
 
-    if uid is None:
+    if token is None:
         print("認証に失敗しました。")
         sys.exit(1)
 
