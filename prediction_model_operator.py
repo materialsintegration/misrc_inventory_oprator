@@ -140,7 +140,11 @@ def prediction_get(hostname, p_id, token=None):
     '''
 
     if token is None:
-        uid, token = openam_operator.miLogin(hostname, "予測モデルを取得する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "予測モデルを取得する側(%s)のログイン情報入力"%hostname)
+
+    if token is None:
+        print("認証に失敗しました。")
+        sys.exit(1)
 
     session = requests.Session()
     url = "https://%s:50443/inventory-api/v6/prediction-models/%s"%(hostname, p_id)
@@ -151,7 +155,7 @@ def prediction_get(hostname, p_id, token=None):
 
     ret = session.get(url, headers=headers)
     if ret.status_code != 500:
-        print("%s の予測モデルの詳細情報を取得しました"%p_id)
+        print("%s の予測モデル(%s)の詳細情報を取得しました"%(p_id, ret.json()["preferred_name"]))
         #print(json.dumps(ret.json(), indent=2))
         pass
     else:
@@ -176,6 +180,10 @@ def prediction_copy(prediction, hostname, token=None):
     if token is None:
         uid, token = openam_operator.miLogin(hostname, "予測モデルを複製する側のログイン情報入力")
     
+    if token is None:
+        print("認証に失敗しました。")
+        sys.exit(1)
+
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
                'Content-Type': app_format,
@@ -205,6 +213,10 @@ def prediction_update(p1_dict, p2_dict, url_from, url_to, history, token=None, m
     if token is None:
         uid, token = openam_operator.miLogin(url_to, "予測モデルを更新する側のログイン情報入力")
     
+    if token is None:
+        print("認証に失敗しました。")
+        sys.exit(1)
+
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
                'Content-Type': app_format,
@@ -249,15 +261,25 @@ def prediction_update(p1_dict, p2_dict, url_from, url_to, history, token=None, m
         sys.exit(1)
 
     # 元IDと複製した先IDをリスト保存
-    writeNewSrcDstList(src_p_id, dst_p_id)
+    #writeNewSrcDstList(src_p_id, dst_p_id)
+    history_db_package.addInventoryData(url_from, url_to, {src_p_id: dst_p_id}, "prediction_model")
 
-def prediction_add_discriptor(prediction, p_id, hostname, token=None):
+def prediction_add_discriptor(prediction, p_id, hostname, token=None, d_ids=[]):
     '''
     記述子追加
+    @param prediction(dict) 予測モデル辞書
+    @param p_id(string) 予測モデルID
+    @param hostname(string) MIntシステムホスト名
+    @param token(string) API token
+    @param d_ids(list) 連続投入用記述子IDのリスト
     '''
 
     if token is None:
-        uid, token = openam_operator.miLogin(hostname, "予測モデルを編集する側のログイン情報入力")
+        uid, token = openam_operator.miLogin(hostname, "予測モデルを編集する側(%s)のログイン情報入力"%hostname)
+
+    if token is None:
+        print("認証に失敗しました。")
+        sys.exit(1)
 
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
@@ -265,12 +287,24 @@ def prediction_add_discriptor(prediction, p_id, hostname, token=None):
                'Accept': app_format}
 
     session = requests.Session()
+    count = 0
+    d_id_list = True
+    if len(d_ids) == 0:
+        d_id_list = False
+
     while True:
-        print("追加する記述子IDの入力")
-        if sys.version_info[0] <= 2:
-            d_id = raw_input("記述子ID: ")
+        if d_id_list is False:
+            print("追加する記述子IDの入力")
+            if sys.version_info[0] <= 2:
+                d_id = raw_input("記述子ID: ")
+            else:
+                d_id = input("記述子ID: ")
         else:
-            d_id = input("記述子ID: ")
+            if count == len(d_ids):
+                d_ids = "end"
+            else:
+                d_id = d_ids[count]
+                count += 1
     
         if d_id == "":
             print("予測モデルを変更して終了します。")
@@ -355,27 +389,34 @@ def main():
     history_file = None
     history_db = None
     print_help = False
-    for item in sys.argv:
-        item = item.split(":")
+    d_id_filename = None
+    d_ids = []
+    for i in range(1, len(sys.argv)):
+        item = sys.argv[i].split(":")
         if item[0] == "misystem_from":
             url_from = item[1]
-        if item[0] == "misystem_to":
+        elif item[0] == "misystem_to":
             url_to = item[1]
-        if item[0] == "prediction_id":
+        elif item[0] == "prediction_id":
             p_id = item[1]
-        if item[0] == "prediction_id_to":
+        elif item[0] == "prediction_id_to":
             p_id_dest = item[1]
-        if item[0] == "mode":
+        elif item[0] == "mode":
             mode = item[1]
-        if item[0] == "token_from":
+        elif item[0] == "token_from":
             token_from = item[1]
-        if item[0] == "token_to":
+        elif item[0] == "token_to":
             token_to = item[1]
-        if item[0] == "history":
+        elif item[0] == "history":
             history_file = item[1]
-        if item[0] == "history_db":
+        elif item[0] == "history_db":
             history_db = item[1]
-        if item[0] == "help":
+        elif item[0] == "help":
+            print_help = True
+        elif item[0] == "descriptor_ids":
+            d_id_filename = item[1]
+        else:
+            print("不明なパラメータ(%s)です。"%item[0])
             print_help = True
 
     if mode is None:
@@ -399,6 +440,15 @@ def main():
             elif url_from is None:
                 print("サイトURL(from)を指定してください。")
                 print_help = True
+        if mode == "add_desc":
+            if d_id_filename is not None:
+                if os.path.exists(d_id_filename) is False:
+                    print("記述子IDリストファイル(%s)がありません。"%d_id_filename)
+                    print_help = True
+                else:
+                    infile = open(d_id_filename)
+                    d_ids = infile.read().split("\n")
+                    infile.close()
     elif mode == "update":
         if p_id is None:
             print("更新元の予測モデルIDを指定してください。")
@@ -469,7 +519,7 @@ def main():
         p_dict, token = prediction_get(url_from, p_id, token_from)
     elif mode == "add_desc":
         p_dict, token = prediction_get(url_from, p_id, token_from)
-        prediction_add_discriptor(p_dict, p_id, url_from, token_from)
+        prediction_add_discriptor(p_dict, p_id, url_from, token, d_ids)
     elif mode == "update":
         # 更新元の情報取得
         p1_dict, token = prediction_get(url_from, p_id, token_from)
