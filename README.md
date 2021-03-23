@@ -2,8 +2,9 @@
 本リポジトリには、以下の複数のアプリケーションがある。それぞれの説明を後述する。
 
 * inventory-operator
-* prediction_module_operator
 * descriptor_operator
+* prediction_model_operator
+* prediction_module_operator
 
 # Inventory-Operatorマニュアル
 
@@ -174,6 +175,105 @@ Inventory-APIへのアクセスキーとして各ユーザー毎のトークン�
   + 取得では使用されない
   + 登録で登録用プログラムが使用する。
   + 内容は取得時作成される。
+
+# prediction_module_operatorについて
+このプログラムは予測モジュールファイルの取得、複製、を簡易にコマンドラインから行うプログラムである。
+## 概要
+このプログラムは２つの動作モードを備える。
+* エクスポート：予測モジュールの情報をXML形式で取得、ファイルに保存
+  + 最新（バージョン番号が大きい物）を取得
+  + パラメータ指定でIDを残す（デフォルトは新規作成用に削除）
+* インポート：予測モジュールファイル（XML形式）をインポートする。
+
+## システム要件
+inventory-operatorに準じる。
+
+## ヘルプの表示
+```
+$ python3.6 prediction_module_operator.py 
+ 
+[]
+
+対応する動作モードがありません
+
+Usage python3.6 /home/misystem/assets/modules/inventory-operator/prediction_module_operator.py mode:<mode> predictions:<prediction_id>,[<prediction_id>,<prediction_id>,...] modulesfile:<modules.xml> [--ident-nodelete]
+
+    予測モジュール切り出し、送り込みプログラム
+    バージョン番号は、最新（各数字が最大）のもの
+
+予測モデル切り出し
+             mode : exportを指定するとアセットAPIを使って最新のmodules.xmlを取り出し、これが対象となる。
+                    デフォルトはfile(modulesfileで指定したファイルを使用)である。
+      predictions : Pで始まる予測モジュール番号。assetでimport後、exportしたあとのmodules.xmlを使う
+                    複数指定可
+       modulefile : asset管理画面から、exportしたXMLファイル。mode:exportを指定した場合は無視される。
+                    mode:fileの場合はこのファイルからpredictionsで指定した予測モジュールを切り出す。
+         misystem : mode:exportを指定したときのexport対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)
+
+予測モデル送り込み
+             mode : import
+       modulefile : インポートしたい予測モジュールXMLファイル。複数指定化
+       history_db : misrc_inventory_managementプロジェクトの絶対パス
+     misystem_from: XMLファイルを取得したサイト名(e.g. dev-u-tokyo.mintsys.jp)
+       misystem_to: インポート先のサイト名(e.g. nims.mintsys.jp)
+
+export/import 共通
+  --ident-nodelete: identifierタグを削除しない。versionを1.0.0に変更しない
+```
+* mode : 以下のどれか
+  + export : predictionsで指定したIDの予測モジュールをMIntシステムから取得またはmodulefileで指定した予測モジュールファイル（ブラウザで一括エクスポートしたファイルなど）から抽出し、```prediction-<予測モジュールID>.xml```として保存する。
+  + import : modulefileで指定したIDの予測モジュールファイルをMIntシステムへインポートします。
+* misystem : 予測モジュールをインポート/エクスポートする環境のURL(e.g. dev-u-tokyo.mintsys.jp)
+* predictions     : Pxxxxxyyyyyyyyyy(カンマで区切って複数指定可。e.g. Pxxxxxyyyyyyyyyy,Pxxxxxzzzzzzzzzz,...)
+* modulefile      : xxxxxx.xml(カンマで区切って複数指定可)
+
+## 取得（mode:exportの場合)
+```
+$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:export misystem:dev-u-tokyo.mintsys.jp prediction:P000029000001065 --ident-nodelete
+['P000029000001065']
+
+MIシステム管理者(dev-u-tokyo.mintsys.jp)のログイン情報
+ログインID: utroot
+パスワード: 
+全予測モジュール情報を取得しました
+1
+$ ls -ltr prediction-P000029000001065.xml 
+-rw-rw-r--. 1 misystem misystem 6340  3月 23 09:29 prediction-P000029000001065.xml
+```
+
+## 更新または新規
+
+* 更新の場合(２つの予測モジュールを更新した)
+```
+$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:import modulefile:prediction-P000119040000254.xml,prediction-P000119040000255.xml misystem:nims.mintsys.jp
+[]
+prediction-P000119040000254.xml,prediction-P000119040000255.xml
+同じサイトへのインポートを行います。
+/home/misystem/assets/modules/thermo_calc_examples/modules
+MIシステム管理者(nims.mintsys.jp)のログイン情報
+ログインID: miadmin
+パスワード: 
+予測モジュールファイル名（旧IDP000119040000254）をインポート中
+予測モジュールファイル名（prediction-P000119040000254.xml）をインポートしました
+新規作成された予測モジュールIDはP000119040000254です。
+予測モジュールファイル名（旧IDP000119040000255）をインポート中
+予測モジュールファイル名（prediction-P000119040000255.xml）をインポートしました
+新規作成された予測モジュールIDはP000119040000255です。
+```
+* 新規作成の場合
+```
+$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:import modulefile:M000020000004507_module.xml misystem:dev-u-tokyo.mintsys.jp
+[]
+M000020000004507_module.xml
+同じサイトへのインポートを行います。
+/home/misystem/assets/modules/misrc_visualization_assist_webapps/modulesxml
+MIシステム管理者(dev-u-tokyo.mintsys.jp)のログイン情報
+ログインID: utroot
+パスワード: 
+新規予測モジュール(予測モデルID(M000020000004507))をインポート中
+予測モジュールファイル名（M000020000004507_module.xml）をインポートしました
+新規作成された予測モジュールIDはP000029000001195です。
+```
 
 # prediction_model_operatorについて
 このプログラムは予測モデルの取得、複製、入出力ポートの作成を簡易にコマンドラインから行うプログラムである。
