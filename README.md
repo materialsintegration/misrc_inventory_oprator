@@ -226,6 +226,8 @@ export/import 共通
 * misystem : 予測モジュールをインポート/エクスポートする環境のURL(e.g. dev-u-tokyo.mintsys.jp)
 * predictions     : Pxxxxxyyyyyyyyyy(カンマで区切って複数指定可。e.g. Pxxxxxyyyyyyyyyy,Pxxxxxzzzzzzzzzz,...)
 * modulefile      : xxxxxx.xml(カンマで区切って複数指定可)
+* トークンの指定はできない
+  + システム管理者向けのスクリプトなので、毎度ログインプロンプト対応のみとしてある。
 
 ## 取得（mode:exportの場合)
 ```
