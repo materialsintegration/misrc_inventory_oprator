@@ -111,37 +111,42 @@ def getModules(modules_filename, predictions, ident_nodelete=False):
         miner = 0
         majer = 0
         target_modules = []
-        for item in candidate_modules[prediction_id]:
-            #全elementを見るために
-            #for element in item.iter():
-            #    print("%s - %s"%(element.tag, element.text))
-            #print(item.tag)
-            subelem = item.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
-            v1 = int(subelem.text.split(".")[0])
-            v2 = int(subelem.text.split(".")[1])
-            v3 = int(subelem.text.split(".")[2])
-            if v1 >= majer or v2 >= miner or v3 >= rev:
-                target_module = item
-                majer = v1
-                miner = v2
-                rev = v3
-        target_modules.append(target_module)
+        if len(candidate_modules[prediction_id]) != 0:
+            for item in candidate_modules[prediction_id]:
+                #全elementを見るために
+                #for element in item.iter():
+                #    print("%s - %s"%(element.tag, element.text))
+                #print(item.tag)
+                subelem = item.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
+                v1 = int(subelem.text.split(".")[0])
+                v2 = int(subelem.text.split(".")[1])
+                v3 = int(subelem.text.split(".")[2])
+                if v1 >= majer or v2 >= miner or v3 >= rev:
+                    target_module = item
+                    majer = v1
+                    miner = v2
+                    rev = v3
+            target_modules.append(target_module)
     
-        #root = ET.Element("modules", {"xmlns":"http://www.example.com/predictionModuleSchema", "xsi:schemaLocation":"http://www.example.com/predictionModuleSchema predictionModuleSchema.xsd"})
-        root = ET.Element("modules")
-        for element in target_modules:
-            if ident_nodelete is False:
-                sube = element.find(".//dc:identifier", {'dc': 'http://purl.org/dc/elements/1.1/'})
-                element.remove(sube)
-                sube = element.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
-                sube.text = "1.0.0"
-            root.append(element)
-     
-        new_tree = ET.ElementTree(element=root)
-     
-        ET.register_namespace("", "http://www.example.com/predictionModuleSchema")
-        #new_tree.write("prediction_modules.xml", xml_declaration=True, encoding='UTF-8')
-        new_tree.write("prediction-%s.xml"%prediction_id, xml_declaration=True, encoding='UTF-8')
+            #root = ET.Element("modules", {"xmlns":"http://www.example.com/predictionModuleSchema", "xsi:schemaLocation":"http://www.example.com/predictionModuleSchema predictionModuleSchema.xsd"})
+            root = ET.Element("modules")
+            for element in target_modules:
+                if ident_nodelete is False:
+                    sube = element.find(".//dc:identifier", {'dc': 'http://purl.org/dc/elements/1.1/'})
+                    element.remove(sube)
+                    sube = element.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
+                    sube.text = "1.0.0"
+                root.append(element)
+         
+            new_tree = ET.ElementTree(element=root)
+         
+            ET.register_namespace("", "http://www.example.com/predictionModuleSchema")
+            #new_tree.write("prediction_modules.xml", xml_declaration=True, encoding='UTF-8')
+            new_tree.write("prediction-%s.xml"%prediction_id, xml_declaration=True, encoding='UTF-8')
+            print("指定されたID(%s)の予測モジュールを prediction-%s.xml というファイル名で出力しました。"%(prediction_id, prediction_id))
+        else:
+            print("指定されたID(%s)の予測モジュールは登録が無かったのでファイルとして出力しませんでした。"%prediction_id)
+
 
 def checkID(misystem_from, misystem_to, filename):
     '''
