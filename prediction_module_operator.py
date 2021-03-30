@@ -318,7 +318,7 @@ def main():
             process_mode = items[1]
         elif items[0] == "modulefile":
             modules_filename = items[1]
-        elif items[0] == "misystem":
+        elif items[0] == "misystem_from":
             misystem_from = items[1]
         elif items[0] == "help":
             go_help = True
@@ -400,7 +400,7 @@ def main():
         print("                    複数指定可")
         print("       modulefile : asset管理画面から、exportしたXMLファイル。mode:exportを指定した場合は無視される。")
         print("                    mode:fileの場合はこのファイルからpredictionsで指定した予測モジュールを切り出す。")
-        print("         misystem : mode:exportを指定したときのexport対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)")
+        print("    misystem_from : mode:exportを指定したときのexport対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)")
         print("")
         print("予測モデル送り込み")
         print("             mode : import")
