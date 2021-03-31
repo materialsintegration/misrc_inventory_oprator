@@ -205,7 +205,7 @@ Usage python3.6 /home/misystem/assets/modules/inventory-operator/prediction_modu
                     複数指定可
        modulefile : asset管理画面から、exportしたXMLファイル。mode:exportを指定した場合は無視される。
                     mode:fileの場合はこのファイルからpredictionsで指定した予測モジュールを切り出す。
-         misystem : mode:exportを指定したときのexport対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)
+    misystem_from : mode:exportを指定したときのexport対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)
 
 予測モデル送り込み
              mode : import
@@ -220,7 +220,7 @@ export/import 共通
 * mode : 以下のどれか
   + export : predictionsで指定したIDの予測モジュールをMIntシステムから取得またはmodulefileで指定した予測モジュールファイル（ブラウザで一括エクスポートしたファイルなど）から抽出し、```prediction-<予測モジュールID>.xml```として保存する。
   + import : modulefileで指定したIDの予測モジュールファイルをMIntシステムへインポートします。
-* misystem : 予測モジュールをインポート/エクスポートする環境のURL(e.g. dev-u-tokyo.mintsys.jp)
+* misystem_from/misystem_to : 予測モジュールをインポート/エクスポートする環境のURL(e.g. dev-u-tokyo.mintsys.jp)
 * predictions     : Pxxxxxyyyyyyyyyy(カンマで区切って複数指定可。e.g. Pxxxxxyyyyyyyyyy,Pxxxxxzzzzzzzzzz,...)
 * modulefile      : xxxxxx.xml(カンマで区切って複数指定可)
 * トークンの指定はできない
@@ -465,9 +465,9 @@ $ python3.6 decriptor_operator.py [options]
      descriptor_id : 複製したい記述子ID（e.g. D000020000031477）
      history       : 複製元と複製先のIDテーブル出力ファイル名）
 ```
-* misystem from : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
-* misystem to : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
-* descriptor id : Mxxxxxyyyyyyyyyy
+* misystem_from : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
+* misystem_to : dev-u-tokyo.mintsys.jp/nims.mintsys.jp/u-tokyo.mintsys.jp
+* descriptor_id : Mxxxxxyyyyyyyyyy
 * mode : 以下のどれか
   + get : 指定したIDの記述子をMIntシステムから取得し、```descriptor-<記述子ID>.json```として保存する。
   + copy : 指定したIDの記述子をMIntシステムから取得し、新規記述子として複製する。取得した記述子情報は```prediction-<予測モデルID>.json```として保存する。
