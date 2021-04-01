@@ -211,8 +211,8 @@ Usage python3.6 /home/misystem/assets/modules/inventory-operator/prediction_modu
              mode : import
        modulefile : インポートしたい予測モジュールXMLファイル。複数指定化
        history_db : misrc_inventory_managementプロジェクトの絶対パス
-     misystem_from: XMLファイルを取得したサイト名(e.g. dev-u-tokyo.mintsys.jp)
-       misystem_to: インポート先のサイト名(e.g. nims.mintsys.jp)
+    misystem_from : XMLファイルを取得したサイト名(e.g. dev-u-tokyo.mintsys.jp)
+      misystem_to : インポート先のサイト名(e.g. nims.mintsys.jp)
 
 export/import 共通
   --ident-nodelete: identifierタグを削除しない。versionを1.0.0に変更しない
@@ -228,7 +228,7 @@ export/import 共通
 
 ## 取得（mode:exportの場合)
 ```
-$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:export misystem:dev-u-tokyo.mintsys.jp prediction:P000029000001065 --ident-nodelete
+$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:export misystem_from:dev-u-tokyo.mintsys.jp prediction:P000029000001065 --ident-nodelete
 ['P000029000001065']
 
 MIシステム管理者(dev-u-tokyo.mintsys.jp)のログイン情報
@@ -244,7 +244,7 @@ $ ls -ltr prediction-P000029000001065.xml
 
 * 更新の場合(２つの予測モジュールを更新した)
 ```
-$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:import modulefile:prediction-P000119040000254.xml,prediction-P000119040000255.xml misystem:nims.mintsys.jp
+$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:import modulefile:prediction-P000119040000254.xml,prediction-P000119040000255.xml misystem_from:nims.mintsys.jp
 []
 prediction-P000119040000254.xml,prediction-P000119040000255.xml
 同じサイトへのインポートを行います。
@@ -261,7 +261,7 @@ MIシステム管理者(nims.mintsys.jp)のログイン情報
 ```
 * 新規作成の場合
 ```
-$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:import modulefile:M000020000004507_module.xml misystem:dev-u-tokyo.mintsys.jp
+$ python3.6 ~/inventory-operator/prediction_module_operator.py mode:import modulefile:M000020000004507_module.xml misystem_from:dev-u-tokyo.mintsys.jp
 []
 M000020000004507_module.xml
 同じサイトへのインポートを行います。
