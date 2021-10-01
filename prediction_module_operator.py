@@ -29,6 +29,9 @@ history_db_package = None
 siteid_table = {"dev-u-tokyo.mintsys.jp":2,
                 "nims.mintsys.jp":11,
                 "u-tokyo.mintsys.jp":1}
+api_version = {"dev-u-tokyo.mintsys.jp":"v1",
+                "nims.mintsys.jp":"v2",
+                "u-tokyo.mintsys.jp":"v1"}
 
 def getAllModulesViaAPI(hostname, allmodule_name="modules-all.xml"):
     '''
@@ -47,7 +50,7 @@ def getAllModulesViaAPI(hostname, allmodule_name="modules-all.xml"):
     #print(token)
     uid, token = openam_operator.miLogin(hostname, "MIシステム管理者(%s)のログイン情報"%hostname)
     session = requests.Session()
-    url = "https://%s:50443/asset-api/v1/prediction-modules"%hostname
+    url = "https://%s:50443/asset-api/%s/prediction-modules"%(hostname, api_version[hostname])
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
                'Content-Type': app_format,
@@ -227,7 +230,7 @@ def importModules(misystem_from, misystem_to, modules):
 
     # トークン取得とAPI準備
     session = requests.Session()
-    url = "https://%s:50443/asset-api/v1/prediction-modules"%misystem_to
+    url = "https://%s:50443/asset-api/%s/prediction-modules"%(misystem_to, api_version[misystem_to])
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
                'Content-Type': app_format,
