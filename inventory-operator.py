@@ -37,7 +37,7 @@ from postInventory4 import *
 from checklistctrl import *
 from addDictionaryAndFolders import *
 from api_access import *
-from old_new import *
+#from old_new import *
 from analyze_inventory_json import *
 
 ROOT_FOLDER = "root_folder"                     # 2018/08/15:folder->forder
