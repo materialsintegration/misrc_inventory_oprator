@@ -29,11 +29,13 @@ history_db_package = None
 siteid_table = {"dev-u-tokyo.mintsys.jp":2,
                 "nims-dev.mintsys.jp":2,
                 "nims.mintsys.jp":11,
-                "u-tokyo.mintsys.jp":1}
+                "u-tokyo.mintsys.jp":1,
+                "sre.mintsys.jp":6}
 api_version = {"dev-u-tokyo.mintsys.jp":"v1",
                 "nims.mintsys.jp":"v2",
                 "nims-dev.mintsys.jp":"v2",
-                "u-tokyo.mintsys.jp":"v1"}
+                "u-tokyo.mintsys.jp":"v1",
+                "sre.mintsys.jp":"v1"}
 
 def getAllModulesViaAPI(hostname, allmodule_name="modules-all.xml"):
     '''
