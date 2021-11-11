@@ -1,15 +1,16 @@
 # リポジトリ概要
 本リポジトリには、以下の複数のアプリケーションがある。それぞれの説明を後述する。
 
-* inventory-operator
-* descriptor_operator
-* prediction_model_operator
-* prediction_module_operator
+* inventory-operator.py
+* descriptor_operator.py
+* prediction_model_operator.py
+* prediction_module_operator.py
+* generate_executable_script.py
 
-# Inventory-Operatorマニュアル
+# inventory-operatorについて
 
 ## 概要
-本マニュアルはInventoryAPIを利用して、サイト間の記述子、予測モデル、ソフトウェアツールを展開するためのソフトウェアのインストール、利用方法を記述します。
+このプログラムはInventoryAPIを利用して、サイト間の記述子、予測モデル、ソフトウェアツールを展開するためのソフトウェアのインストール、利用方法を記述します。
 
 ## システム要件
 * python2.xおよびwxpython3.xが動作する、Linux/Windows/(MacOS)。
@@ -175,12 +176,17 @@ Inventory-APIへのアクセスキーとして各ユーザー毎のトークン�
 
 # prediction_module_operatorについて
 このプログラムは予測モジュールファイルの取得、複製、を簡易にコマンドラインから行うプログラムである。
+また簡易ながら権限設定も可能である。
 ## 概要
 このプログラムは２つの動作モードを備える。
 * エクスポート：予測モジュールの情報をXML形式で取得、ファイルに保存
   + 最新（バージョン番号が大きい物）を取得
   + パラメータ指定でIDを残す（デフォルトは新規作成用に削除）
 * インポート：予測モジュールファイル（XML形式）をインポートする。
+* 権限を付与したいユーザーグループを指定することで権限設定も同時に行うことが可能である。
+  + 付与できる権限はexecutable(参照と実行)に限定される。
+  + 権限剥奪は無い。
+  + 単体で付与する機能はまだない。mode:importと同時実行である。
 
 ## システム要件
 inventory-operatorに準じる。
@@ -193,36 +199,49 @@ $ python3.6 prediction_module_operator.py
 
 対応する動作モードがありません
 
-Usage python3.6 /home/misystem/assets/modules/inventory-operator/prediction_module_operator.py mode:<mode> predictions:<prediction_id>,[<prediction_id>,<prediction_id>,...] modulesfile:<modules.xml> [--ident-nodelete]
+Usage python3.6 /home/misystem/inventory-operator/prediction_module_operator.py mode:<mode> predictions:<prediction_id>,[<prediction_id>,<prediction_id>,...] modulesfile:<modules.xml> misystem_from:サイトURL [misystem_to:サイトURL] [privileges:<user_group ID>,<user_group ID>,...] [--ident-nodelete]
 
     予測モジュール切り出し、送り込みプログラム
     バージョン番号は、最新（各数字が最大）のもの
 
-予測モデル切り出し
-             mode : exportを指定するとアセットAPIを使って最新のmodules.xmlを取り出し、これが対象となる。
-                    デフォルトはfile(modulesfileで指定したファイルを使用)である。
-      predictions : Pで始まる予測モジュール番号。assetでimport後、exportしたあとのmodules.xmlを使う
-                    複数指定可
-       modulefile : asset管理画面から、exportしたXMLファイル。mode:exportを指定した場合は無視される。
-                    mode:fileの場合はこのファイルからpredictionsで指定した予測モジュールを切り出す。
-    misystem_from : mode:exportを指定したときのexport対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)
+予測モデル切り出し(アセットAPI使用)
+             mode : export
+    misystem_from : export対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)
+予測モデル切り出し(全予測モジュールファイル使用)
+             mode : file
+       modulefile : asset管理画面から、exportした全予測もジュールの入ったXMLファイル。
+                    predictionsで指定した予測モジュールを切り出す。
+export/file 共通
+      predictions : Pで始まる予測モジュール番号。複数指定可。
+ --ident-nodelete : identifierタグを削除しない。versionを1.0.0に変更しない
 
 予測モデル送り込み
              mode : import
-       modulefile : インポートしたい予測モジュールXMLファイル。複数指定化
+       modulefile : インポートしたい予測モジュールXMLファイル。複数指定可
        history_db : misrc_inventory_managementプロジェクトの絶対パス
-    misystem_from : XMLファイルを取得したサイト名(e.g. dev-u-tokyo.mintsys.jp)
+                    missytem_fromとmisystem_toが違う（サイト間コピー）場合必須
+    misystem_from : XMLファイルを取得したサイト名(e.g. u-tokyo.mintsys.jp)
       misystem_to : インポート先のサイト名(e.g. nims.mintsys.jp)
+                    インポート先のサイト名が違う（サイト間コピー）場合、history_dbに従ってインベントリを
+                    変更します。history_dbに登録が無いとコピーは失敗します。
+       privileges : 権限設定したいグループID。複数指定可。サイト間コピーまたは新規登録時のみ。
 
-export/import 共通
-  --ident-nodelete: identifierタグを削除しない。versionを1.0.0に変更しない
 ```
 * mode : 以下のどれか
-  + export : predictionsで指定したIDの予測モジュールをMIntシステムから取得またはmodulefileで指定した予測モジュールファイル（ブラウザで一括エクスポートしたファイルなど）から抽出し、```prediction-<予測モジュールID>.xml```として保存する。
-  + import : modulefileで指定したIDの予測モジュールファイルをMIntシステムへインポートします。
-* misystem_from/misystem_to : 予測モジュールをインポート/エクスポートする環境のURL(e.g. dev-u-tokyo.mintsys.jp)
+  + export : predictionsで指定したIDの予測モジュールをMIntシステムからAPIで取得し、指定された予測モジュールIDの内容（XML）を個別のファイルに保存する。
+  + file   : modulefileで指定した予測モジュールファイル（ブラウザで一括エクスポートしたファイルなど）から、指定された予測モジュールIDの内容（XML）を個別のファイルに保存する。
+  + import : modulefileで指定したIDの予測モジュールファイルをMIntシステムへインポートする。
+* misystem_from : 予測モジュールをインポート/エクスポートする環境のURL(e.g. dev-u-tokyo.mintsys.jp)
+* misystem_to : 予測モジュールをインポートする環境のURL(e.g. dev-u-tokyo.mintsys.jp)。
+  + 省略した場合misystem_fromとなり、編集モードとなる。
+  + 違う場合はサイト間コピーとなる。
+  + サイト間こピーの場合、history_dbの指定が必須である。無い場合、またはhistory_dbに登録が無い場合インポートは失敗する。
+* history_db      : インベントリのサイト間関係が保持されているDBまたはユーティリティスクリプトを指定する。
 * predictions     : Pxxxxxyyyyyyyyyy(カンマで区切って複数指定可。e.g. Pxxxxxyyyyyyyyyy,Pxxxxxzzzzzzzzzz,...)
 * modulefile      : xxxxxx.xml(カンマで区切って複数指定可)
+* privileges      : xyyyyyyyyzzzzz 権限設定したいユーザーグループIDを指定する。(カンマで区切って複数指定可）
+  + 指定できる権限はexecutableで、参照と実行同時設定のみである。
+  + 新規インポートの場合のみ使用される。
 * トークンの指定はできない
   + システム管理者向けのスクリプトなので、毎度ログインプロンプト対応のみとしてある。
 

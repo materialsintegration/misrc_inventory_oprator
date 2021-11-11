@@ -24,6 +24,7 @@ from getpass import getpass
 import json
 import requests
 from importlib import import_module
+import pprint
 
 history_db_package = None
 siteid_table = {"dev-u-tokyo.mintsys.jp":2,
@@ -37,9 +38,11 @@ api_version = {"dev-u-tokyo.mintsys.jp":"v1",
                 "u-tokyo.mintsys.jp":"v1",
                 "sre.mintsys.jp":"v1"}
 
-def getAllModulesViaAPI(hostname, allmodule_name="modules-all.xml"):
+def getAllModulesViaAPI(hostname, token, allmodule_name="modules-all.xml"):
     '''
     APIを使用して登録済み削除済みを除く全予測モジュールを取り出す。
+    @param hostname(string) MIntシステムサーバー名
+    @param token(string)
     @param allmodule_name(string) 取り出した後のファイル名
     '''
 
@@ -52,7 +55,7 @@ def getAllModulesViaAPI(hostname, allmodule_name="modules-all.xml"):
 
     #ret, uid, token = openam_operator.miauth(hostname, name, password)
     #print(token)
-    uid, token = openam_operator.miLogin(hostname, "MIシステム管理者(%s)のログイン情報"%hostname)
+    #uid, token = openam_operator.miLogin(hostname, "MIシステム管理者(%s)のログイン情報"%hostname)
     session = requests.Session()
     url = "https://%s:50443/asset-api/%s/prediction-modules"%(hostname, api_version[hostname])
     app_format = 'application/json'
@@ -218,6 +221,10 @@ def checkID(misystem_from, misystem_to, filename):
 def importModules(misystem_from, misystem_to, modules):
     '''
     予測モジュールのインポートを行う。
+    @param misystem_from(string)
+    @param misystem_to(string)
+    @param modules(list) 予測モジュールファイルのリスト
+    @retval 予測モジュールIDのリスト。新規登録の場合のみ。その他は空のリスト。
     '''
 
     print(os.getcwd())
@@ -240,6 +247,7 @@ def importModules(misystem_from, misystem_to, modules):
                'Content-Type': app_format,
                'Accept': app_format}
 
+    new_modules = []
     for filename in modules:
 
         if misystem_from != misystem_to:
@@ -292,11 +300,47 @@ def importModules(misystem_from, misystem_to, modules):
             if ret.text != "":
                 root = ET.fromstring(ret.text)
                 ident_element = root.find(".//dc:identifier", {'dc': 'http://purl.org/dc/elements/1.1/'})
+                version_element = root.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
                 if ident_element is not None:
-                    print("新規作成された予測モジュールIDは%sです。"%ident_element.text)
+                    print("新規作成された予測モジュールIDは %s です。"%ident_element.text)
+                    module = {"module_id":ident_element.text, "version":version_element.text}
+                    new_modules.append(module)
         else:
             print(ret.text)
 
+    return token, new_modules
+
+def addPrivilegs(misystem_to, token, new_modules, privileges):
+    '''
+    権限設定
+    @param misystem_to(string)
+    @param token(string)
+    @param new_modules(list)
+    @param privileges(list)
+    @retval なし
+    '''
+
+    # トークン取得とAPI準備
+    session = requests.Session()
+    url = "https://%s:50443/asset-api/%s/prediction-modules/permission"%(misystem_to, api_version[misystem_to])
+    app_format = 'application/json'
+    headers = {'Authorization': 'Bearer ' + token,
+               'Content-Type': app_format,
+               'Accept': app_format}
+
+    for item in new_modules:
+        contents = {}
+        contents["prediction_modules"] = []
+        module_uri = "http://mintsys.jp/assets/prediction-modules/%s"%item["module_id"]
+        contents["prediction_modules"].append({"prediction_module_id":"%s"%module_uri, "version":"%s"%item["version"]})
+        contents["user_groups"] = []
+        contents["user_groups"].append({"user_group_ids":privileges, "permission":"executable"})
+        pprint.pprint(contents)
+        ret = session.put(url, headers=headers, json=contents)
+        if ret.status_code != 200:
+            print(ret.text)
+            sys.exit(1)
+    
 def main():
     '''
     開始点
@@ -310,6 +354,7 @@ def main():
     misystem_to = None
     go_help = False
     history_db = None
+    privileges = None
     global history_db_package
 
     for item in sys.argv:
@@ -333,6 +378,8 @@ def main():
             history_db = items[1]
         elif items[0] == "misystem_to":
             misystem_to = items[1]
+        elif items[0] == "privileges":
+            privileges = items[1].split(",")
         #else:
         #    modules_filename = item
 
@@ -353,11 +400,17 @@ def main():
     elif process_mode == "export":
         # 一旦全部取り出してから必要な編集（idenfierタグやversionタグ）を行う。
         modules_filename = "modules-all.xml"
-        if getAllModulesViaAPI(hostname=misystem_from) is False:
+        uid, token = openam_operator.miLogin(misystem_from, "MIシステム管理者(%s)のログイン情報"%misystem_from)
+        if uid is None and token is None:
+            print("ログイン失敗")
+            sys.exit(1)
+
+        if getAllModulesViaAPI(misystem_from, token) is False:
             go_help = True
         getModules(modules_filename, predictions, ident_nodelete)
     elif process_mode == "import":
-        # 
+        # モジュールインポートモード
+        new_modules = []
         if modules_filename != "":
             modules_filename = modules_filename.split(",")
             for pfile in modules_filename:
@@ -388,36 +441,41 @@ def main():
             print("同じサイトへのインポートを行います。")
             misystem_to = misystem_from
         if go_help is False:
-            importModules(misystem_from, misystem_to, modules_filename)
+            token, new_modules = importModules(misystem_from, misystem_to, modules_filename)
+            if privileges is not None and len(new_modules) != 0:                  # 権限設定
+                addPrivilegs(misystem_to, token, new_modules, privileges)
     else:
         print("対応する動作モードがありません")
         go_help = True
 
     if go_help is True:
         print("")
-        print("Usage python3.6 %s mode:<mode> predictions:<prediction_id>,[<prediction_id>,<prediction_id>,...] modulesfile:<modules.xml> [--ident-nodelete]"%sys.argv[0])
+        print("Usage python3.6 %s mode:<mode> predictions:<prediction_id>,[<prediction_id>,<prediction_id>,...] modulesfile:<modules.xml> misystem_from:サイトURL [misystem_to:サイトURL] [privileges:<user_group ID>,<user_group ID>,...] [--ident-nodelete]"%sys.argv[0])
         print("")
         print("    予測モジュール切り出し、送り込みプログラム")
         print("    バージョン番号は、最新（各数字が最大）のもの")
         print("")
-        print("予測モデル切り出し")
-        print("             mode : exportを指定するとアセットAPIを使って最新のmodules.xmlを取り出し、これが対象となる。")
-        print("                    デフォルトはfile(modulesfileで指定したファイルを使用)である。")
-        print("      predictions : Pで始まる予測モジュール番号。assetでimport後、exportしたあとのmodules.xmlを使う")
-        print("                    複数指定可")
-        print("       modulefile : asset管理画面から、exportしたXMLファイル。mode:exportを指定した場合は無視される。")
-        print("                    mode:fileの場合はこのファイルからpredictionsで指定した予測モジュールを切り出す。")
-        print("    misystem_from : mode:exportを指定したときのexport対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)")
+        print("予測モデル切り出し(アセットAPI使用)")
+        print("             mode : export")
+        print("    misystem_from : export対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)")
+        print("予測モデル切り出し(全予測モジュールファイル使用)")
+        print("             mode : file")
+        print("       modulefile : asset管理画面から、exportした全予測もジュールの入ったXMLファイル。")
+        print("                    predictionsで指定した予測モジュールを切り出す。")
+        print("export/file 共通")
+        print("      predictions : Pで始まる予測モジュール番号。複数指定可。")
+        print(" --ident-nodelete : identifierタグを削除しない。versionを1.0.0に変更しない")
         print("")
         print("予測モデル送り込み")
         print("             mode : import")
-        print("       modulefile : インポートしたい予測モジュールXMLファイル。複数指定化")
+        print("       modulefile : インポートしたい予測モジュールXMLファイル。複数指定可")
         print("       history_db : misrc_inventory_managementプロジェクトの絶対パス")
-        print("    misystem_from : XMLファイルを取得したサイト名(e.g. dev-u-tokyo.mintsys.jp)")
+        print("                    missytem_fromとmisystem_toが違う（サイト間コピー）場合必須")
+        print("    misystem_from : XMLファイルを取得したサイト名(e.g. u-tokyo.mintsys.jp)")
         print("      misystem_to : インポート先のサイト名(e.g. nims.mintsys.jp)")
-        print("")
-        print("export/import 共通")
-        print(" --ident-nodelete : identifierタグを削除しない。versionを1.0.0に変更しない")
+        print("                    インポート先のサイト名が違う（サイト間コピー）場合、history_dbに従ってインベントリを")
+        print("                    変更します。history_dbに登録が無いとコピーは失敗します。")
+        print("       privileges : 権限設定したいグループID。複数指定可。サイト間コピーまたは新規登録時のみ。")
         print("")  
         sys.exit(1)
 
