@@ -5,7 +5,6 @@
 * descriptor_operator.py
 * prediction_model_operator.py
 * prediction_module_operator.py
-* generate_executable_script.py
 
 # inventory-operatorについて
 
