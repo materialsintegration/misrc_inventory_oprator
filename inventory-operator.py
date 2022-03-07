@@ -639,7 +639,8 @@ class InventoryOperator(InventoryOperatorGUI):
 
         url = self.m_comboBoxUpdateURL.GetValue()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        site_to = url.split(".")[0]
+        #site_to = url.split(".")[0]
+        site_to = url
 
         ## 記述子用
         site_from = None
@@ -703,7 +704,7 @@ class InventoryOperator(InventoryOperatorGUI):
         software_tool_parser.write(outfile)
         outfile.close()
 
-        return
+        #return
 
         # 記述子登録
         if descriptor_jsons == "":
@@ -894,7 +895,7 @@ class InventoryOperator(InventoryOperatorGUI):
         folders_dict = json.load(infile)
         infile.close()
         if ret is True:
-            weburl = "https://dev-u-tokyo.mintsys.jp:50443/inventory-update-api/v5/users/%s/dictionaries"%userid
+            weburl = "https://%s:50443/inventory-update-api/v%s/users/%s/dictionaries"%(url, userid, self.VersionList[updateURL]["version"])
             addDictionaryAndFolders(token, weburl, folders_dict)
 
         event.Skip()
@@ -1869,7 +1870,7 @@ class InventoryOperator(InventoryOperatorGUI):
         server = self.m_comboBoxReferenceURL.GetValue()
 
         print("server = %s"%server)
-        ret, uid, token = openam_operator.miauth(server, username, passwd)
+        ret, uid, token = openam_operator.miauth(server, username, passwd, debug=5)
 
         if ret is False:
             dialog = wx.MessageDialog(self, u"ユーザー認証に失敗しました", "Error", style=wx.OK)

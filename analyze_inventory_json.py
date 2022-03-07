@@ -17,7 +17,8 @@ else:
 import json
 
 # 元先リストの判定用
-id_table = {"2":"dev-nims", "11":"nims", "1":"u-tokyo", "6":"dev-u-tokyo"}
+#id_table = {"2":"nims-dev", "11":"nims", "1":"u-tokyo", "6":"dev-u-tokyo"}
+id_table = {"2":"nims-dev.mintsys.jp", "11":"nims.mintsys.jp", "1":"u-tokyo.mintsys.jp", "6":"dev-u-tokyo.mintsys.jp"}
 
 def analyze_inventory_json(descriptor_ref_json, prediction_ref_json, software_tool_ref_json, descriptor_upd_conf, prediction_upd_conf, software_tool_upd_conf):
     '''
