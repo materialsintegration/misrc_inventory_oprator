@@ -33,7 +33,7 @@ siteid_table = {"dev-u-tokyo.mintsys.jp":2,
                 "u-tokyo.mintsys.jp":1,
                 "sre.mintsys.jp":6}
 api_version = {"dev-u-tokyo.mintsys.jp":"v1",
-                "nims.mintsys.jp":"v2",
+                "nims.mintsys.jp":"v3",
                 "nims-dev.mintsys.jp":"v2",
                 "u-tokyo.mintsys.jp":"v1",
                 "sre.mintsys.jp":"v1"}
@@ -218,7 +218,7 @@ def checkID(misystem_from, misystem_to, filename):
 
     return docroot
 
-def importModules(misystem_from, misystem_to, modules):
+def importModules(misystem_from, misystem_to, modules, token):
     '''
     予測モジュールのインポートを行う。
     @param misystem_from(string)
@@ -228,16 +228,17 @@ def importModules(misystem_from, misystem_to, modules):
     '''
 
     print(os.getcwd())
-    if misystem_from != misystem_to:
-        # 別サイトへのインポートの場合
-        uid, token = openam_operator.miLogin(misystem_to, "MIシステム管理者(%s)のログイン情報"%misystem_to)
-    else:
-        # 同じサイトへのインポート
-        uid, token = openam_operator.miLogin(misystem_from, "MIシステム管理者(%s)のログイン情報"%misystem_to)
-
-    if uid is None and token is None:
-        print("ログイン失敗")
-        sys.exit(1)
+    if token is None:
+        if misystem_from != misystem_to:
+            # 別サイトへのインポートの場合
+            uid, token = openam_operator.miLogin(misystem_to, "MIシステム管理者(%s)のログイン情報"%misystem_to)
+        else:
+            # 同じサイトへのインポート
+            uid, token = openam_operator.miLogin(misystem_from, "MIシステム管理者(%s)のログイン情報"%misystem_to)
+    
+        if uid is None and token is None:
+            print("ログイン失敗")
+            sys.exit(1)
 
     # トークン取得とAPI準備
     session = requests.Session()
@@ -355,6 +356,7 @@ def main():
     go_help = False
     history_db = None
     privileges = None
+    token = None
     global history_db_package
 
     for item in sys.argv:
@@ -380,6 +382,8 @@ def main():
             misystem_to = items[1]
         elif items[0] == "privileges":
             privileges = items[1].split(",")
+        elif items[0] == "token":
+            token = items[1]
         #else:
         #    modules_filename = item
 
@@ -400,10 +404,11 @@ def main():
     elif process_mode == "export":
         # 一旦全部取り出してから必要な編集（idenfierタグやversionタグ）を行う。
         modules_filename = "modules-all.xml"
-        uid, token = openam_operator.miLogin(misystem_from, "MIシステム管理者(%s)のログイン情報"%misystem_from)
-        if uid is None and token is None:
-            print("ログイン失敗")
-            sys.exit(1)
+        if token is None:
+            uid, token = openam_operator.miLogin(misystem_from, "MIシステム管理者(%s)のログイン情報"%misystem_from)
+            if uid is None and token is None:
+                print("ログイン失敗")
+                sys.exit(1)
 
         if getAllModulesViaAPI(misystem_from, token) is False:
             go_help = True
@@ -441,7 +446,7 @@ def main():
             print("同じサイトへのインポートを行います。")
             misystem_to = misystem_from
         if go_help is False:
-            token, new_modules = importModules(misystem_from, misystem_to, modules_filename)
+            token, new_modules = importModules(misystem_from, misystem_to, modules_filename, token)
             if privileges is not None and len(new_modules) != 0:                  # 権限設定
                 addPrivilegs(misystem_to, token, new_modules, privileges)
     else:

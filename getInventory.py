@@ -57,7 +57,8 @@ config_settings = {
 }
 
 # debug json
-replace_dic = {'preferred_name_lang': 'preferred_name_language'}
+#replace_dic = {'preferred_name_lang': 'preferred_name_language'}
+replace_dic = {}
 
 # codec
 codec = 'utf-8'

@@ -13,7 +13,7 @@ import os, sys
 import json
 
 sys.path.append("/home/misystem/assets/modules/misrc_inventory_management")
-from inventory_ids import *
+#from inventory_ids import *
 
 def createOldNew(infilename, table_file):
     '''

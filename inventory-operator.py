@@ -39,6 +39,7 @@ from addDictionaryAndFolders import *
 from api_access import *
 #from old_new import *
 from analyze_inventory_json import *
+from src_dst import *
 
 ROOT_FOLDER = "root_folder"                     # 2018/08/15:folder->forder
 CONFIG_FILENAME = "Inventory.conf"              # 入出力用コンフィグファイルの名前
@@ -762,7 +763,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         # 元先ファイルの作成
         outfile = open("descriptors.ids", "w")
-        json.dump(src_dst, outfile, indent=2)
+        json.dump(src_dst_dict, outfile, indent=2)
         outfile.close()
 
         # 予測モデル登録
@@ -804,7 +805,8 @@ class InventoryOperator(InventoryOperatorGUI):
         sys.stderr.write("辞書・フォルダーテーブルの記述子IDを新しくしています。\n")
         srcfile = self.folders_upd
         newfile = "folder_table.dat"
-        ret = translateOldNew(src_dst_filename, srcfile, newfile)
+        #ret = translateOldNew(src_dst_filename, srcfile, newfile)
+        ret = translateOldNew_with_table(src_dst_filename, srcfile, newfile)
 
         # 予測モジュール元先変換その１（記述子ID）
         sys.stderr.write("予測モジュールの記述子IDを新しい記述子IDに変更しています。\n")
@@ -818,7 +820,8 @@ class InventoryOperator(InventoryOperatorGUI):
                 prediction_module_files_temp.append(os.path.join(prediction_module_directory, newfile1))
                 newfile2 = os.path.splitext(prediction_module_filename)[0] + "_new.xml"
                 prediction_module_files_new.append(os.path.join(prediction_module_directory, newfile2))
-                ret = translateOldNew(src_dst_filename, prediction_module_filename, newfile1)
+                #ret = translateOldNew(src_dst_filename, prediction_module_filename, newfile1)
+                ret = translateOldNew_with_table(src_dst_filename, prediction_module_filename, newfile1)
 
         # 辞書・フォルダー元先変換その２（予測モデルID）
         sys.stderr.write("辞書・フォルダーテーブルの予測モデルIDを新しくしています。\n")
@@ -831,13 +834,15 @@ class InventoryOperator(InventoryOperatorGUI):
         else:
             srcfile = "folder_table.dat"
             newfile = self.folders_upd
-            ret = translateOldNew(src_dst_filename, srcfile, newfile)
+            #ret = translateOldNew(src_dst_filename, srcfile, newfile)
+            ret = translateOldNew_with_table(src_dst_filename, srcfile, newfile)
 
         # 予測モジュール元先変換その２（予測モデルID）
         sys.stderr.write("予測モジュールの予測モデルIDを新しい予測モデルIDに変更しています。\n")
         for i in range(len(prediction_module_files_temp)):
             if os.path.exists(prediction_module_files_temp[i]) is True:
-                ret2 = translateOldNew(src_dst_filename, prediction_module_files_temp[i], prediction_module_files_new[i])
+                #ret2 = translateOldNew(src_dst_filename, prediction_module_files_temp[i], prediction_module_files_new[i])
+                ret2 = translateOldNew_with_table(src_dst_filename, prediction_module_files_temp[i], prediction_module_files_new[i])
                 sys.stderr.write("新しい予測モジュールのファイル名は%sです。"%prediction_module_files_new[i])
 
         # 辞書とフォルダーの作成とインベントリの登録
@@ -889,7 +894,8 @@ class InventoryOperator(InventoryOperatorGUI):
         table_file = "old_new.lst"
         srcfile = self.folders_upd
         newfile = "folder_table.dat"
-        ret = translateOldNew(table_file, srcfile, newfile)
+        #ret = translateOldNew(table_file, srcfile, newfile)
+        ret = translateOldNew_with_table(table_file, srcfile, newfile)
 
         infile = open(newfile)
         folders_dict = json.load(infile)
@@ -1598,7 +1604,10 @@ class InventoryOperator(InventoryOperatorGUI):
                     #print("create subtree under the folder id(%s)"%item)
                     for subitem1 in items:
                         #print("subitem1 = %s"%subitem1)
-                        dict_id = self.m_treeCtrlSelectionsUpdate.GetItemData(self.UpdTree[item]).GetData()[0]
+                        if sys.version_info[0] <= 2:
+                            dict_id = self.m_treeCtrlSelectionsUpdate.GetItemData(self.UpdTree[item]).GetData()[0]
+                        else:
+                            dict_id = self.m_treeCtrlSelectionsUpdate.GetItemData(self.UpdTree[item])[0]
                         TreeItemData = wx.TreeItemData([dict_id, subitem1])
                         tree_item = self.m_treeCtrlSelectionsUpdate.AppendItem(self.UpdTree[item],
                                                                          items[subitem1][0],

@@ -90,7 +90,7 @@ def addDictionaryAndFolders(token, weburl, table):
 
     # 辞書・フォルダーの元先ファイル作成のため、辞書作成
     src_dst = {}
-    src_dst["%s/%s"(dict_id, table[dict_id]["folder_id"])] = "%s/%s"%(dictid, folderid)
+    src_dst["%s/%s"%(dict_id, table[dict_id]["folder_id"])] = "%s/%s"%(dictid, folderid)
 
     print("")
     print("Added new dictionary name(%s) / ID(%s) / Folder ID(%s)"%(name, dictid, folderid))
