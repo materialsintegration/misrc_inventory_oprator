@@ -21,7 +21,7 @@ siteid_table = {"dev-u-tokyo.mintsys.jp":2,
                 "nims.mintsys.jp":11,
                 "u-tokyo.mintsys.jp":1}
 
-def writeNewSrcDstList(src_id, dst_id):
+def writeNewSrcDstList(src_id, dst_id, from_host, to_host):
     '''
     DBができるまで、実行時ディレクトリに"predictions.ids"ファイルに予測モデルの元先リストを作成する。
     '''
@@ -36,7 +36,8 @@ def writeNewSrcDstList(src_id, dst_id):
     #d[src_id] = dst_id
     #json.dump(d, outfile, indent=4)
     #outfile.close()
-    history_db_package.addInventoryData("nims.mintsys.jp", "dev-u-tokyo.mintsys.jp", {src_id: dst_id}, "prediction_model")
+    #history_db_package.addInventoryData("nims.mintsys.jp", "dev-u-tokyo.mintsys.jp", {src_id: dst_id}, "prediction_model")
+    history_db_package.addInventoryData(from_host, to_host, {src_id: dst_id}, "prediction_model")
 
 def io_port_transform(p2_dict, url_from, url_to, history):
     '''
@@ -131,7 +132,7 @@ def prediction_add_model_type_code(prediction, version=5):
 
     return new_prediction
 
-def prediction_get(hostname, p_id, token=None):
+def prediction_get(hostname, versions, p_id, token=None):
     '''
     予測モデルの詳細を取得する
     @param hostname (string)
@@ -147,7 +148,7 @@ def prediction_get(hostname, p_id, token=None):
         sys.exit(1)
 
     session = requests.Session()
-    url = "https://%s:50443/inventory-api/v6/prediction-models/%s"%(hostname, p_id)
+    url = "https://%s:50443/inventory-api/%s/prediction-models/%s"%(hostname, versions["reference"], p_id)
     app_format = 'application/json'
     headers = {'Authorization': 'Bearer ' + token,
                'Content-Type': app_format,
@@ -155,8 +156,8 @@ def prediction_get(hostname, p_id, token=None):
 
     ret = session.get(url, headers=headers)
     if ret.status_code != 500:
-        print("%s の予測モデル(%s)の詳細情報を取得しました"%(p_id, ret.json()["preferred_name"]))
         #print(json.dumps(ret.json(), indent=2))
+        print("%s の予測モデル(%s)の詳細情報を取得しました"%(p_id, ret.json()["preferred_name"]))
         pass
     else:
         print(ret.text)
@@ -169,7 +170,7 @@ def prediction_get(hostname, p_id, token=None):
 
     return prediction, token
 
-def prediction_copy(prediction, hostname, token=None):
+def prediction_copy(prediction, hostname, token=None, versions={}):
     '''
     予測モデル複製
     コピー元、コピー先サイトが同じ場合はこちらを使用する。違う場合は、prediction_updateを使用する。
@@ -190,7 +191,7 @@ def prediction_copy(prediction, hostname, token=None):
                'Accept': app_format}
 
     session = requests.Session()
-    url = "https://%s:50443/inventory-update-api/v6/prediction-models"%hostname
+    url = "https://%s:50443/inventory-update-api/%s/prediction-models"%(hostname, versions["update"])
     #print(url)
     ret = session.post(url, headers=headers, json=new_prediction)
     if ret.status_code != 500:
@@ -200,9 +201,9 @@ def prediction_copy(prediction, hostname, token=None):
     newId = ret.json()["prediction_model_id"].split("/")[-1]
 
     # 元IDと複製した先IDをリスト保存
-    writeNewSrcDstList(srcId, newId)
+    writeNewSrcDstList(srcId, newId, from_host=hostname, to_host=hostname)
 
-def prediction_update(p1_dict, p2_dict, url_from, url_to, history, token=None, mode="update"):
+def prediction_update(p1_dict, p2_dict, url_from, url_to, versions, history, token=None, mode="update"):
     '''
     予測モデル更新
     予測モデル更新の他、違うサイトへの複製もこちらを使用する。
@@ -236,11 +237,11 @@ def prediction_update(p1_dict, p2_dict, url_from, url_to, history, token=None, m
 
     session = requests.Session()
     if mode == "copy":
-        url = "https://%s:50443/inventory-update-api/v6/prediction-models"%url_to
+        url = "https://%s:50443/inventory-update-api/%s/prediction-models"%(url_to, versions["update"])
         #print(url)
         ret = session.post(url, headers=headers, json=p2_dict)
     else:
-        url = "https://%s:50443/inventory-update-api/v6/prediction-models/%s"%(url_to, dst_p_id)
+        url = "https://%s:50443/inventory-update-api/%s/prediction-models/%s"%(url_to, versions["update"], dst_p_id)
         #print(url)
         ret = session.put(url, headers=headers, json=p2_dict)
 
@@ -264,7 +265,7 @@ def prediction_update(p1_dict, p2_dict, url_from, url_to, history, token=None, m
     #writeNewSrcDstList(src_p_id, dst_p_id)
     history_db_package.addInventoryData(url_from, url_to, {src_p_id: dst_p_id}, "prediction_model")
 
-def prediction_add_discriptor(prediction, p_id, hostname, token=None, d_ids=[]):
+def prediction_add_discriptor(prediction, p_id, hostname, versions, token=None, d_ids=[]):
     '''
     記述子追加
     @param prediction(dict) 予測モデル辞書
@@ -317,7 +318,7 @@ def prediction_add_discriptor(prediction, p_id, hostname, token=None, d_ids=[]):
             print("記述子のフォーマットが違います。Dxxxxxyyyyyyyyyy(%s)"%d_id)
             continue
 
-        url = "https://%s:50443/inventory-api/v6/descriptors/%s"%(hostname, d_id)
+        url = "https://%s:50443/inventory-api/%s/descriptors/%s"%(hostname, versions["reference"], d_id)
         ret = session.get(url, headers=headers)
         if ret.status_code != 200:
             print("記述子取得失敗")
@@ -358,7 +359,7 @@ def prediction_add_discriptor(prediction, p_id, hostname, token=None, d_ids=[]):
                 continue
             prediction["output_ports"].append(new_port)
 
-    url = "https://%s:50443/inventory-update-api/v6/prediction-models/%s"%(hostname, p_id)
+    url = "https://%s:50443/inventory-update-api/%s/prediction-models/%s"%(hostname, versions["update"], p_id)
     ret = session.put(url, headers=headers, json=prediction)
 
     outfile = open("prediction-%s.json"%p_id, "w")
@@ -391,6 +392,8 @@ def main():
     print_help = False
     d_id_filename = None
     d_ids = []
+    versions = {"reference":"v7", "update":"v8"}
+
     for i in range(1, len(sys.argv)):
         item = sys.argv[i].split(":")
         if item[0] == "misystem_from":
@@ -415,6 +418,10 @@ def main():
             print_help = True
         elif item[0] == "descriptor_ids":
             d_id_filename = item[1]
+        elif item[0] == "update_version":
+            versions["update"] = item[1]
+        elif item[0] == "reference_version":
+            versions["reference"] = item[1]
         else:
             print("不明なパラメータ(%s)です。"%item[0])
             print_help = True
@@ -422,7 +429,9 @@ def main():
     if mode is None:
         print("モードを指定してください。")
         print_help = True
-    if mode == "copy" and url_to is not None:
+    if mode == "copy" and url_to is None:
+        print("複製先の指定がないので、同じサイト内の複製となります。")
+    if mode == "copy":
         if history_db is not None:
             package_file_name = os.path.join(history_db, "inventory_ids.py")
             if os.path.exists(package_file_name) is False:
@@ -432,6 +441,9 @@ def main():
                 sys.path.append(history_db)
                 history_db_package = import_module("inventory_ids")
                 history_db_package.setDbDirectory(history_db)
+        else:
+            print("元さ機一元管理プログラムの指定がありません")
+            print_help = True
     elif mode == "copy" or mode == "get" or mode == "add_desc":
         if url_from is None or p_id is None:
             if p_id is None:
@@ -504,32 +516,35 @@ def main():
         sys.exit(1)
 
     if mode == "copy":
-        print("%s から %s へ %s の予測モデルを複製します。"%(url_from, url_to, p_id))
-        p_dict, token = prediction_get(url_from, p_id, token_from)
+        if url_to is None:
+            print("%s 内で %s の予測モデルを複製します。"%(url_from, p_id))
+        else:
+            print("%s から %s へ %s の予測モデルを複製します。"%(url_from, url_to, p_id))
+        p_dict, token = prediction_get(url_from, versions, p_id, token_from)
         if url_to is None and token_to is None:
             # 同じサイトへの複製
             url_to = url_from
-            token_to = token_from
-            prediction_copy(p_dict, url_to, token_to)
+            token_to = token
+            prediction_copy(p_dict, url_to, token_to, versions)
         else:
             # 違うサイトへの複製
             p2_dict = p_dict
-            prediction_update(p_dict, p2_dict, url_from, url_to, history_file, token_to, mode="copy")
+            prediction_update(p_dict, p2_dict, url_from, url_to, versions, history_file, token_to, mode="copy")
     elif mode == "get":
-        p_dict, token = prediction_get(url_from, p_id, token_from)
+        p_dict, token = prediction_get(url_from, versions, p_id, token_from)
     elif mode == "add_desc":
-        p_dict, token = prediction_get(url_from, p_id, token_from)
-        prediction_add_discriptor(p_dict, p_id, url_from, token, d_ids)
+        p_dict, token = prediction_get(url_from, versions, p_id, token_from)
+        prediction_add_discriptor(p_dict, p_id, url_from, versions, token, d_ids)
     elif mode == "update":
         # 更新元の情報取得
-        p1_dict, token = prediction_get(url_from, p_id, token_from)
+        p1_dict, token = prediction_get(url_from, versions, p_id, token_from)
         if url_to is None and token_to is None:
             url_to = url_from
             token_to = token_from
         # 更新先の情報取得
-        p2_dict, token_to = prediction_get(url_to, p_id_dest, token_to)
+        p2_dict, token_to = prediction_get(url_to, versions, p_id_dest, token_to)
         # 更新
-        prediction_update(p1_dict, p2_dict, url_from, url_to, history_file, token_to, mode="update")
+        prediction_update(p1_dict, p2_dict, url_from, url_to, versions, history_file, token_to, mode="update")
 
 if __name__ == '__main__':
     main()
