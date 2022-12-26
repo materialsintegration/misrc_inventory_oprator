@@ -368,7 +368,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         referenceURL = self.m_comboBoxReferenceURL.GetValue()
-        weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries'
+        weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["ref_version"] + userid + '/dictionaries'
 
         result, ret = apiAccess(token, weburl, debug_print=True)
 
@@ -383,7 +383,7 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.ref_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = 'https://%s:50443'%referenceURL + '/inventory-api/v%s/users/'%self.VersionList[referenceURL]["ref_version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
                     result, ret = apiAccess(token, weburl)
 
                     ret = ret.json()
@@ -416,7 +416,7 @@ class InventoryOperator(InventoryOperatorGUI):
             return
 
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries'
+        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["ref_version"] + userid + '/dictionaries'
 
         result, ret = apiAccess(token, weburl, debug_print=True)
         ret = ret.json()
@@ -430,7 +430,7 @@ class InventoryOperator(InventoryOperatorGUI):
         for items in self.upd_dictdict:
             for item in items:
                 if item == "dictionary_id":
-                    weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
+                    weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/users/'%self.VersionList[updateURL]["ref_version"] + userid + '/dictionaries/' + items[item].split("/")[-1]
                     result, ret = apiAccess(token, weburl)
                     ret = ret.json()
 
@@ -524,10 +524,10 @@ class InventoryOperator(InventoryOperatorGUI):
 
         url = self.m_comboBoxReferenceURL.GetValue()
         ReferenceURL = self.m_comboBoxReferenceURL.GetValue()
-        url = "https://%s:50443"%url + "/inventory-api/v%s"%self.VersionList[ReferenceURL]["version"]
+        url = "https://%s:50443"%url + "/inventory-api/v%s"%self.VersionList[ReferenceURL]["ref_version"]
 
         # 従来の方法でInventory情報を入手する
-        getInventory_main(url, self.VersionList[ReferenceURL]["version"])
+        getInventory_main(url, self.VersionList[ReferenceURL]["ref_version"])
 
         # 入手したInventory情報を１ID毎にばらす
         self.divideInventories()
@@ -552,15 +552,19 @@ class InventoryOperator(InventoryOperatorGUI):
             dialog.Destroy()
             return False, False
 
+        cwd = os.getcwd()
+        os.chdir(self.upd_workdir)
+        
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
         self.MakeConfigFile(userid, token, path, self.upd_workdir)
 
         url = self.m_comboBoxUpdateURL.GetValue()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        url = "https://%s:50443"%url + "/inventory-update-api/v%s"%self.VersionList[updateURL]["version"]
+        url = "https://%s:50443"%url + "/inventory-update-api/v%s"%self.VersionList[updateURL]["upd_version"]
 
         postInventory_main(url)
 
+        os.chdir(cwd)
         event.Skip()
 
     def m_buttonInventryUpdateWithDictFolderOnButtonClick( self, event ):
@@ -648,7 +652,7 @@ class InventoryOperator(InventoryOperatorGUI):
         descriptor_parser.read(self.descriptor_upd_conf)
         if descriptor_parser.has_section("authorize") is True:
             descriptor_parser.set("authorize", "hostPort", "%s:50443"%url)
-            descriptor_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["version"])
+            descriptor_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["upd_version"])
             descriptor_parser.set("authorize", "user_id", userid)
             descriptor_parser.set("authorize", "token", token)
             if descriptor_parser.has_option("authorize", "site") is True:
@@ -688,7 +692,7 @@ class InventoryOperator(InventoryOperatorGUI):
         prediction_parser.read(self.prediction_upd_conf)
         if prediction_parser.has_section("authorize") is True:
             prediction_parser.set("authorize", "hostPort", "%s:50443"%url)
-            prediction_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["version"])
+            prediction_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["upd_version"])
             prediction_parser.set("authorize", "user_id", userid)
             prediction_parser.set("authorize", "token", token)
         outfile = open(self.prediction_upd_conf, "w")
@@ -698,7 +702,7 @@ class InventoryOperator(InventoryOperatorGUI):
         software_tool_parser.read(self.software_tool_upd_conf)
         if software_tool_parser.has_section("authorize") is True:
             software_tool_parser.set("authorize", "hostPort", "%s:50443"%url)
-            software_tool_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["version"])
+            software_tool_parser.set("authorize", "apiversion", "%s"%self.VersionList[updateURL]["upd_version"])
             software_tool_parser.set("authorize", "user_id", userid)
             software_tool_parser.set("authorize", "token", token)
         outfile = open(self.software_tool_upd_conf, "w")
@@ -852,7 +856,7 @@ class InventoryOperator(InventoryOperatorGUI):
         if ret is True:
             sys.stderr.write("\n辞書・フォルダーの登録と記述子、予測モデル、ソフトウェアツールの辞書、フォルダーへの登録中...\n")
             sys.stderr.flush()
-            weburl = "https://%s:50443/inventory-update-api/v%s/users/%s/dictionaries"%(url, self.VersionList[updateURL]["version"], userid)
+            weburl = "https://%s:50443/inventory-update-api/v%s/users/%s/dictionaries"%(url, self.VersionList[updateURL]["upd_version"], userid)
             addDictionaryAndFolders(token, weburl, folders_dict)
 
         sys.stderr.write("\n")
@@ -885,7 +889,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         url = self.m_comboBoxUpdateURL.GetValue()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        url = "https://%s:50443"%url + "/inventory-update-api/v%s"%self.VersionList[updateURL]["version"]
+        url = "https://%s:50443"%url + "/inventory-update-api/v%s"%self.VersionList[updateURL]["upd_version"]
         print(url)
 
         postInventory_main(url)
@@ -901,7 +905,7 @@ class InventoryOperator(InventoryOperatorGUI):
         folders_dict = json.load(infile)
         infile.close()
         if ret is True:
-            weburl = "https://%s:50443/inventory-update-api/v%s/users/%s/dictionaries"%(url, userid, self.VersionList[updateURL]["version"])
+            weburl = "https://%s:50443/inventory-update-api/v%s/users/%s/dictionaries"%(url, userid, self.VersionList[updateURL]["upd_version"])
             addDictionaryAndFolders(token, weburl, folders_dict)
 
         event.Skip()
@@ -971,7 +975,7 @@ class InventoryOperator(InventoryOperatorGUI):
         path = url
         path = "users/" + self.m_staticTextUpdateUserID.GetLabel() + "/" + path
 
-        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"] + path
+        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["ref_version"] + path
         result, ret = apiAccess(token, weburl)
         ret = ret.json()
 
@@ -997,7 +1001,7 @@ class InventoryOperator(InventoryOperatorGUI):
 
         count = 0
         pcount = 1
-        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["version"]
+        weburl = 'https://%s:50443'%updateURL + '/inventory-api/v%s/'%self.VersionList[updateURL]["ref_version"]
         for item in results:
             #print("key = %s / contens = %s"%(item, results[item]))
             if item[0] == "D":                   # descriptors
@@ -1138,8 +1142,8 @@ class InventoryOperator(InventoryOperatorGUI):
 
         dict_folder = self.m_staticTextDictionaryAndFolderIDUpdate.GetLabel()
         updateURL = self.m_comboBoxUpdateURL.GetValue()
-        if self.VersionList[updateURL]["version"] != "1":
-            weburl = 'https://%s:50443'%updateURL + '/inventory-update-api/v%s/'%self.VersionList[updateURL]["version"]
+        if self.VersionList[updateURL]["upd_version"] != "1":
+            weburl = 'https://%s:50443'%updateURL + '/inventory-update-api/v%s/'%self.VersionList[updateURL]["upd_version"]
         else:
             weburl = 'https://%s:50443'%updateURL + '/inventory-api/v1/'
 
@@ -1735,9 +1739,12 @@ class InventoryOperator(InventoryOperatorGUI):
                     for i in range(len(usernames)):
                         self.UserList[item][usernames[i]] = userids[i] + ":" + tokenlist[i]
                 version = "3.0"
-                if parser.has_option(item, "version") is True:
-                    version = parser.get(item, "version")
-                self.VersionList[item]["version"] = version
+                if parser.has_option(item, "ref_version") is True:
+                    version = parser.get(item, "ref_version")
+                    self.VersionList[item]["ref_version"] = version
+                if parser.has_option(item, "upd_version") is True:
+                    version = parser.get(item, "upd_version")
+                    self.VersionList[item]["upd_version"] = version
 
         if ("Reference" in savevalue) is True:
             if ("UserID" in savevalue["Reference"]) is True:
