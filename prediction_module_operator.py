@@ -80,7 +80,7 @@ def getAllModulesViaAPI(hostname, token, allmodule_name="modules-all.xml"):
     outfile.close()
     return True
 
-def getModules(modules_filename, predictions, ident_nodelete=False):
+def getModules(modules_filename, predictions, ident_nodelete=False, version=None):
     '''
     XMLから指定のモジュールを切り出す。
     '''
@@ -115,11 +115,13 @@ def getModules(modules_filename, predictions, ident_nodelete=False):
         if len(candidate_modules[prediction_id]) == 0:
             print("予測モジュールid(%s)は登録がありませんでした。"%prediction_id)
     
-    print(len(candidate_modules))
+    #for item in candidate_modules:
+    #    print("対象ID(%s)の候補数：%d"%(item, len(candidate_modules[item])))
+    #print(len(candidate_modules))
     for prediction_id in candidate_modules:
         rev = 0
-        miner = 0
-        majer = 0
+        minor = 0
+        major = 0
         target_modules = []
         if len(candidate_modules[prediction_id]) != 0:
             for item in candidate_modules[prediction_id]:
@@ -131,21 +133,37 @@ def getModules(modules_filename, predictions, ident_nodelete=False):
                 v1 = int(subelem.text.split(".")[0])
                 v2 = int(subelem.text.split(".")[1])
                 v3 = int(subelem.text.split(".")[2])
-                if v1 >= majer or v2 >= miner or v3 >= rev:
+                if v1 >= major or v2 >= minor or v3 >= rev:
                     target_module = item
-                    majer = v1
-                    miner = v2
+                    major = v1
+                    minor = v2
                     rev = v3
-            target_modules.append(target_module)
+                target_modules.append(target_module)
     
             #root = ET.Element("modules", {"xmlns":"http://www.example.com/predictionModuleSchema", "xsi:schemaLocation":"http://www.example.com/predictionModuleSchema predictionModuleSchema.xsd"})
+            #print("%d.%d.%d"%(major, minor, rev))
             root = ET.Element("modules")
             for element in target_modules:
+                version_element = element.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
+                v1 = int(version_element.text.split(".")[0])
+                v2 = int(version_element.text.split(".")[1])
+                v3 = int(version_element.text.split(".")[2])
+                if version is not None:                 # バージョン指定があった場合
+                    if v1 == version[0] and v2 == version[1] and v3 == version[2]:
+                        pass
+                    else:
+                        continue
+                else:
+                    if v1 == major and v2 == minor and v3 == rev:
+                        pass
+                    else:
+                        continue
+                    
                 if ident_nodelete is False:
                     sube = element.find(".//dc:identifier", {'dc': 'http://purl.org/dc/elements/1.1/'})
                     element.remove(sube)
-                    sube = element.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
-                    sube.text = "1.0.0"
+                    #sube = element.find(".//predictionModuleSchema:version", {"predictionModuleSchema": "http://www.example.com/predictionModuleSchema"})
+                    version_element.text = "1.0.0"
                 root.append(element)
          
             new_tree = ET.ElementTree(element=root)
@@ -357,6 +375,7 @@ def main():
     history_db = None
     privileges = None
     token = None
+    version = None
     global history_db_package
 
     for item in sys.argv:
@@ -384,6 +403,15 @@ def main():
             privileges = items[1].split(",")
         elif items[0] == "token":
             token = items[1]
+        elif items[0] == "version":
+            vcheck = items[1].split(".")
+            if len(vcheck) == 3:
+                try:
+                    version = [int(vcheck[0]), int(vcheck[1]), int(vcheck[2])]
+                except:
+                    print("バージョンチェック異常(%s)"%items[1])
+            else:
+                print("バージョンチェック異常(%s)"%items[1])
         #else:
         #    modules_filename = item
 
@@ -412,7 +440,7 @@ def main():
 
         if getAllModulesViaAPI(misystem_from, token) is False:
             go_help = True
-        getModules(modules_filename, predictions, ident_nodelete)
+        getModules(modules_filename, predictions, ident_nodelete, version)
     elif process_mode == "import":
         # モジュールインポートモード
         new_modules = []
@@ -455,7 +483,7 @@ def main():
 
     if go_help is True:
         print("")
-        print("Usage python3.6 %s mode:<mode> predictions:<prediction_id>,[<prediction_id>,<prediction_id>,...] modulesfile:<modules.xml> misystem_from:サイトURL [misystem_to:サイトURL] [privileges:<user_group ID>,<user_group ID>,...] [--ident-nodelete]"%sys.argv[0])
+        print("Usage python3.6 %s mode:<mode> predictions:<prediction_id>,[<prediction_id>,<prediction_id>,...] modulesfile:<modules.xml> misystem_from:サイトURL [misystem_to:サイトURL] [privileges:<user_group ID>,<user_group ID>,...] [--ident-nodelete] [version:x.y.z]"%sys.argv[0])
         print("")
         print("    予測モジュール切り出し、送り込みプログラム")
         print("    バージョン番号は、最新（各数字が最大）のもの")
@@ -463,10 +491,13 @@ def main():
         print("予測モデル切り出し(アセットAPI使用)")
         print("             mode : export")
         print("    misystem_from : export対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)")
+        print("          version : export対象のバージョン（x.y.z）")
+        print("")
         print("予測モデル切り出し(全予測モジュールファイル使用)")
         print("             mode : file")
         print("       modulefile : asset管理画面から、exportした全予測もジュールの入ったXMLファイル。")
         print("                    predictionsで指定した予測モジュールを切り出す。")
+        print("")
         print("export/file 共通")
         print("      predictions : Pで始まる予測モジュール番号。複数指定可。")
         print(" --ident-nodelete : identifierタグを削除しない。versionを1.0.0に変更しない")
