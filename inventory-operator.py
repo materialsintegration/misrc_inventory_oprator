@@ -673,7 +673,7 @@ class InventoryOperator(InventoryOperatorGUI):
         for src_item in src_table:
             noNeedCopy = False
             for item in src_dst:
-                if "inventory_%s.json"%item == src_item:
+                if "inventory_%s.json"%item == src_item and src_dst[item] is not None:
                     noNeedCopy = True
             if noNeedCopy is False:
                 new_list.append(src_item)
@@ -716,6 +716,11 @@ class InventoryOperator(InventoryOperatorGUI):
             # 一元管理データとの照合で新規コピーの必要が無い場合
             sys.stderr.write("新規登録する記述子はありません。")
             sys.stderr.flush()
+            dialog = wx.MessageDialog(self, u"新規登録する記述子はありません。",style=wx.OK)
+            dialog.ShowModal()
+            dialog.Destroy()
+            os.chdir(cwd)
+            return False, False
         else:
             cmd = "python3.6 %s/script/opeInventory3.py %s"%(self.modulecopy_directory, self.descriptor_upd_conf)
             sys.stderr.write("記述子登録中...%s\n%s"%(os.getcwd(), cmd))
@@ -732,7 +737,9 @@ class InventoryOperator(InventoryOperatorGUI):
                     if not line and ret.poll() is not None:
                         break
             else:
-                stdout, stderr = ret.communicate()
+                pass
+
+            stdout, stderr = ret.communicate()
     
             # 新規コピー動作の確認
             if ret.returncode != 0:

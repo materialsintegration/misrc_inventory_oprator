@@ -105,7 +105,8 @@ def addDictionaryAndFolders(token, weburl, table):
         ret, result = apiAccess(token, url, "post", body, debug_print=True)
     #for item in table["folders"]:
     #    addDictionaryAndFolders(folders_dict)
-    ret = addFolder(token, weburl, dictid, folderid, table[dict_id]["folders"], src_dst)
+    #ret = addFolder(token, weburl, dictid, folderid, table[dict_id]["folders"], src_dst)
+    ret = addFolder(token, weburl, dictid, folderid, table[dict_id]["folders"])
 
     # 辞書・フォルダーIDの元先リスト再構築
     for item in ret:
