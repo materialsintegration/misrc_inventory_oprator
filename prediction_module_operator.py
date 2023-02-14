@@ -376,7 +376,9 @@ def main():
     privileges = None
     token = None
     version = None
+    apiversion = None
     global history_db_package
+    global api_version
 
     for item in sys.argv:
         if item == "--ident-nodelete":
@@ -412,9 +414,14 @@ def main():
                     print("バージョンチェック異常(%s)"%items[1])
             else:
                 print("バージョンチェック異常(%s)"%items[1])
+        elif items[0] == "api_version":
+            apiversion = items[1]
         #else:
         #    modules_filename = item
 
+    # APIバージョン確認
+    if apiversion is not None:
+        api_version[misystem_from] = apiversion
     print(str(predictions))
     print(modules_filename)
     if process_mode == "file":
@@ -440,7 +447,8 @@ def main():
 
         if getAllModulesViaAPI(misystem_from, token) is False:
             go_help = True
-        getModules(modules_filename, predictions, ident_nodelete, version)
+        else:
+            getModules(modules_filename, predictions, ident_nodelete, version)
     elif process_mode == "import":
         # モジュールインポートモード
         new_modules = []
@@ -491,7 +499,8 @@ def main():
         print("予測モデル切り出し(アセットAPI使用)")
         print("             mode : export")
         print("    misystem_from : export対象のサイト名(e.g. dev-u-tokyo.mintsys.jp)")
-        print("          version : export対象のバージョン（x.y.z）")
+        print("          version : export対象のバージョン（e.g. x.y.z）")
+        print("      api_version : アセットAPIのバージョン指定（e.g. v3 or v4）")
         print("")
         print("予測モデル切り出し(全予測モジュールファイル使用)")
         print("             mode : file")
